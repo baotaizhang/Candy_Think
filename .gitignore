@@ -1,0 +1,5 @@
+# 「config」フォルダを除外
+config/
+
+# 「.DS_Store」や「._.DS_Store」を除外
+*.DS_Store

@@ -3,18 +3,16 @@ var _ = require('underscore');
 var candyThink = function(storage){
 
     this.storage = storage;
-    this.sqlResult;
 
     _.bindAll(this,
-        'arbitrage',
-        'mySQLCB'
+        'arbitrage'
     );
 }
 
 //---EventEmitter Setup
 var Util = require('util');
 var EventEmitter = require('events').EventEmitter;
-Util.inherits(firebaseConnector, EventEmitter);
+Util.inherits(candyThink, EventEmitter);
 //---EventEmitter Setup
 
 candyThink.prototype.arbitrage = function(boards){
@@ -24,13 +22,13 @@ candyThink.prototype.arbitrage = function(boards){
             time: moment().format("YYYY-MM-DD HH:mm:ss"),
             asks: response.result.XETHXXBT.asks,
             bids: response.result.XETHXXBT.bids
-            exchange: 'kralen'
+            name: 'kralen'
         },
         {   
             time: moment().format("YYYY-MM-DD HH:mm:ss"),
             bids: response.bids,
             asks: response.asks,
-            exchange: 'bitflyer'
+            name: 'bitflyer'
         }];
         // bids以下は例えば・・・
         bids = [{
@@ -43,6 +41,9 @@ candyThink.prototype.arbitrage = function(boards){
             }....
         ]
     */
+
+    console.log('board[0] exchange = ' + boards[0].name + '. Time = ' + boards[0].time);
+    console.log('board[1] exchange = ' + boards[1].name + '. Time = ' + boards[1].time);
 
     var order = [
         {
@@ -66,14 +67,12 @@ candyThink.prototype.arbitrage = function(boards){
 
     ];
 
-    storage.mySQLQuery(sql, value, this.sqlCB);
-
     // orderがなければnullをorderにセット
     this.emit('update', order);
 
 }
 
-// Just an example
+/* Just an example
 candyThink.prototype.mySQLCB = function(err, result){
     if(err){
         console.log(err);
@@ -83,5 +82,7 @@ candyThink.prototype.mySQLCB = function(err, result){
         this.sqlResult = result;
     }
 });
+
+*/
 
 module.exports = candyThink;

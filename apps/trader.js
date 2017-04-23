@@ -45,6 +45,14 @@ var trader = function(){
         //aggregator.update(board);
 
     });
+
+    candyThink.on('update', function(order){
+    
+        console.log('order created.' + order[0].side + ' & ' + order[1].side);
+
+    });
+
+
     /* 
     aggregator.on('update', function(boards){
 
@@ -53,13 +61,6 @@ var trader = function(){
  
 
     });
-
-    candyThink.on('update', function(order){
-    
-        console.log('order created.' + order);
-
-    })
-
     
     agent.on('update', function(order){
     

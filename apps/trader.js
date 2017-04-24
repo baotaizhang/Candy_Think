@@ -82,6 +82,7 @@ trader.prototype.start = function() {
 trader.prototype.stop = function(cb) {
 
     connector.stop();
+    this.emit('done');
 
 };
 

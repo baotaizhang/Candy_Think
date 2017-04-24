@@ -6,29 +6,55 @@
 
 var _ = require('underscore');
 
+var loggingservice = require(__dirname + '/services/loggingservice.js');
+
 var app = function(){
  
-    _.bindAll(this, 'launchTrader','launchBacktester', 'start');  
+    _.bindAll(this, 'initializeLogger', 'appListener', 'launchTrader','launchBacktester', 'start');  
     
+};
+
+app.prototype.initializeLogger = function(appName) {
+
+    this.logger = new loggingservice(appName);
+
+};
+
+app.prototype.appListener = function() {
+
+    this.app.on('done', function() {
+        this.logger.log('----------------------------------------------------');
+        this.logger.log('App closed.');
+        this.logger.log('----------------------------------------------------');
+    }.bind(this));
+
+    this.app.on('restart', function() {
+        this.logger.log('----------------------------------------------------');
+        this.logger.log('App rebooting.....');
+        this.logger.log('----------------------------------------------------');
+    }.bind(this));
+
 };
 
 app.prototype.launchTrader = function(){
 
-    console.log('----------------------------------------------------');
-    console.log('Production mode init.')
-    console.log('Launching trader module.');
-    console.log('----------------------------------------------------');
+    this.logger.log('----------------------------------------------------');
+    this.logger.log('Production mode init.')
+    this.logger.log('Launching trader module.');
+    this.logger.log('----------------------------------------------------');
     this.app = require(__dirname + '/apps/trader.js');
+    this.appListener();
     this.app.start();
 
 }
 
 app.prototype.launchBacktester = function() {
 
-    console.log('----------------------------------------------------');
-    console.log('Backtest mode init.')
-    console.log('Launching backtest module.');
-    console.log('----------------------------------------------------');
+    this.logger.log('----------------------------------------------------');
+    this.logger.log('Backtest mode init.')
+    this.logger.log('Launching backtest module.');
+    this.logger.log('----------------------------------------------------');
+    this.appListener();
     this.app = require(__dirname + '/apps/backtester.js');
     this.app.start();
 
@@ -55,11 +81,13 @@ app.prototype.start = function(){
 
     }
 
+    this.initializeLogger(this.appName);
+
     // AnnounceStart
-    console.log('----------------------------------------------------');
-    console.log('Starting CandyThink');
-    console.log('Working Dir = ' + process.cwd());
-    console.log('----------------------------------------------------');
+    this.logger.log('----------------------------------------------------');
+    this.logger.debug('Starting CandyThink');
+    this.logger.log('Working Dir = ' + process.cwd());
+    this.logger.log('----------------------------------------------------');
 
     if(this.run) {
 
@@ -67,13 +95,14 @@ app.prototype.start = function(){
 
     } else {
 
-        console.log('Invalid argument, supported options:');
-        console.log(': Launch Real trader');
-        console.log('-b: Launch Backtester');
+        this.logger.log('----------------------------------------------------');
+        this.logger.log('Invalid argument, supported options:');
+        this.logger.log(': Launch Real trader');
+        this.logger.log('-b: Launch Backtester');
+        this.logger.log('----------------------------------------------------');
 
     }
 }
 
 var candyThink = new app();
 candyThink.start();
-

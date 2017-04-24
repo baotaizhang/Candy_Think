@@ -1,5 +1,8 @@
-# 「config」フォルダを除外
+# ignore config
 config/
 
-# 「.DS_Store」や「._.DS_Store」を除外
+# ignore .DS_Store and ._.DS_Store
 *.DS_Store
+
+# ignore logs
+logs/

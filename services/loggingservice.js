@@ -3,6 +3,7 @@ var _ = require('underscore');
 var winston = require('winston');
 require('winston-daily-rotate-file');
 var fs = require('fs');
+var util = require('util');
 
 var logger = function(app, setting) {
 
@@ -47,7 +48,7 @@ var logger = function(app, setting) {
 
 logger.prototype.log = function(message) {
 
-    this.logger.log('INFO', message);
+    this.logger.log('INFO', util.inspect(message));
 
 };
 
@@ -55,7 +56,7 @@ logger.prototype.debug = function(message) {
 
     if(this.debugEnabled) {
 
-        this.logger.log('DEBUG', message);
+        this.logger.log('DEBUG', util.inspect(message));
 
     }
 
@@ -63,7 +64,7 @@ logger.prototype.debug = function(message) {
 
 logger.prototype.error = function(message) {
 
-    this.logger.log('ERROR', message);
+    this.logger.log('ERROR', util.inspect(message));
 
 };
 

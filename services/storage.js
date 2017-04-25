@@ -47,6 +47,17 @@ storage.prototype.pushBoard = function(board, callback){
 
 }
 
+storage.prototype.settingConnection = function(cb){
+
+    this.FirebaseAccess.child('think/settings').on("child_added", function(snapshot) {
+        var data = snapshot.val();
+        data.name = 'settings';
+        cb(data);
+    }, function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+    });
+}
+
 storage.prototype.connection = function(cb){
 
     this.FirebaseAccess.child('think/bitflyer/v1/getboard/ETH_BTC/board').on("child_added", function(snapshot) {

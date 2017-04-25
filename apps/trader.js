@@ -3,6 +3,8 @@ var connectorService = require(__dirname + '/../services/connector.js');
 var storageService = require(__dirname + '/../services/storage.js');
 var processorService = require(__dirname + '/../services/processor.js');
 var candyThinkService = require(__dirname + '/../services/candyThink.js');
+var loggingservice = require(__dirname + '/../services/loggingservice.js');
+var settingService = require(__dirname + '/../services/settingService.js');
 
 /*
 var aggregatorService = require(__dirname + '/services/aggregator.js'); 
@@ -15,6 +17,8 @@ var storage = new storageService(candyConfig);
 var connector = new connectorService(storage);
 var processor = new processorService(storage);
 var candyThink = new candyThinkService();
+var logger = new loggingservice('trader');
+var setting = new settingService(storage, logger);
 
 /*
 var aggregator = new aggregatorService();
@@ -22,6 +26,8 @@ var agent = new agentService();
 */
 
 var trader = function(){
+
+    setting.connection();
 
     connector.on('receiveBoard', function(board){
     
@@ -91,6 +97,8 @@ var Util = require('util');
 var EventEmitter = require('events').EventEmitter;
 Util.inherits(trader, EventEmitter);
 //---EventEmitter Setup
+
+
 
 var traderApp = new trader();
 

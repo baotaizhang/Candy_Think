@@ -8,13 +8,14 @@ var _ = require('underscore');
 
 var loggingservice = require(__dirname + '/services/loggingservice.js');
 
+
 var app = function(){
  
-    _.bindAll(this, 'initializeLogger', 'appListener', 'launchTrader','launchBacktester', 'start');  
+    _.bindAll(this, 'initializeModule', 'appListener', 'launchTrader','launchBacktester', 'start');  
     
 };
 
-app.prototype.initializeLogger = function(appName) {
+app.prototype.initializeModule = function(appName) {
 
     this.logger = new loggingservice(appName);
 
@@ -81,7 +82,7 @@ app.prototype.start = function(){
 
     }
 
-    this.initializeLogger(this.appName);
+    this.initializeModule(this.appName);
 
     // AnnounceStart
     this.logger.log('----------------------------------------------------');

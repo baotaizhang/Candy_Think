@@ -1,16 +1,16 @@
 var _ = require('underscore');
-var loggingservice = require(_dirname + 'loggingservice.js');
+var settingService = require(__dirname + '/settingService.js');
 
-var logger = new loggingservice('setting', config.debug);
-
-var setting = function(storage){
+var setting = function(storage, logger){
 
     this.storage = storage;
+    this.logger = logger;
     this.candySetting = {};
+    _.bindAll(this, 'bindSetting', 'connection');
 
 }
 
-setting.prototype.bind(settings){
+setting.prototype.bindSetting = function(settings){
 
     this.logger.log('Settings updated.');
     this.logger.log(settings);
@@ -20,8 +20,8 @@ setting.prototype.bind(settings){
 
 setting.prototype.connection = function(){
 
-    storage.prototype.settingsConnection(this.bind);
+    this.storage.settingConnection(this.bindSetting);
 
 }
 
-module.exports = settings;
+module.exports = setting;

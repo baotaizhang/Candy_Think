@@ -26,8 +26,6 @@ Util.inherits(candyThink, EventEmitter);
 */
 candyThink.prototype.arbitrage = function(boards){
 
-    //order情報の初期値をセット
-    var order = null
     //1.ask(売注文 =買える)算出
     var boardsAsk = boards;
     //filter ask Board
@@ -55,9 +53,7 @@ candyThink.prototype.arbitrage = function(boards){
 
     //2.ask_bid比較
     var boardsBid = boards;
-    if(_.size(boardsAsk_filter) == 0){
-        order = null
-    }else{
+    if(_.size(boardsAsk_filter) !== 0){
         _.every(boardsAsk_filter, function(eachboardAsk){
             //2.1.bid算出
             var boardsBid_filter = 
@@ -119,7 +115,8 @@ candyThink.prototype.arbitrage = function(boards){
     // orderがなければnullをorderにセット
     this.emit('update', this.order);
 
-/* いくらの売り買いか確認
+// いくらの売り買いか確認
+/*
     var price_buy = 0;
     var num_buy = 0;
     _.each(_.where(this.order, {side: "BUY"}),function(buylist,key){

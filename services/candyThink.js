@@ -119,6 +119,24 @@ candyThink.prototype.arbitrage = function(boards){
     // orderがなければnullをorderにセット
     this.emit('update', this.order);
 
+/* いくらの売り買いか確認
+    var price_buy = 0;
+    var num_buy = 0;
+    _.each(_.where(this.order, {side: "BUY"}),function(buylist,key){
+        price_buy = price_buy + buylist.price * buylist.size;
+        num_buy = num_buy + buylist.size;
+    });
+    var price_sell = 0;
+    var num_sell = 0;
+    _.each(_.where(this.order, {side: "SELL"}),function(selllist,key){
+        price_sell = price_buy + selllist.price * selllist.size;
+        num_sell = num_sell + selllist.size;
+    });
+    console.log("price_buy:"+price_buy + "    num_buy:" + num_buy);
+    console.log("price_sell:"+price_sell + "    num_sell:" + num_sell);
+    console.log("total:"+(price_sell-price_buy));
+*/
+
     //orderをclear
     this.orderclear();
 

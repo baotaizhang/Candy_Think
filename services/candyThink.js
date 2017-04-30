@@ -12,6 +12,7 @@ var candyThink = function(storage){
     );
 
     this.order = [];
+    this.balance = {};
 
 }
 
@@ -24,8 +25,17 @@ Util.inherits(candyThink, EventEmitter);
 /* arbitrage 
 ** 5分に1回全ての板情報を計算する。都度計算は行わない。
 */
-candyThink.prototype.arbitrage = function(boards){
-
+candyThink.prototype.arbitrage = function(boards,balance,callback){
+     var candySetting = 
+    { 
+        arbitrage: { delay: 60, ownexchange: 0, spread: 10 },
+        backTesterSettings: { initialAssetBalance: 0, initialCurrencyBalance: 0 },
+        debug: true,
+        exchangeSettings: { exchanges: [ 'craken', 'bitflyer' ] },
+        'tradingEnabled ': false,
+        name: 'settings'
+    };
+    this.balance = balance;
     //1.ask(売注文 =買える)算出
     var boardsAsk = boards;
     //filter ask Board
@@ -33,13 +43,13 @@ candyThink.prototype.arbitrage = function(boards){
         _.filter(boardsAsk, function(askboards){
             return (
                 //askのデータを抽出
-                askboards.ask_bid == "ask"
+                askboards.ask_bid === "ask"
                 //bidのmax値 > askのamountを抽出
                 && askboards.amount <
                     _.max(
                         //firstArgument:list bidで絞り込んだboard
                         _.filter(boards, function(boards){
-                            return (boards.ask_bid == "bid") 
+                            return (boards.ask_bid === "bid") 
                         }),
                         //関数内のreturnで返した値(amount)を軸として最大値だったオブジェクトを返す。
                         function(bidboard){
@@ -56,18 +66,32 @@ candyThink.prototype.arbitrage = function(boards){
     if(_.size(boardsAsk_filter) !== 0){
         _.every(boardsAsk_filter, function(eachboardAsk){
             //2.1.bid算出
-            var boardsBid_filter = 
-                _.filter(boardsBid, function(bidboards){
-                    return (
-                        //bidのデータを抽出
-                        bidboards.ask_bid == "bid"
-                        //bidのamout > 1.ask(売注文 =買える)算出で取得したamountを抽出
-                        && bidboards.amount > eachboardAsk.amount
-                    ) 
-                });
+            if(candySetting.arbitrage.ownexchange === 0){
+                var boardsBid_filter = 
+                    _.filter(boardsBid, function(bidboards){
+                        return (
+                            //bidのデータを抽出
+                            bidboards.ask_bid === "bid"
+                            //bidのamout > 1.ask(売注文 =買える)算出で取得したamountを抽出
+                            && bidboards.amount > eachboardAsk.amount
+                            //自身の取引所は含めない(ownexchange === 0の場合)
+                            && bidboards.exchange_type !== eachboardAsk.exchange_type
+                        ) 
+                    });
+            }else{
+                var boardsBid_filter = 
+                    _.filter(boardsBid, function(bidboards){
+                        return (
+                            //bidのデータを抽出
+                            bidboards.ask_bid === "bid"
+                            //bidのamout > 1.ask(売注文 =買える)算出で取得したamountを抽出
+                            && bidboards.amount > eachboardAsk.amount
+                        ) 
+                    });
+            }
             //order by desc of amount
             boardsBid_filter = _.sortBy(boardsBid_filter, 'amount').reverse();
-            if(_.size(boardsBid_filter) == 0){
+            if(_.size(boardsBid_filter) === 0){
                 return false
             }else{
                 _.every(boardsBid_filter, function(eachboardsBid){
@@ -94,7 +118,7 @@ candyThink.prototype.arbitrage = function(boards){
                         
                         //break this loop
                         return false;
-                    }else if(eachboardAsk.num == eachboardsBid.num ){
+                    }else if(eachboardAsk.num === eachboardsBid.num ){
                         //①-1 Order : 2.1.bid算出で算出したデータの売注文(bidを売る)をテーブルに登録する
                         //①-2 Order : 1.ask算出で算出したデータの買注文(askを買う)をテーブルに登録する(売注文(bid)と同じ量)
                         this.orderpush(eachboardAsk,eachboardsBid,eachboardsBid.num);
@@ -113,60 +137,79 @@ candyThink.prototype.arbitrage = function(boards){
     }
 
     // orderがなければnullをorderにセット
-    this.emit('update', this.order);
+    callback(this.order);
 
 // いくらの売り買いか確認
-/*
+
     var price_buy = 0;
     var num_buy = 0;
-    _.each(_.where(this.order, {side: "BUY"}),function(buylist,key){
+    _.each(_.where(this.order, {result: "BUY"}),function(buylist,key){
         price_buy = price_buy + buylist.price * buylist.size;
         num_buy = num_buy + buylist.size;
     });
     var price_sell = 0;
     var num_sell = 0;
-    _.each(_.where(this.order, {side: "SELL"}),function(selllist,key){
-        price_sell = price_buy + selllist.price * selllist.size;
+    _.each(_.where(this.order, {result: "SELL"}),function(selllist,key){
+        price_sell = price_sell + selllist.price * selllist.size;
         num_sell = num_sell + selllist.size;
     });
     console.log("price_buy:"+price_buy + "    num_buy:" + num_buy);
     console.log("price_sell:"+price_sell + "    num_sell:" + num_sell);
     console.log("total:"+(price_sell-price_buy));
-*/
 
     //orderをclear
     this.orderclear();
-
 }
 
 
 /* orderpush 
 ** orderを追加
 */
-candyThink.prototype.orderpush = function(eachboardAsk,eachboardsBid,num){
+candyThink.prototype.orderpush = function(eachboardAsk,eachboardBid,num){
 
-    var ask_order = 
-        {
-            exchange : eachboardAsk.exchange,
-            child_order_type: "LIMIT",
-            side: "BUY",
-            price: eachboardAsk.amount,
-            size: num,
-            minute_to_expire: 0,
-            time_in_force: "GTC"
-        }
-    var bid_order = 
-        {
-            exchange : eachboardsBid.exchange,
-            child_order_type: "LIMIT",
-            side: "SELL",
-            price: eachboardsBid.amount,
-            size: num,
-            minute_to_expire: 0,
-            time_in_force: "GTC"
-        }
-    this.order.push(ask_order);
-    this.order.push(bid_order);
+    var balance_ask = _.where(this.balance, {currency_code: eachboardAsk.product_code.split ("_")[1],exchange : eachboardAsk.exchange});
+    var balance_bid = _.where(this.balance, {currency_code: eachboardBid.product_code.split ("_")[0],exchange : eachboardBid.exchange});
+
+    var cost_ask = eachboardAsk.amount * num;
+    var num_order = 0;
+    var calucrate = 0;
+    var ask_order = [];
+    var bid_order = [];
+    if((balance_ask[0].amount > 0 && balance_bid[0].amount > 0) && (balance_ask[0].amount >= cost_ask && balance_bid[0].amount >= num)){
+        num_order = num;
+        calucrate = 1;
+        _.where(this.balance, {currency_code: eachboardAsk.product_code.split ("_")[1],exchange : eachboardAsk.exchange})[0].amount = balance_ask[0].amount - cost_ask;
+        _.where(this.balance, {currency_code: eachboardBid.product_code.split ("_")[0],exchange : eachboardBid.exchange})[0].amount = balance_bid[0].amount - num;
+    }else if((balance_ask[0].amount > 0 && balance_bid[0].amount > 0) && (balance_ask[0].amount < cost_ask && balance_bid[0].amount >= num)){
+        num_order = balance_ask[0].amount / eachboardAsk.amount;
+        calucrate = 1;
+        _.where(this.balance, {currency_code: eachboardAsk.product_code.split ("_")[1],exchange : eachboardAsk.exchange})[0].amount = 0;
+        _.where(this.balance, {currency_code: eachboardBid.product_code.split ("_")[0],exchange : eachboardBid.exchange})[0].amount = balance_bid[0].amount - num_order;
+    }else if((balance_ask[0].amount > 0 && balance_bid[0].amount > 0) && (balance_ask[0].amount >= cost_ask && balance_bid[0].amount < num) ){
+        num_order = balance_bid[0].amount;
+        calucrate = 1;
+        _.where(this.balance, {currency_code: 'JPY',exchange : eachboardAsk.exchange})[0].amount = balance_ask[0].amount - (eachboardAsk.amount * num_order);
+        _.where(this.balance, {currency_code: eachboardBid.product_code.split ("_")[0],exchange : eachboardBid.exchange})[0].amount = 0;
+    }
+    //console.log(this.balance);
+    if(calucrate === 1 && num_order <= num){
+        ask_order = 
+            {
+                result : "BUY",
+                exchange : eachboardAsk.exchange,
+                price: eachboardAsk.amount,
+                size: num_order
+            }
+        bid_order = 
+            {
+                result : "SELL",
+                exchange : eachboardBid.exchange,
+                price: eachboardBid.amount,
+                size: num_order
+            }
+        this.order.push(ask_order);
+        this.order.push(bid_order);
+    }
 
 }
 

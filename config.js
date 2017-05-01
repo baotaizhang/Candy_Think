@@ -1,7 +1,7 @@
 var config = {};
 
 config.init = function () {
-    var filename = __dirname+"/config/candyConfig.json";
+    var filename = __dirname+"/candyConfig/candyConfig.json";
     var text = require("fs").readFileSync(filename);
     if(!text) {
         throw new Error("Couldn't read config file "+filename);

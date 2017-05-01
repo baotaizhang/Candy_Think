@@ -1,10 +1,11 @@
 var _ = require('underscore');
 var moment = require('moment');
+var async = require('async');
 
 var storage = function(candyConfig){
 
     var admin = require("firebase-admin");
-    var serviceAccount = require(__dirname + "/../config/candy-crypto-chart-firebase-adminsdk-szicg-bee5dc8975.json");
+    var serviceAccount = require(__dirname + "/../candyConfig/candy-crypto-chart-firebase-adminsdk-szicg-bee5dc8975.json");
 
     //to check if Firebase has already been initialized.
     if (admin.apps.length === 0) {
@@ -77,5 +78,38 @@ storage.prototype.connection = function(cb){
     });
 
 };
+
+storage.prototype.getAggregatedBoards = function(cb){
+
+    var exchanges = {
+        bitflyer : 'crypto/bitflyer/v1/getboard/ETH_BTC/board',
+        kraken : 'crypto/kraken/0/public/Depth/XETHXXBT'
+    };
+
+    var aggregatedBoards = {};
+
+    async.each(exchanges, function(exchange, next){
+
+        this.FirebaseAccess.child(exchange).orderByChild("time").limitToLast(3).once("value").then(function(snapshot) {
+            var data = snapshot.val();
+            data.name = exchanges.indexOf(exchange);
+            aggregatedBoards[exchanges.indexOf(exchange)] = data;
+        }, function (errorObject) {
+            console.log("The read failed: " + errorObject.code);
+        });
+
+        next();
+        
+    }, function(err){
+
+        if(!err) {
+            console.log(err);
+            cb(err);
+        }
+
+        cb(aggregatedBoards);
+
+    });
+}
 
 module.exports = storage;

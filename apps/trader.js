@@ -27,7 +27,7 @@ var agent = new agentService();
 
 var trader = function(){
 
-    setting.connection();
+    // setting.connection();
 
     connector.on('receiveBoard', function(board){
     

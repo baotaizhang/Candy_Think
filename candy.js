@@ -55,8 +55,8 @@ app.prototype.launchBacktester = function() {
     this.logger.log('Backtest mode init.')
     this.logger.log('Launching backtest module.');
     this.logger.log('----------------------------------------------------');
-    this.appListener();
     this.app = require(__dirname + '/apps/backtester.js');
+    this.appListener();
     this.app.start();
 
 };

@@ -11,7 +11,7 @@ var loggingservice = require(__dirname + '/services/loggingservice.js');
 
 var app = function(){
  
-    _.bindAll(this, 'initializeModule', 'appListener', 'launchTrader','launchBacktester', 'start');  
+    _.bindAll(this, 'initializeModule', 'launchTrader','launchBacktester', 'start');  
     
 };
 
@@ -21,21 +21,6 @@ app.prototype.initializeModule = function(appName) {
 
 };
 
-app.prototype.appListener = function() {
-
-    this.app.on('done', function() {
-        this.logger.log('----------------------------------------------------');
-        this.logger.log('App closed.');
-        this.logger.log('----------------------------------------------------');
-    }.bind(this));
-
-    this.app.on('restart', function() {
-        this.logger.log('----------------------------------------------------');
-        this.logger.log('App rebooting.....');
-        this.logger.log('----------------------------------------------------');
-    }.bind(this));
-
-};
 
 app.prototype.launchTrader = function(){
 
@@ -44,7 +29,6 @@ app.prototype.launchTrader = function(){
     this.logger.log('Launching trader module.');
     this.logger.log('----------------------------------------------------');
     this.app = require(__dirname + '/apps/trader.js');
-    this.appListener();
     this.app.start();
 
 }
@@ -56,7 +40,6 @@ app.prototype.launchBacktester = function() {
     this.logger.log('Launching backtest module.');
     this.logger.log('----------------------------------------------------');
     this.app = require(__dirname + '/apps/backtester.js');
-    this.appListener();
     this.app.start();
 
 };
@@ -68,7 +51,9 @@ app.prototype.start = function(){
     if(!argument){
 
         this.appName = 'trader';
+        /*
         this.run = this.launchTrader;
+        */
 
     }else if(argument === '-b'){
 

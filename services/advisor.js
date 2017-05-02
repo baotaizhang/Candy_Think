@@ -4,9 +4,8 @@ var candyThinkOBJ = require(__dirname + '/../indicator/candyThink.js');
 
 var candyThink = new candyThinkOBJ();
 
-var advisor = function(storage, logger) {
+var advisor = function(logger) {
 
-    this.storage = storage;
     this.logger = logger;
     this.indicator = candyThink;
 

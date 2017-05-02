@@ -34,18 +34,18 @@ simulator.prototype.calculate = function(groupedBoards, transactionFee, callback
 
 
 
-simulator.prototype.createOrder = function(result.advice, callback){
+simulator.prototype.createOrder = function(advice, callback){
 
-    result.advice.orders.forEach(function(order){
+    advice.orders.forEach(function(order){
         
-       if(order.result == 'sell'){
+        if(order.result == 'sell'){
 
-           if(order.exchange == 'craken'){
+            if(order.exchange == 'craken'){
 
                 this.option.balance.craken_BTC = this.option.balance.craken_BTC - order.price;
                 this.option.balance.craken_ETH = this.option.balance.craken_ETH - order.size;
 
-           else if(order.exchange == 'bitflyer'){
+            }else if(order.exchange == 'bitflyer'){
 
                 this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC - order.price;
         
@@ -53,17 +53,17 @@ simulator.prototype.createOrder = function(result.advice, callback){
 
         }else if(order.result == 'buy'){
 
-           if(order.exchange == 'craken'){
+            if(order.exchange == 'craken'){
 
                 this.option.balance.craken_BTC = this.option.balance.craken_BTC + order.price;
 
-           else if(order.exchange == 'bitflyer'){
+            }else if(order.exchange == 'bitflyer'){
 
                 this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC + order.price;
         
             }
 
-       }
+        }
         
     });
     

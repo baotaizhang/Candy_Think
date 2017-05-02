@@ -1,4 +1,5 @@
 var _ = require('underscore');
+var async = require('async');
 
 var firebase = function(candyConfig){
 
@@ -47,6 +48,7 @@ firebase.prototype.boardConnection = function(cb){
             var data = snapshot.val();
             data.name = exchanges.indexOf(exchange);
             data.key = snapshot.key;
+            console.log(json.stringify(data));
             cb(data);
 
         }, function (errorObject) {
@@ -57,7 +59,7 @@ firebase.prototype.boardConnection = function(cb){
         
     }, function(err){
 
-        if(!err) {
+        if(err) {
             console.log(err);
             cb(err);
         }

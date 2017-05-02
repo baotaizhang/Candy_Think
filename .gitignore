@@ -1,5 +1,5 @@
 # ignore config
-config/
+candyConfig/
 
 # ignore .DS_Store and ._.DS_Store
 *.DS_Store

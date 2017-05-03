@@ -21,8 +21,8 @@ var streamAggregator = new streamAggregatorService(stream);
 var backtester = function(){
 
     streamAggregator.on('boardsPairStream', function(boards){
-        simulator.calculate(boards, function() {
-            simulator.report();
+        simulator.calculate(boards, function(order) {
+            simulator.firebaseReport(order);
         }.bind(this));
     });
 

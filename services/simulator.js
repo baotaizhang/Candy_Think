@@ -24,50 +24,55 @@ var simulator = function(advisor, logger){
 
 simulator.prototype.calculate = function(groupedBoards, callback) {
 
-    var result = this.advisor.update(groupedBoards, this.options.balance);
+    this.advisor.update(groupedBoards, this.options.balance, function(order){
 
+        if(order){
+            callback(this.createOrder(order));
+        }
+
+    }.bind(this));
 };
 
+simulator.prototype.firebaseReport = function(order){
 
 
-simulator.prototype.createOrder = function(advice, callback){
+}
 
-    advice.orders.forEach(function(order){
+simulator.prototype.createOrder = function(order){
+
+    if(order.result == 'sell'){
+
+        if(order.exchange == 'kraken'){
+
+            this.option.balance.craken_BTC = this.option.balance.kraken_BTC - order.size;
+            this.option.balance.craken_ETH = this.option.balance.kraken_ETH + order.price;
+
+        }else if(order.exchange == 'bitflyer'){
+
+            this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC - order.size;
+            this.option.balance.craken_ETH = this.option.balance.bitflyer_ETH + order.price;
         
-        if(order.result == 'sell'){
-
-            if(order.exchange == 'craken'){
-
-                this.option.balance.craken_BTC = this.option.balance.craken_BTC - order.size;
-                this.option.balance.craken_ETH = this.option.balance.craken_ETH + order.price;
-
-            }else if(order.exchange == 'bitflyer'){
-
-                this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC - order.size;
-                this.option.balance.craken_ETH = this.option.balance.bitflyer_ETH + order.price;
-        
-            }
-
-        }else if(order.result == 'buy'){
-
-            if(order.exchange == 'craken'){
-
-                this.option.balance.craken_BTC = this.option.balance.craken_BTC + order.size;
-                this.option.balance.craken_ETH = this.option.balance.craken_ETH - order.price;
-
-            }else if(order.exchange == 'bitflyer'){
-
-                this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC + order.size;
-                this.option.balance.craken_ETH = this.option.balance.bitflyer_ETH - order.price;
-        
-            }
-
         }
-        
-    });
-    
-    callback();
 
+    }else if(order.result == 'buy'){
+
+        if(order.exchange == 'kraken'){
+
+            this.option.balance.craken_BTC = this.option.balance.kraken_BTC + order.size;
+            this.option.balance.craken_ETH = this.option.balance.kraken_ETH - order.price;
+
+        }else if(order.exchange == 'bitflyer'){
+
+            this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC + order.size;
+            this.option.balance.craken_ETH = this.option.balance.bitflyer_ETH - order.price;
+        
+        }
+
+    }
+
+    console.log(JSON.stringify(this.option.balance));
+    return order;
+        
 };
 
 

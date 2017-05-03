@@ -19,11 +19,30 @@ var EventEmitter = require('events').EventEmitter;
 Util.inherits(advisor, EventEmitter);
 //---EventEmitter Setup
 
-advisor.prototype.update = function(groupedBoards, balance) {
+advisor.prototype.update = function(groupedBoards, balance, callback) {
 
     // convert data with candyThink way.
     // ******************************************************************
-    var candyThinkBalance = [ 
+    var candyThinkWay = convert(groupedBoards, balance);
+    // ******************************************************************
+
+    this.indicator.arbitrage(candyThinkWay.boards, candyThinkWay.balance, function(orders){
+
+        callback(orders);
+
+    });
+};
+
+function convert(groupedBoards, balance){
+
+    var candyThinkWay = {
+    
+        balance : [],
+        boards : []
+
+    };
+
+    candyThinkWay.balance = [ 
         {
             exchange_type:1,
             exchange:'kraken',
@@ -58,7 +77,7 @@ advisor.prototype.update = function(groupedBoards, balance) {
             orders.forEach(function(order){          
                 
                 if(board.exchange === 'bitflyer'){
-                    candyThinkBoards.push({
+                    candyThinkWay.boards.push({
                         no : no++,
                         exchange_type : board.exchange,
                         exchange : board.exchange,
@@ -71,7 +90,7 @@ advisor.prototype.update = function(groupedBoards, balance) {
 
                 }else if(board.exchange === 'kraken'){
 
-                    candyThinkBoards.push({
+                    candyThinkWay.boards.push({
                         no : no++,
                         exchange_type : board.exchange,
                         exchange : board.exchange,
@@ -86,15 +105,7 @@ advisor.prototype.update = function(groupedBoards, balance) {
            });
         });
     });
-
-    // ******************************************************************
-
-    this.indicator.arbitrage(candyThinkBoards, candyThinkBalance, function(orders){
-
-        return orders;
-    
-
-    });
-};
+    return candyThinkWay;
+}
 
 module.exports = advisor;

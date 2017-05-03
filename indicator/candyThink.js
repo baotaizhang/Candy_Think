@@ -46,8 +46,8 @@ candyThink.prototype.arbitrage = function(boards,balance,callback){
                 && askboards.amount <
                     _.max(
                         //firstArgument:list bidで絞り込んだboard
-                        _.filter(boards, function(boards){
-                            return (boards.ask_bid === "bid") 
+                        _.filter(boards, function(board){
+                            return (board.ask_bid === "bid") 
                         }),
                         //関数内のreturnで返した値(amount)を軸として最大値だったオブジェクトを返す。
                         function(bidboard){

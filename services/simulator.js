@@ -11,8 +11,8 @@ var simulator = function(advisor, logger){
 
     this.options.balance = {
 
-        craken_BTC : 10000000,
-        craken_ETH : 10000000,
+        kraken_BTC : 10000000,
+        kraken_ETH : 10000000,
         bitflyer_BTC : 10000000,
         bitflyer_ETH : 10000000
 
@@ -38,12 +38,13 @@ simulator.prototype.createOrder = function(advice, callback){
 
             if(order.exchange == 'craken'){
 
-                this.option.balance.craken_BTC = this.option.balance.craken_BTC - order.price;
-                this.option.balance.craken_ETH = this.option.balance.craken_ETH - order.size;
+                this.option.balance.craken_BTC = this.option.balance.craken_BTC - order.size;
+                this.option.balance.craken_ETH = this.option.balance.craken_ETH + order.price;
 
             }else if(order.exchange == 'bitflyer'){
 
-                this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC - order.price;
+                this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC - order.size;
+                this.option.balance.craken_ETH = this.option.balance.bitflyer_ETH + order.price;
         
             }
 
@@ -51,11 +52,13 @@ simulator.prototype.createOrder = function(advice, callback){
 
             if(order.exchange == 'craken'){
 
-                this.option.balance.craken_BTC = this.option.balance.craken_BTC + order.price;
+                this.option.balance.craken_BTC = this.option.balance.craken_BTC + order.size;
+                this.option.balance.craken_ETH = this.option.balance.craken_ETH - order.price;
 
             }else if(order.exchange == 'bitflyer'){
 
-                this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC + order.price;
+                this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC + order.size;
+                this.option.balance.craken_ETH = this.option.balance.bitflyer_ETH - order.price;
         
             }
 

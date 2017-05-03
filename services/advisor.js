@@ -26,9 +26,9 @@ advisor.prototype.update = function(groupedBoards, balance) {
     var candyThinkBalance = [ 
         {
             exchange_type:1,
-            exchange:'craken',
+            exchange:'kraken',
             currency_code:'BTC',
-            amount:balance.craken_BTC
+            amount:balance.kraken_BTC
         },
         {
             exchange_type:2,
@@ -38,9 +38,9 @@ advisor.prototype.update = function(groupedBoards, balance) {
         },
         {
             exchange_type:1,
-            exchange:'craken',
+            exchange:'kraken',
             currency_code:'ETH',
-            amount:balance.craken_ETH
+            amount:balance.kraken_ETH
         },
         {
             exchange_type:2,
@@ -56,39 +56,53 @@ advisor.prototype.update = function(groupedBoards, balance) {
     groupedBoards.forEach(function(board){
         _.each(_.pick(board, 'asks', 'bids'),function(orders, ask_bid){
             orders.forEach(function(order){          
-                candyThinkBoards.push({
-                    no : no++,
-                    transaction_type : 1,
-                    transaction_nm : board.exchange,
-                    ask_bid : ask_bid.substr(0,3),
-                    num : order.price,
-                    num_update : order.price,
-                    amount : order.size,
-                    amount_update : order.size,
-                    time : board.time
-                })
+                
+                if(board.exchange === 'bitflyer'){
+                    candyThinkBoards.push({
+                        no : no++,
+                        exchange_type : board.exchange,
+                        exchange : board.exchange,
+                        ask_bid : ask_bid.substr(0,3),
+                        num : order.size,
+                        amount : order.price,
+                        product_code : 'ETH_BTC',
+                        time : board.time
+                    })
+
+                }else if(board.exchange === 'kraken'){
+
+                    candyThinkBoards.push({
+                        no : no++,
+                        exchange_type : board.exchange,
+                        exchange : board.exchange,
+                        ask_bid : ask_bid.substr(0,3),
+                        num : order[1],
+                        amount : order[0],
+                        product_code : 'ETH_BTC',
+                        time : board.time
+                    })
+                }
+
            });
         });
     });
 
     // ******************************************************************
 
-    this.indicator.arbitrage(candyThinkBoards, candyThinkBalance, function(order){
+    this.indicator.arbitrage(candyThinkBoards, candyThinkBalance, function(orders){
     
-        console.log(order);
+        orders.forEach(function(order){
 
-    });
+            if(order.result) {
+                this.logger.log(order);
+                return order;
+            } else {
+                var err = 'Invalid advice from indicator, should be either: buy or sell.';
+                console.log(err);
+            }
 
-    /*
-    if(result.order) {
-        return result;
-    } else {
-        var err = new Error('Invalid advice from indicator, should be either: buy, sell or hold.');
-        this.logger.error(err.stack);
-        process.exit();
-    }
-    */
-
+        }.bind(this));
+    }.bind(this));
 };
 
 module.exports = advisor;

@@ -1,9 +1,7 @@
 var _ = require('underscore');
 
 
-var candyThink = function(storage){
-
-    this.storage = storage;
+var candyThink = function(){
 
     _.bindAll(this,
         'arbitrage',
@@ -198,14 +196,16 @@ candyThink.prototype.orderpush = function(eachboardAsk,eachboardBid,num){
                 result : "BUY",
                 exchange : eachboardAsk.exchange,
                 price: eachboardAsk.amount,
-                size: num_order
+                size: num_order,
+                time : eachboardAsk.time
             }
         bid_order = 
             {
                 result : "SELL",
                 exchange : eachboardBid.exchange,
                 price: eachboardBid.amount,
-                size: num_order
+                size: num_order,
+                time : eachboardAsk.time
             }
         this.order.push(ask_order);
         this.order.push(bid_order);

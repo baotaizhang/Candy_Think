@@ -11,18 +11,23 @@ var streamAggregator = function(stream){
         this.unpairedBoards.push(boards);
 
         var pairedBoards =  _.groupBy(this.unpairedBoards, function(board){
-
             if(board){
                 return moment(board.time).format("YYYY-MM-DD HH:mm");
-            }else{
-                return moment().format("YYYY-MM-DD HH:mm");
             }
-
         });
 
-    }.bind(this));
+        _.each(pairedBoards, function(boards, time){
+            if(boards.length >= 2){
+                boards.forEach(function(board){
+                    this.unpairedBoards = this.unpairedBoards.filter(function(unpairedBoard){
+                        return unpairedBoard.key !== _.property('key')(board);
+                    }.bind(this));
+                }.bind(this));
+                this.emit('boardsPairStream', boards);
+            }
+        }.bind(this));
 
-    _.bindAll(this, 'boardPairStream');
+    }.bind(this));
 
 }
 
@@ -31,11 +36,5 @@ var Util = require('util');
 var EventEmitter = require('events').EventEmitter;
 Util.inherits(streamAggregator, EventEmitter);
 //---EventEmitter Setup
-
-streamAggregator.prototype.boardPairStream = function(boards){
-
-
-
-}
 
 module.exports = streamAggregator;

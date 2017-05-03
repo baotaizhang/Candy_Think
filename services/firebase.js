@@ -42,28 +42,19 @@ firebase.prototype.boardConnection = function(cb){
         kraken : 'crypto/kraken/0/public/Depth/XETHXXBT'
     };
 
-    async.each(exchanges, function(exchange, next){
+    _.each(exchanges, function(pass, exchange){
 
-        this.FirebaseAccess.child(exchange).orderByChild("time").limitToLast(3).once("child_Added").then(function(snapshot) {
+        this.FirebaseAccess.child(pass).orderByChild("time").limitToLast(3).on("child_added", function(snapshot) {
             var data = snapshot.val();
-            data.name = exchanges.indexOf(exchange);
+            data.exchange = exchange;
             data.key = snapshot.key;
-            console.log(json.stringify(data));
             cb(data);
 
         }, function (errorObject) {
             console.log("The read failed: " + errorObject.code);
         });
 
-        next();
-        
-    }, function(err){
-
-        if(err) {
-            console.log(err);
-            cb(err);
-        }
-    });
+    }.bind(this));
 }
 
 module.exports = firebase;

@@ -22,13 +22,9 @@ var simulator = function(advisor, logger){
 
 };
 
-simulator.prototype.calculate = function(groupedBoards, transactionFee, callback) {
+simulator.prototype.calculate = function(groupedBoards, callback) {
 
-    var result = this.advisor.update(boards, this.options.balance);
-
-    if (result.advice) {
-        this.createOrder(result.advice, callback);
-    }
+    var result = this.advisor.update(groupedBoards, this.options.balance);
 
 };
 

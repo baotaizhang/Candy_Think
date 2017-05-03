@@ -62,13 +62,13 @@ simulator.prototype.createOrder = function(order){
 
         if(order.exchange == 'kraken'){
 
-            this.option.balance.kraken_BTC = this.option.balance.kraken_BTC - order.size;
-            this.option.balance.kraken_ETH = this.option.balance.kraken_ETH + order.price;
+            this.option.balance.kraken_BTC = this.option.balance.kraken_BTC + parseFloat(order.size) * parseFloat(order.price);
+            this.option.balance.kraken_ETH = this.option.balance.kraken_ETH - parseFloat(order.size);
 
         }else if(order.exchange == 'bitflyer'){
 
-            this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC - order.size;
-            this.option.balance.bitflyer_ETH = this.option.balance.bitflyer_ETH + order.price;
+            this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC + parseFloat(order.size) * parseFloat(order.price);
+            this.option.balance.bitflyer_ETH = this.option.balance.bitflyer_ETH - parseFloat(order.size);
         
         }
 
@@ -76,13 +76,13 @@ simulator.prototype.createOrder = function(order){
 
         if(order.exchange == 'kraken'){
 
-            this.option.balance.kraken_BTC = this.option.balance.kraken_BTC + order.size;
-            this.option.balance.kraken_ETH = this.option.balance.kraken_ETH - order.price;
+            this.option.balance.kraken_BTC = this.option.balance.kraken_BTC - parseFloat(order.size) * parseFloat(order.price);
+            this.option.balance.kraken_ETH = this.option.balance.kraken_ETH + parseFloat(order.size);
 
         }else if(order.exchange == 'bitflyer'){
 
-            this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC + order.size;
-            this.option.balance.bitflyer_ETH = this.option.balance.bitflyer_ETH - order.price;
+            this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC - parseFloat(order.size) * parseFloat(order.price);
+            this.option.balance.bitflyer_ETH = this.option.balance.bitflyer_ETH + parseInt(order.size);
         
         }
 

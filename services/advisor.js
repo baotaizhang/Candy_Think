@@ -19,7 +19,7 @@ var EventEmitter = require('events').EventEmitter;
 Util.inherits(advisor, EventEmitter);
 //---EventEmitter Setup
 
-advisor.prototype.update = function(groupedBoards, balance, callback) {
+advisor.prototype.update = function(groupedBoards, balance) {
 
     // convert data with candyThink way.
     // ******************************************************************
@@ -90,24 +90,10 @@ advisor.prototype.update = function(groupedBoards, balance, callback) {
     // ******************************************************************
 
     this.indicator.arbitrage(candyThinkBoards, candyThinkBalance, function(orders){
+
+        return orders;
     
-        async.each(orders, function(order, next){
 
-            if(order.result) {
-                console.log(order);
-                callback(order);
-            } else {
-                var err = 'Invalid advice from indicator, should be either: buy or sell.';
-                console.log(err);
-            }
-
-            next();
-
-        }, function(err){
-            if(err){
-                console.log(err);
-            }   
-        });
     });
 };
 

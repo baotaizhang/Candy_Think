@@ -24,13 +24,39 @@ var simulator = function(advisor, logger){
 
 simulator.prototype.calculate = function(groupedBoards, callback) {
 
-    this.advisor.update(groupedBoards, this.options.balance, function(order){
-
-        if(order){
-            callback(this.createOrder(order));
+    async.waterfall([
+        function(next){
+            var orders = this.advisor.update(groupedBoards, this.options.balance);
+            next(null, orders);
+        }.bind(this),
+        function(orders, next){
+            orders.forEach(function(order){
+                if(order.result) {
+                    console.log(order);
+                    this.createOrder(order);
+                } else {
+                    var err = 'Invalid advice from indicator, should be either: buy or sell.';
+                    console.log(err);
+                }
+            });
+            next(null, orders);
+        }.bind(this),
+        function(orders, next){
+            orders.forEach(function(order){
+                if(order.result) {
+                    console.log(order);
+                    callback(order);
+                } else {
+                    var err = 'Invalid advice from indicator, should be either: buy or sell.';
+                    console.log(err);
+                }
+            });
+            next();
+        }],
+        function(err){
+            console.log(err);
         }
-
-    }.bind(this));
+    );
 };
 
 simulator.prototype.firebaseReport = function(order){

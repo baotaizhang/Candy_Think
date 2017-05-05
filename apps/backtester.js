@@ -13,10 +13,10 @@ var candyConfig = config.init();
 
 var logger = new loggingservice('backtester');
 var advisor = new tradingadvisor(logger);
-var simulator = new simulatorservice(advisor, logger);
 var firebase = new firebaseService(candyConfig);
 var stream = new streamService(firebase);
 var streamAggregator = new streamAggregatorService(stream);
+var simulator = new simulatorservice(advisor,stream,logger);
 
 var backtester = function(){
 

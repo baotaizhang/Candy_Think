@@ -2,14 +2,18 @@ var _ = require('underscore');
 var moment = require('moment');
 var async = require('async');
 
-var simulator = function(advisor, logger){
+var simulator = function(advisor, stream, logger){
 
     this.logger = logger;
     this.advisor = advisor;
+    this.stream = stream;
+
     this.q = async.queue(function (task, callback) {
         this.logger.debug('Added ' + task.name + ' call to the queue.');
         this.logger.debug('There are currently ' + this.q.running() + ' running jobs and ' + this.q.length() + ' jobs in queue.');
-        task.func(function() { setTimeout(callback, 2000); });
+        task.func(function() { 
+            callback(); 
+        });
     }.bind(this), 1);
 
     this.option = {};
@@ -31,7 +35,6 @@ simulator.prototype.calculate = function(groupedBoards, callback) {
 
     var wrapper = function(finished){
         this.advisor.update(groupedBoards, this.option.balance, function(orders){
-            console.log(orders);
 
             orders.forEach(function(order){
                 if(order.result) {
@@ -53,6 +56,7 @@ simulator.prototype.calculate = function(groupedBoards, callback) {
 
 simulator.prototype.firebaseReport = function(order){
 
+    this.stream.orderSet(order);
 
 }
 

@@ -19,7 +19,8 @@ var firebase = function(candyConfig){
 
     _.bindAll(this,
         'boardConnection',
-        'settingConnection'
+        'settingConnection',
+        'update'
     );
 
 };
@@ -55,6 +56,20 @@ firebase.prototype.boardConnection = function(cb){
         });
 
     }.bind(this));
+}
+
+firebase.prototype.update = function(pass, item, time){
+
+    this.FirebaseAccess.child(pass).push().set({
+        
+        time : time,
+        item : item
+            
+    }).then(function(){
+        console.log('orderReported. ' + item);
+    }, function(error) {
+        console.log("Error: " + error);
+    });
 }
 
 module.exports = firebase;

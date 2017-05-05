@@ -5,7 +5,7 @@ var stream = function(firebase){
     this.firebase = firebase;
     this.boards = [];
 
-    _.bindAll(this, 'activation');
+    _.bindAll(this, 'activation', 'orderSet');
 
 }
 
@@ -29,6 +29,20 @@ stream.prototype.activation = function(){
 
     }.bind(this));
 
+}
+
+stream.prototype.orderSet = function(order){
+
+    var time = order.time;
+
+    _.each(_.pick(order, 'price', 'size'), function(item, key){
+
+        var pass = 'think/order/ETH_BTC/' + order.exchange + '/' + order.result + '/' + key;
+
+        this.firebase.update(pass, item, time);
+
+    }.bind(this));
+    
 }
 
 module.exports = stream;

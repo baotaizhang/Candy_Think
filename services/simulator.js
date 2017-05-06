@@ -12,7 +12,7 @@ var simulator = function(advisor, stream, logger){
         this.logger.debug('Added ' + task.name + ' call to the queue.');
         this.logger.debug('There are currently ' + this.q.running() + ' running jobs and ' + this.q.length() + ' jobs in queue.');
         task.func(function() { 
-            callback(); 
+            setTimeout(callback, 1000); 
         });
     }.bind(this), 1);
 
@@ -31,11 +31,10 @@ var simulator = function(advisor, stream, logger){
 
 };
 
-simulator.prototype.calculate = function(groupedBoards, callback) {
+simulator.prototype.calculate = function(groupedBoards, fee, callback) {
 
     var wrapper = function(finished){
         this.advisor.update(groupedBoards, this.option.balance, function(orders){
-
             orders.forEach(function(order){
                 if(order.result) {
                     console.log(order);
@@ -45,9 +44,7 @@ simulator.prototype.calculate = function(groupedBoards, callback) {
                     console.log(err);
                 }
             }.bind(this));
-
             finished();
-
         }.bind(this));
     }.bind(this);
 

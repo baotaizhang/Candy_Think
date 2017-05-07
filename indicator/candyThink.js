@@ -11,6 +11,7 @@ var candyThink = function(){
 
     this.order = [];
     this.balance = {};
+    this.fee = {};
 
 }
 
@@ -23,8 +24,8 @@ Util.inherits(candyThink, EventEmitter);
 /* arbitrage 
 ** 5分に1回全ての板情報を計算する。都度計算は行わない。
 */
-candyThink.prototype.arbitrage = function(boards,balance,callback){
-     var candySetting = 
+candyThink.prototype.arbitrage = function(boards,balance,fee,callback){
+    var candySetting = 
     { 
         arbitrage: { delay: 60, ownexchange: 0, spread: 10 },
         backTesterSettings: { initialAssetBalance: 0, initialCurrencyBalance: 0 },
@@ -34,6 +35,7 @@ candyThink.prototype.arbitrage = function(boards,balance,callback){
         name: 'settings'
     };
     this.balance = balance;
+    this.fee = fee;
     //1.ask(売注文 =買える)算出
     var boardsAsk = boards;
     //filter ask Board
@@ -63,15 +65,17 @@ candyThink.prototype.arbitrage = function(boards,balance,callback){
     var boardsBid = boards;
     if(_.size(boardsAsk_filter) !== 0){
         _.every(boardsAsk_filter, function(eachboardAsk){
-            //2.1.bid算出
+            //2.1.bid(売れる)算出
             if(candySetting.arbitrage.ownexchange === 0){
                 var boardsBid_filter = 
                     _.filter(boardsBid, function(bidboards){
+                        var bid_fee = _.where(fee, {exchange_type: bidboards.exchange_type})[0].fee;
+                        var ask_fee = _.where(fee, {exchange_type: eachboardAsk.exchange_type})[0].fee;
                         return (
                             //bidのデータを抽出
                             bidboards.ask_bid === "bid"
-                            //bidのamout > 1.ask(売注文 =買える)算出で取得したamountを抽出
-                            && bidboards.amount > eachboardAsk.amount
+                            //bid(売れる)のamout > 1.ask(売注文 =買える)算出で取得したamountを抽出(taker手数料も考慮)
+                            && (bidboards.amount * (100 - bid_fee)) > (eachboardAsk.amount * (100 + ask_fee))
                             //自身の取引所は含めない(ownexchange === 0の場合)
                             && bidboards.exchange_type !== eachboardAsk.exchange_type
                         ) 

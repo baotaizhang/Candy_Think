@@ -31,7 +31,10 @@ var simulator = function(advisor, stream, logger){
 
 };
 
-simulator.prototype.calculate = function(groupedBoards, fee, callback) {
+simulator.prototype.calculate = function(groupedBoards, balances, callback) {
+
+    this.option.balance.krakenFee = balances[0].kraken.fee;
+    this.option.balance.bitflyerFee = balances[1].bitflyer.fee;
 
     var wrapper = function(finished){
         this.advisor.update(groupedBoards, this.option.balance, function(orders){

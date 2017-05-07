@@ -24,7 +24,7 @@ var backtester = function(){
 
     exchangeapi.getBalance(true, function(balances, next){
         streamAggregator.on('boardsPairStream', function(boards){
-            simulator.calculate(boards, balances.fee, function(order) {
+            simulator.calculate(boards, balances, function(order) {
                 simulator.firebaseReport(order);
             }.bind(this));
         });

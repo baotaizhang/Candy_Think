@@ -1,5 +1,5 @@
-var request		= require('request');
-var crypto		= require('crypto');
+var request	= require('request');
+var crypto = require('crypto');
 var querystring	= require('querystring');
 var nodeurl = require('url');
 
@@ -16,7 +16,7 @@ function bitflyerClient(key, secret, otp){
     var config = {
         url: {
             protocol : 'https',
-            shashes : true,
+            slashes : true,
             host : 'api.bitflyer.jp'
         },
         version: 'v1',
@@ -37,7 +37,7 @@ function bitflyerClient(key, secret, otp){
     function api(method, query, body, callback) {
         var methods = {
             public: [],
-            private: ['gettradingcommission']
+            private: ['getbalance','gettradingcommission']
         };
         if(methods.public.indexOf(method) !== -1) {
             return publicMethod(method, query, body, callback);
@@ -46,7 +46,7 @@ function bitflyerClient(key, secret, otp){
             return privateMethod(method, query, body, callback);
         }
         else {
-            throw new Error(method + ' is not a valid API method.');
+            throw new Error(methods + ' is not a valid API method.');
         }
     }
 
@@ -65,7 +65,7 @@ function bitflyerClient(key, secret, otp){
         var url = config.url;
         url.pathname = '/' + config.version + '/public/' + method;
         url.query = query;
-        url	= nodeurl.format(url);
+        url = nodeurl.format(url);
 
         return rawRequest(url, {}, body, callback);
     }
@@ -87,7 +87,7 @@ function bitflyerClient(key, secret, otp){
         var url = config.url;
         url.pathname = '/' + config.version + '/me/' + method;
         url.query = query;
-        url	= nodeurl.format(url);
+        url = nodeurl.format(url);
 
         var signature = getMessageSignature(timestamp, nodeurl.parse(url).path, body);
 
@@ -113,8 +113,6 @@ function bitflyerClient(key, secret, otp){
         var method = 'GET';
         var secret = config.secret;
         var text = timestamp + method + path;
-
-        console.log(text);
 
         var hmac_digest = crypto.createHmac('sha256', secret).update(text).digest('hex');
 

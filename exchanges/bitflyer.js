@@ -1,13 +1,13 @@
 var _ = require('underscore');
 var async = require('async');
-var Kraken = require(__dirname + '/../Library/kraken.js');
+var bitflyer = require(__dirname + '/../Library/bitflyer.js');
 
 var exchange = function(candyConfig, logger) {
 
-    this.kraken = new Kraken(candyConfig.kraken.apiKey, candyConfig.kraken.secret);
+    this.bitflyer = new bitflyer(candyConfig.bitflyer.apiKey, candyConfig.bitflyer.secret);
     this.currencyPair = {
-        pair: 'XETHXXBT',
-        currency: 'XBT',
+        product_code: 'ETH_BTC',
+        currency: 'BTC',
         asset: 'ETH'
     };
     this.q = async.queue(function (task, callback) {
@@ -38,7 +38,7 @@ exchange.prototype.retry = function(method, args) {
     }, 1000*15);
 };
 
-exchange.prototype.errorHandler = function(caller, receivedArgs, retryAllowed, callerName, handler, finished){
+exchange.prototype.errorHandler = function(caller, receivedArgs, retlyAllowed, callerName, handler, finished){
 
     return function(err, result){
         var args = _.toArray(receivedArgs);
@@ -56,12 +56,12 @@ exchange.prototype.errorHandler = function(caller, receivedArgs, retryAllowed, c
 
             if(parsedError === '["EQuery:Unknown asset pair"]') {
 
-                this.logger.error(callerName + ': Kraken API returned Unknown asset pair error, exiting!');
+                this.logger.error(callerName + ': bitflyer API returned Unknown asset pair error, exiting!');
                 return process.exit();
 
             } else {
 
-                this.logger.error(callerName + ': Kraken API returned the following error:');
+                this.logger.error(callerName + ': bitflyer API returned the following error:');
                 this.logger.error(parsedError.substring(0,99));
 
                 if(retryAllowed) {
@@ -74,7 +74,7 @@ exchange.prototype.errorHandler = function(caller, receivedArgs, retryAllowed, c
 
         }else{
 
-            this.logger.debug(callerName + ': Kraken API Call Result (Substring)!');
+            this.logger.debug(callerName + ': bitflyer API Call Result (Substring)!');
             this.logger.debug(JSON.stringify(result).substring(0,99));
 
         }
@@ -112,14 +112,12 @@ exchange.prototype.getBalance = function(retry, cb){
                 }
                 this.getTransactionFee(retry, function(err, result) {
                     cb(null, {
-                        kraken : 
-                            {
-                                currencyAvailable: currencyValue, 
-                                assetAvailable: assetValue, 
-                                fee: result.kraken.fee
-                            }
-                    }
-                    );
+                        bitflyer : {
+                            currencyAvailable: currencyValue, 
+                            assetAvailable: assetValue, 
+                            fee: result.bitflyer.fee
+                        }
+                    });
                 });
 
             } else {
@@ -128,7 +126,7 @@ exchange.prototype.getBalance = function(retry, cb){
 
             }
         }.bind(this);
-        this.kraken.api('Balance', {}, this.errorHandler(this.getBalance, args, retry, 'getBalance', handler, finished));
+        this.bitflyer.api('getbalance', null, null, this.errorHandler(this.getBalance, args, retry, 'getBalance', handler, finished));
     }.bind(this);
     this.q.push({name: 'getBalance', func: wrapper});
 };
@@ -138,16 +136,14 @@ exchange.prototype.getTransactionFee = function(retry, cb) {
     var args = arguments;
 
     var wrapper = function(finished) {
-        var pair = this.currencyPair.pair;
+        var pair = this.currencyPair.product_code;
 
         var handler = function(err, data) {
 
             if (!err) {
-                var fee = parseFloat(_.find(data.result.fees, function (value, key) {
-                    return key === pair;
-                }).fee);
+                var fee = parseFloat(data.commission_rate);
                 cb(null, {
-                    kraken: {
+                    bitflyer : {
                         fee: fee
                     }
                 });
@@ -156,11 +152,10 @@ exchange.prototype.getTransactionFee = function(retry, cb) {
             }
         };
 
-        this.kraken.api('TradeVolume', {"pair": pair}, this.errorHandler(this.getTransactionFee, args, retry, 'getTransactionFee', handler, finished));
+        this.bitflyer.api('gettradingcommission', {"product_code": pair}, null, this.errorHandler(this.getTransactionFee, args, retry, 'getTransactionFee', handler, finished));
     }.bind(this);
     this.q.push({name: 'getTransactionFee', func: wrapper});
 
 };
-
 
 module.exports = exchange;

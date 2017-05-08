@@ -26,7 +26,7 @@ advisor.prototype.update = function(groupedBoards, balance, callback) {
     var candyThinkWay = convert(groupedBoards, balance);
     // ******************************************************************
 
-    this.indicator.arbitrage(candyThinkWay.boards, candyThinkWay.balance, function(orders){
+    this.indicator.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders){
 
         callback(orders);
 
@@ -38,7 +38,8 @@ function convert(groupedBoards, balance){
     var candyThinkWay = {
     
         balance : [],
-        boards : []
+        boards : [],
+        fee : []
 
     };
 
@@ -69,6 +70,19 @@ function convert(groupedBoards, balance){
         },
     ];
 
+    candyThinkWay.fee = [
+        {
+            exchange_type:1,
+            exchange:'kraken',
+            fee:balance.krakenFee
+        },
+        {
+            exchange_type:2,
+            exchange:'bitflyer',
+            fee:balance.bitflyerFee
+        }
+    ];
+
     var candyThinkBoards = [];
     var no = 0;
 
@@ -79,7 +93,7 @@ function convert(groupedBoards, balance){
                 if(board.exchange === 'bitflyer'){
                     candyThinkWay.boards.push({
                         no : no++,
-                        exchange_type : board.exchange,
+                        exchange_type : 1,
                         exchange : board.exchange,
                         ask_bid : ask_bid.substr(0,3),
                         num : order.size,
@@ -92,7 +106,7 @@ function convert(groupedBoards, balance){
 
                     candyThinkWay.boards.push({
                         no : no++,
-                        exchange_type : board.exchange,
+                        exchange_type : 2,
                         exchange : board.exchange,
                         ask_bid : ask_bid.substr(0,3),
                         num : order[1],

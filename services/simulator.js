@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var moment = require('moment');
 var async = require('async');
+var tools = require(__dirname + '/../util/tools.js')
 
 var simulator = function(advisor, stream, logger){
 
@@ -34,7 +35,7 @@ var simulator = function(advisor, stream, logger){
 simulator.prototype.calculate = function(groupedBoards, balances, callback) {
 
     this.option.balance.krakenFee = balances[0].kraken.fee;
-    this.option.balance.bitflyerFee = balances[1].bitflyer.fee;
+    this.option.balance.bitflyerFee = balances[1].bitflyer.fee * 100;
 
     var wrapper = function(finished){
         this.advisor.update(groupedBoards, this.option.balance, function(orders){
@@ -66,13 +67,13 @@ simulator.prototype.createOrder = function(order){
 
         if(order.exchange == 'kraken'){
 
-            this.option.balance.kraken_BTC = this.option.balance.kraken_BTC + parseFloat(order.size) * parseFloat(order.price);
-            this.option.balance.kraken_ETH = this.option.balance.kraken_ETH - parseFloat(order.size);
+            this.option.balance.kraken_BTC = tools.round(this.option.balance.kraken_BTC + order.size * order.price, 8);
+            this.option.balance.kraken_ETH = tools.round(this.option.balance.kraken_ETH - order.size, 8);
 
         }else if(order.exchange == 'bitflyer'){
 
-            this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC + parseFloat(order.size) * parseFloat(order.price);
-            this.option.balance.bitflyer_ETH = this.option.balance.bitflyer_ETH - parseFloat(order.size);
+            this.option.balance.bitflyer_BTC = tools.round(this.option.balance.bitflyer_BTC + order.size * order.price, 8);
+            this.option.balance.bitflyer_ETH = tools.round(this.option.balance.bitflyer_ETH - order.size, 8);
         
         }
 
@@ -80,13 +81,13 @@ simulator.prototype.createOrder = function(order){
 
         if(order.exchange == 'kraken'){
 
-            this.option.balance.kraken_BTC = this.option.balance.kraken_BTC - parseFloat(order.size) * parseFloat(order.price);
-            this.option.balance.kraken_ETH = this.option.balance.kraken_ETH + parseFloat(order.size);
+            this.option.balance.kraken_BTC = tools.round(this.option.balance.kraken_BTC - order.size * order.price, 8);
+            this.option.balance.kraken_ETH = tools.round(this.option.balance.kraken_ETH + order.size, 8);
 
         }else if(order.exchange == 'bitflyer'){
 
-            this.option.balance.bitflyer_BTC = this.option.balance.bitflyer_BTC - parseFloat(order.size) * parseFloat(order.price);
-            this.option.balance.bitflyer_ETH = this.option.balance.bitflyer_ETH + parseInt(order.size);
+            this.option.balance.bitflyer_BTC = tools.round(this.option.balance.bitflyer_BTC - order.size * order.price, 8);
+            this.option.balance.bitflyer_ETH = tools.round(this.option.balance.bitflyer_ETH + order.size, 8);
         
         }
 

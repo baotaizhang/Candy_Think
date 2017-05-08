@@ -66,7 +66,6 @@ firebase.prototype.update = function(pass, item, time){
         item : item
             
     }).then(function(){
-        console.log('orderReported. ' + item);
     }, function(error) {
         console.log("Error: " + error);
     });

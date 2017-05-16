@@ -24,6 +24,11 @@ var streamAggregator = function(stream){
                     }.bind(this));
                 }.bind(this));
                 this.emit('boardsPairStream', boards);
+
+                if(object.keys(boards)[0] == moment().format("YYYY-MM-DD HH:mm"))Åo
+                    this.emit('currentBoardPairStream', boards);
+                }
+
             }
         }.bind(this));
 

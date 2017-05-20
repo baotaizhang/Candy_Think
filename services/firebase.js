@@ -20,6 +20,7 @@ var firebase = function(candyConfig){
     _.bindAll(this,
         'boardConnection',
         'settingConnection',
+        'placeOrder',
         'chartUpdate'
     );
 
@@ -45,7 +46,7 @@ firebase.prototype.boardConnection = function(cb){
 
     _.each(exchanges, function(pass, exchange){
 
-        this.FirebaseAccess.child(pass).orderByChild("time").limitToLast(2).on("child_added", function(snapshot) {
+        this.FirebaseAccess.child(pass).orderByChild("time").limitToLast(60).on("child_added", function(snapshot) {
             var data = snapshot.val();
             data.exchange = exchange;
             data.key = snapshot.key;
@@ -57,6 +58,29 @@ firebase.prototype.boardConnection = function(cb){
 
     }.bind(this));
 }
+
+firebase.prototype.placeOrder = function(pass, orderType){
+
+    this.FirebaseAccess.child(pass + '/test').push().set(orderType).then(function(){
+        }, function(error) {
+            console.log("Error: " + error);
+        }
+    );
+}
+
+firebase.prototype.lineNotification = function(message, finished){
+
+    this.FirebaseAccess.child('common/system/line/test').push().set({
+        "system" : "candy_think",
+        "message" : message,
+        "time" : moment().format("YYYY-MM-DD HH:mm:ss")
+    }).then(function(){
+    }, function(error) {
+        console.log("Error: " + error);
+    });
+
+}
+
 
 firebase.prototype.chartUpdate = function(pass, item, time){
 

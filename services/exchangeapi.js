@@ -27,15 +27,13 @@ var api = function(candyConfig, logger){
 api.prototype.getBalance = function(retry, cb){
 
     async.map(this.exchangesAccess, function(exchangeAccess, next){
-    
         balance = exchangeAccess.api.getBalance(retry, next);
-    
     }, function(err, balances){
 
         if(err){
             console.log(err);
         }
-        console.log(balances);
+
         cb(balances);
 
     });

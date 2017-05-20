@@ -29,7 +29,8 @@ stream.prototype.activation = function(){
 
 stream.prototype.placeOrder = function(orderType){
 
-    
+    var pass = 'think/order_1_NotYet/ETH_BTC/' + order.exchange;
+    this.firebase.placeOrder(pass, orderType);
 
 }
 

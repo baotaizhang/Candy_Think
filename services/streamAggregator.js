@@ -27,7 +27,7 @@ var streamAggregator = function(stream){
 
                 var time =  moment().format("YYYY-MM-DD HH:mm");
 
-                if(moment().diff(boards[0].time,'minutes') < 5){ 
+                if(moment().diff(boards[0].time,'minutes') < 60){ 
                     this.emit('currentBoardPairStream', boards);
                 }
 

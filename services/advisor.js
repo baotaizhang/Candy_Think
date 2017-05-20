@@ -33,7 +33,7 @@ advisor.prototype.update = function(groupedBoards, balance, callback) {
     });
 };
 
-function convert(groupedBoards, balance){
+function convert(groupedBoards, balances){
 
     var candyThinkWay = {
     
@@ -43,45 +43,41 @@ function convert(groupedBoards, balance){
 
     };
 
-    candyThinkWay.balance = [ 
-        {
-            exchange_type:1,
-            exchange:'kraken',
-            currency_code:'BTC',
-            amount:balance.kraken_BTC
-        },
-        {
-            exchange_type:2,
-            exchange:'bitflyer',
-            currency_code:'BTC',
-            amount:balance.bitflyer_BTC
-        },
-        {
-            exchange_type:1,
-            exchange:'kraken',
-            currency_code:'ETH',
-            amount:balance.kraken_ETH
-        },
-        {
-            exchange_type:2,
-            exchange:'bitflyer',
-            currency_code:'ETH',
-            amount:balance.bitflyer_ETH
-        },
-    ];
+    var exchange_type_count = 1;
 
-    candyThinkWay.fee = [
-        {
-            exchange_type:1,
-            exchange:'kraken',
-            fee:balance.krakenFee
-        },
-        {
-            exchange_type:2,
-            exchange:'bitflyer',
-            fee:balance.bitflyerFee
-        }
-    ];
+    balances.forEach(function(balance){
+    
+        var key = Object.keys(balance)[0];
+        
+        candyThinkWay.balance.push({
+        
+            exchange_type : exchange_type_count,
+            exchange : key,
+            currency_code : 'BTC',
+            amount : 10000
+        
+        });
+
+        candyThinkWay.balance.push({
+        
+            exchange_type : exchange_type_count,
+            exchange : key,
+            currency_code : 'ETH',
+            amount : balance[key].assetAvailable
+        
+        });
+
+        candyThinkWay.fee.push({
+
+            exchange_type:exchange_type_count,
+            exchange: key,
+            fee: key == 'bitflyer' ? balance[key].fee * 100 : balance[key].fee
+
+        });
+
+        exchange_type_count++;
+    
+    });
 
     var candyThinkBoards = [];
     var no = 0;

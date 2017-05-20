@@ -6,7 +6,6 @@ var balancer = function(){
     this.job = new cronModule({
         cronTime: '*/5 * * * *', 
         onTick: function() {
-            // execute batch function;
             this.balance();
         },
     start: true, 
@@ -22,13 +21,44 @@ var Util = require('util');
 var EventEmitter = require('events').EventEmitter;
 Util.inherits(backtester, EventEmitter);
 //---EventEmitter Setup
+
 balancer.prototype.balance = function(){
 
-    1. 全ての送金が完了済みであることを確認
-    2. 残高情報を取得
-    3. 本来の残高比率との比較
-    4. 本来の残高比率とするための送金
+    async.series({
+        withdrawalStatus: function(next){
+            exchangeApi.withdrawalStatus(true, function(withdrawalStatus){
+                next(null, withdrawalStatus);
+            });
+        },
+        balances: function(next){
+            exchangeapi.getBalance(true, function(balances){
+                next(null, balances);  
+            });
+        }
+    },function(err, result){
 
+        var isPending = _.find(result.withdrawalStatus, function(status){
+            return status.status == 'PENDING';    
+        });
+
+        if(!isPending){
+
+            async.parallel([
+                function(next){
+                    exchangeapi.sendETH(true, 'kraken', result.balances.kraken.eth, candyConfig.bitflyerETHAddress, function(result){
+                        console.log(result);
+                    });
+                },
+                function(next){
+                    exchangeapi.sendBTC(true, 'bitflyer', result.balances.bitflyer.btc, candyConfig.krakenBTCAddress, function(result){
+                        console.log(result);
+                    });
+                }
+            ], function(err, result){
+                console.log(err);
+            });
+        }
+    }
 }
 
 balancer.prototype.start = function() {

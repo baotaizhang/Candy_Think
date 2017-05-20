@@ -16,7 +16,7 @@ var processor = function(advisor, stream, logger){
         });
     }.bind(this), 1);
 
-    _.bindAll(this, 'calculate', 'createOrder');
+    _.bindAll(this, 'process');
 
 };
 
@@ -42,7 +42,7 @@ processor.prototype.process = function(groupedBoards, balances) {
 //---EventEmitter Setup
 var Util = require('util');
 var EventEmitter = require('events').EventEmitter;
-Util.inherits(backtester, EventEmitter);
+Util.inherits(processor, EventEmitter);
 //---EventEmitter Setup
 
 module.exports = processor;

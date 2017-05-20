@@ -20,7 +20,7 @@ var firebase = function(candyConfig){
     _.bindAll(this,
         'boardConnection',
         'settingConnection',
-        'update'
+        'chartUpdate'
     );
 
 };
@@ -45,7 +45,7 @@ firebase.prototype.boardConnection = function(cb){
 
     _.each(exchanges, function(pass, exchange){
 
-        this.FirebaseAccess.child(pass).orderByChild("time").limitToLast(200).on("child_added", function(snapshot) {
+        this.FirebaseAccess.child(pass).orderByChild("time").limitToLast(2).on("child_added", function(snapshot) {
             var data = snapshot.val();
             data.exchange = exchange;
             data.key = snapshot.key;
@@ -58,7 +58,7 @@ firebase.prototype.boardConnection = function(cb){
     }.bind(this));
 }
 
-firebase.prototype.update = function(pass, item, time){
+firebase.prototype.chartUpdate = function(pass, item, time){
 
     this.FirebaseAccess.child(pass).push().set({
         

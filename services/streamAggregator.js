@@ -25,7 +25,9 @@ var streamAggregator = function(stream){
                 }.bind(this));
                 this.emit('boardsPairStream', boards);
 
-                if(object.keys(boards)[0] == moment().format("YYYY-MM-DD HH:mm"))Åo
+                var time =  moment().format("YYYY-MM-DD HH:mm");
+
+                if(moment().diff(boards[0].time,'minutes') < 5){ 
                     this.emit('currentBoardPairStream', boards);
                 }
 

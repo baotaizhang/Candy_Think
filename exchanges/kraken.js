@@ -7,8 +7,8 @@ var exchange = function(candyConfig, logger) {
     this.kraken = new Kraken(candyConfig.kraken.apiKey, candyConfig.kraken.secret);
     this.currencyPair = {
         pair: 'XETHXXBT',
-        currency: 'XBT',
-        asset: 'ETH'
+        currency: 'XXBT',
+        asset: 'XETH'
     };
     this.q = async.queue(function (task, callback) {
         this.logger.debug('Added ' + task.name + ' API call to the queue.');

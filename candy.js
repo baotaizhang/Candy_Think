@@ -51,9 +51,7 @@ app.prototype.start = function(){
     if(!argument){
 
         this.appName = 'trader';
-        /*
         this.run = this.launchTrader;
-        */
 
     }else if(argument === '-b'){
 

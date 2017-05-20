@@ -57,7 +57,7 @@ simulator.prototype.calculate = function(groupedBoards, balances, callback) {
 
 simulator.prototype.firebaseReport = function(order){
 
-    this.stream.orderSet(order);
+    this.stream.orderChart(order);
 
 }
 

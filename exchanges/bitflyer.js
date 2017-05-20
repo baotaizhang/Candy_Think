@@ -98,12 +98,19 @@ exchange.prototype.getBalance = function(retry, cb){
 
             if(!err){
 
-                var assetValue = _.find(data.result, function(value, key) {
-                    return key === asset;
+                var assetValue;
+                var currencyValue;
+
+                data.forEach(function(value){
+                
+                    if(value.currency_code == asset){
+                        assetValue = value.available;
+                    }else if(value.currency_code == currency){
+                        currencyValue = value.available;
+                    }
+                
                 });
-                var currencyValue = _.find(data.result, function(value, key) {
-                    return key === currency;
-                });
+
                 if(!assetValue) {
                     assetValue = 0;
                 }

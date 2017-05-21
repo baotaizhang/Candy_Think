@@ -8,7 +8,6 @@ var _ = require('underscore');
 
 var loggingservice = require(__dirname + '/services/loggingservice.js');
 
-
 var app = function(){
  
     _.bindAll(this, 'initializeModule', 'launchTrader','launchBacktester', 'start');  
@@ -69,7 +68,7 @@ app.prototype.start = function(){
 
     // AnnounceStart
     this.logger.log('----------------------------------------------------');
-    this.logger.debug('Starting CandyThink');
+    this.logger.log('Starting CandyThink');
     this.logger.log('Working Dir = ' + process.cwd());
     this.logger.log('----------------------------------------------------');
 

@@ -13,7 +13,7 @@ var agentService = require(__dirname + '/../services/agent.js');
 var config = require(__dirname + '/../config.js');
 var candyConfig = config.init();
 
-var logger = new loggingservice('backtester');
+var logger = new loggingservice('trader');
 var advisor = new tradingadvisor(logger);
 var firebase = new firebaseService(candyConfig);
 var stream = new streamService(firebase);

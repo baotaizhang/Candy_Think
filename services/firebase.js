@@ -1,9 +1,11 @@
 var _ = require('underscore');
 var async = require('async');
+var moment = require("moment");
 
 var firebase = function(candyConfig){
 
     var admin = require("firebase-admin");
+    this.admin = admin;
     var serviceAccount = require(__dirname + "/../candyConfig/candy-crypto-chart-firebase-adminsdk-szicg-bee5dc8975.json");
 
     //to check if Firebase has already been initialized.
@@ -21,7 +23,8 @@ var firebase = function(candyConfig){
         'boardConnection',
         'settingConnection',
         'placeOrder',
-        'chartUpdate'
+        'chartUpdate',
+        'lineNotification'
     );
 
 };
@@ -46,7 +49,7 @@ firebase.prototype.boardConnection = function(cb){
 
     _.each(exchanges, function(pass, exchange){
 
-        this.FirebaseAccess.child(pass).orderByChild("time").limitToLast(60).on("child_added", function(snapshot) {
+        this.FirebaseAccess.child(pass).orderByChild("time").limitToLast(3).on("child_added", function(snapshot) {
             var data = snapshot.val();
             data.exchange = exchange;
             data.key = snapshot.key;
@@ -57,6 +60,7 @@ firebase.prototype.boardConnection = function(cb){
         });
 
     }.bind(this));
+
 }
 
 firebase.prototype.placeOrder = function(pass, orderType){
@@ -68,15 +72,17 @@ firebase.prototype.placeOrder = function(pass, orderType){
     );
 }
 
-firebase.prototype.lineNotification = function(message, finished){
+firebase.prototype.lineNotification = function(message, time,finished){
 
     this.FirebaseAccess.child('common/system/line/test').push().set({
         "system" : "candy_think",
         "message" : message,
         "time" : moment().format("YYYY-MM-DD HH:mm:ss")
     }).then(function(){
+        finished();
     }, function(error) {
         console.log("Error: " + error);
+        finished();
     });
 
 }

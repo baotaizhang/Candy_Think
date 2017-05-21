@@ -21,6 +21,10 @@ stream.prototype.activation = function(){
         this.emit('settingStream', setting);
     }.bind(this));
 
+    this.firebase.systemConnection(function(system){
+        this.emit('systemStream', system);
+    }.bind(this));
+
     this.firebase.boardConnection(function(boards){
         this.emit('boardsStream', boards);
     }.bind(this));
@@ -29,7 +33,7 @@ stream.prototype.activation = function(){
 
 stream.prototype.placeOrder = function(orderType){
 
-    var pass = 'think/order_1_NotYet/ETH_BTC/' + order.exchange;
+    var pass = 'think/order_1_NotYet/ETH_BTC/' + orderType.exchange;
     this.firebase.placeOrder(pass, orderType);
 
 }

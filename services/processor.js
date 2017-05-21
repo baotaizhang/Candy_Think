@@ -26,14 +26,14 @@ processor.prototype.process = function(groupedBoards, balances) {
         this.advisor.update(groupedBoards, balances, function(orders){
             orders.forEach(function(order){
                 if(order.result) {
-                    this.emit('orderStream', order);
+                    // this.emit('orderStream', order);
                 } else {
                     var err = 'Invalid advice from indicator, should be either: buy or sell.';
                     console.log(err);
                 }
             }.bind(this));
-            finished();
         }.bind(this));
+        finished();
     }.bind(this);
 
     this.q.push({name: 'process', func: wrapper});

@@ -22,9 +22,11 @@ var firebase = function(candyConfig){
     _.bindAll(this,
         'boardConnection',
         'settingConnection',
+        'systemConnection',
         'placeOrder',
         'chartUpdate',
-        'lineNotification'
+        'lineNotification',
+        'disconnect'
     );
 
 };
@@ -34,6 +36,17 @@ firebase.prototype.settingConnection = function(cb){
     this.FirebaseAccess.child('think/settings').on("value", function(snapshot) {
         var data = snapshot.val();
         data.name = 'settings';
+        cb(data);
+    }, function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+    });
+}
+
+firebase.prototype.systemConnection = function(cb){
+
+    this.FirebaseAccess.child('common/system').on("value", function(snapshot) {
+        var data = snapshot.val();
+        data.name = 'system';
         cb(data);
     }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
@@ -65,16 +78,16 @@ firebase.prototype.boardConnection = function(cb){
 
 firebase.prototype.placeOrder = function(pass, orderType){
 
-    this.FirebaseAccess.child(pass + '/test').push().set(orderType).then(function(){
+    this.FirebaseAccess.child(pass + 'test').push().set(orderType).then(function(){
         }, function(error) {
             console.log("Error: " + error);
         }
     );
 }
 
-firebase.prototype.lineNotification = function(message, time,finished){
+firebase.prototype.lineNotification = function(message, finished){
 
-    this.FirebaseAccess.child('common/system/line/test').push().set({
+    this.FirebaseAccess.child('common/system/line').push().set({
         "system" : "candy_think",
         "message" : message,
         "time" : moment().format("YYYY-MM-DD HH:mm:ss")
@@ -99,6 +112,10 @@ firebase.prototype.chartUpdate = function(pass, item, time){
     }, function(error) {
         console.log("Error: " + error);
     });
+}
+
+firebase.prototype.disconnect = function(){
+    this.admin.app().delete();
 }
 
 module.exports = firebase;

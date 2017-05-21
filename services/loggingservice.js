@@ -16,6 +16,9 @@ var firebase = new firebaseService(candyConfig);
 var logger = function(app, setting) {
 
     this.q = async.queue(function (task, callback) {
+        console.log('Added ' + task.name + ' API call to the queue.');
+        console.log('There are currently ' + this.q.running() + ' running jobs and ' + this.q.length() + ' jobs in queue.');
+        
         task.func(function() { setTimeout(callback, 2000); });
     }.bind(this), 1);
 
@@ -51,8 +54,8 @@ var logger = function(app, setting) {
             level: 'DEBUG'})
         ]
     });
-
-    _.bindAll(this, 'log', 'debug', 'error');
+    
+    _.bindAll(this, 'log', 'debug', 'error', 'linelog', 'lineNotification');
 
 };
 
@@ -64,12 +67,11 @@ Util.inherits(logger, EventEmitter);
 
 logger.prototype.lineNotification = function(message){
     var wrapper = function(finished){
-        firebase.lineNotification(message, moment().format('DD-MM-YYYY HH:mm:ss'), finished);
+        firebase.lineNotification(message, finished);
     }.bind(this);
-
     this.q.push({name: 'lineNotification', func: wrapper});
-
 }
+
 
 logger.prototype.log = function(message) {
     this.logger.log('INFO', util.inspect(message));
@@ -83,23 +85,10 @@ logger.prototype.debug = function(message) {
 
 logger.prototype.error = function(module, message) {
     this.logger.log('ERROR', util.inspect(message));
-    this.lineNotification(module + ' でエラーが発生しました。¥n' + err);
 };
 
 logger.prototype.linelog = function(message){
     this.lineNotification(message);
 };
-
-process.on('uncaughtException', function (err) {
-    this.lineNotification('予期しないエラーが発生しました。¥n' + err);
-});
-
-process.on('beforeExit', function(){
-    this.lineNotification('実行中のスレッドの完了次第、exitします。');
-});
-
-process.on('exit', function (code) {
-    this.lineNotification('すべてのプロセスが完了しました。¥n return code: ' + code);
-});
 
 module.exports = logger;

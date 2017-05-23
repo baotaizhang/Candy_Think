@@ -9,6 +9,7 @@ var loggingservice = require(__dirname + '/../services/loggingservice.js');
 var tradingadvisor = require(__dirname + '/../services/advisor.js');
 var exchangeapiService = require(__dirname + '/../services/exchangeapi.js');
 var agentService = require(__dirname + '/../services/agent.js');
+var pocessHandlerService = require(__dirname + '/../services/pocessHandler.js');
 
 var config = require(__dirname + '/../config.js');
 var candyConfig = config.init();
@@ -21,6 +22,7 @@ var streamAggregator = new streamAggregatorService(stream);
 var processor = new processorService(advisor, stream, logger);
 var exchangeapi = new exchangeapiService(candyConfig, logger);
 var agent = new agentService(stream);
+var pocessHandler = new pocessHandlerService(logger, processor, firebase);
 
 var trader = function(){
 
@@ -37,27 +39,12 @@ var trader = function(){
     stream.on('systemStream',function(system){
         if(system.running == 'stop'){
             stream.removeAllListeners('systemStream');
-            logger.lineNotification('緊急停止します。Firebaseから切断します。');
-            var emergencyStop = setInterval(function(){
-                if(processor.q.running() + processor.q.length() + logger.q.running() + logger.q.length() == 0){
-                    firebase.disconnect();
-                    clearInterval(emergencyStop);
-                }else{
-                     logger.lineNotification('稼働中のスレッドの完了を待っています・・・');
-                }
-            },5000);
+            logger.lineNotification("�ً}��~���I������܂����B", function(){
+                systemHandler.emergencyStop();
+            });
         }
     });
 
-    process.on('uncaughtException', function (err) {
-        console.log(err);
-        logger.lineNotification('予期しないエラーが発生しました。¥n' + err);
-    }.bind(this));
-
-    process.on('exit', function (code) {
-        console.log('exit code : ' + code);
-    });
-    
     _.bindAll(this, 'start');
 
 };
@@ -70,8 +57,9 @@ Util.inherits(trader, EventEmitter);
 
 trader.prototype.start = function() {
 
-    logger.lineNotification('trader modeが選択されました。Firebaseに接続します。');
+    logger.lineNotification('trader mode���I������܂����BFirebase�ɐڑ����܂��B');
     stream.activation();
+    processHandler.start();
 
 };
 

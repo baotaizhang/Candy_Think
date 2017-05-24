@@ -4,7 +4,7 @@ var Kraken = require(__dirname + '/../Library/kraken.js');
 
 var exchange = function(candyConfig, logger) {
 
-    this.kraken = new Kraken(candyConfig.kraken.apiKey, candyConfig.kraken.secret);
+    this.kraken = new Kraken(candyConfig.kraken.apiKey, candyConfig.kraken.secret, candyConfig.kraken.otp);
     this.currencyPair = {
         pair: 'XETHXXBT',
         currency: 'XXBT',
@@ -161,6 +161,48 @@ exchange.prototype.getTransactionFee = function(retry, cb) {
     this.q.push({name: 'getTransactionFee', func: wrapper});
 
 };
+
+exchange.prototype.withdrawalStatus = function(retry, cb){
+
+    var args = arguments;
+
+    var wrapper = function(finished) {
+
+        var currency = this.currencyPair.currency;
+
+        var handler = function(err, data) {
+
+            console.log(data);
+            console.log(err);
+            
+        };
+
+        this.kraken.api('WithdrawStatus', {"asset": currency}, this.errorHandler(this.withdrawalStatus, args, retry, 'withdrawalStatus', handler, finished));
+    }.bind(this);
+    this.q.push({name: 'withdrawalStatus', func: wrapper});
+
+}
+
+exchange.prototype.depositStatus = function(retry, cb){
+
+    var args = arguments;
+
+    var wrapper = function(finished) {
+
+        var currency = this.currencyPair.currency;
+
+        var handler = function(err, data) {
+
+            console.log(data);
+            console.log(err);
+            
+        };
+
+        this.kraken.api('DepositStatus', {"asset": currency}, this.errorHandler(this.withdrawalStatus, args, retry, 'withdrawalStatus', handler, finished));
+    }.bind(this);
+    this.q.push({name: 'depositStatus', func: wrapper});
+
+}
 
 
 module.exports = exchange;

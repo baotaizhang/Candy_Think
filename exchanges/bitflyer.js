@@ -165,4 +165,6 @@ exchange.prototype.getTransactionFee = function(retry, cb) {
 
 };
 
+
+
 module.exports = exchange;

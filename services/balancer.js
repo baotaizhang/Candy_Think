@@ -1,37 +1,40 @@
 var cronModule = require('cron').CronJob;
 var _ = require('underscore');
+var async = require('async');
 
-var balancer = function(){
+var balancer = function(exchangeapi){
+
+    this.exchangeapi = exchangeapi;
 
     this.job = new cronModule({
-        cronTime: '*/5 * * * *', 
+        cronTime: '*/1 * * * *', 
         onTick: function() {
-            this.balance();
+            balance(exchangeapi);
         },
-    start: true, 
-    timeZone: "Asia/Tokyo"
+        start: true, 
+        timeZone: "Asia/Tokyo"
     });
 
-    _.bindAll(this, 'balance', start);
+    _.bindAll(this, 'start');
 
 }
 
 //---EventEmitter Setup
 var Util = require('util');
 var EventEmitter = require('events').EventEmitter;
-Util.inherits(backtester, EventEmitter);
+Util.inherits(balancer, EventEmitter);
 //---EventEmitter Setup
 
-balancer.prototype.balance = function(){
+function balance(exchangeapi){
 
     async.series({
         withdrawalStatus: function(next){
-            exchangeApi.withdrawalStatus(true, function(withdrawalStatus){
+            exchangeapi.withdrawalStatus(true, function(withdrawalStatus){
                 next(null, withdrawalStatus);
             });
         },
         balances: function(next){
-            exchangeapi.getBalance(true, function(balances){
+            this.exchangeapi.getBalance(true, function(balances){
                 next(null, balances);  
             });
         }
@@ -43,13 +46,14 @@ balancer.prototype.balance = function(){
 
         if(!isPending){
 
-            async.parallel([
-                function(next){
+           /*
+           async.parallel([
+               function(next){
                     exchangeapi.sendETH(true, 'kraken', result.balances.kraken.eth, candyConfig.bitflyerETHAddress, function(result){
                         console.log(result);
                     });
-                },
-                function(next){
+               },
+               function(next){
                     exchangeapi.sendBTC(true, 'bitflyer', result.balances.bitflyer.btc, candyConfig.krakenBTCAddress, function(result){
                         console.log(result);
                     });
@@ -57,9 +61,11 @@ balancer.prototype.balance = function(){
             ], function(err, result){
                 console.log(err);
             });
-        }
+            */
+            }
+        });
     }
-}
+
 
 balancer.prototype.start = function() {
 
@@ -67,6 +73,4 @@ balancer.prototype.start = function() {
 
 };
 
-var balancerApp = new balancer();
-
-module.exports = balancerApp;
+module.exports = balancer;

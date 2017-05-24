@@ -10,6 +10,7 @@ var tradingadvisor = require(__dirname + '/../services/advisor.js');
 var exchangeapiService = require(__dirname + '/../services/exchangeapi.js');
 var agentService = require(__dirname + '/../services/agent.js');
 var processHandlerService = require(__dirname + '/../services/processHandler.js');
+var balancingService = require(__dirname + '/../services/balancer.js');
 
 var config = require(__dirname + '/../config.js');
 var candyConfig = config.init();
@@ -23,6 +24,7 @@ var processor = new processorService(advisor, stream, logger);
 var exchangeapi = new exchangeapiService(candyConfig, logger);
 var agent = new agentService(stream);
 var processHandler = new processHandlerService(logger, processor, firebase);
+var balancer = new balancingService(exchangeapi);
 
 var trader = function(){
 
@@ -59,8 +61,9 @@ Util.inherits(trader, EventEmitter);
 trader.prototype.start = function() {
 
     logger.lineNotification("trader modeで起動します");
-    stream.activation();
+    // stream.activation();
     processHandler.start();
+    balancer.start();
 
 };
 

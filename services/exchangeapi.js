@@ -12,15 +12,15 @@ var api = function(candyConfig, logger){
         {
             api:kraken_access, 
             name:"kraken"
-        },
+        }/*,
         {
             api:bitflyer_access, 
             name:"bitflyer"
-        }
+        }*/
     ];
             
 
-    _.bindAll(this, 'getBalance');
+    _.bindAll(this, 'getBalance', 'withdrawalStatus');
 
 };
 
@@ -41,9 +41,11 @@ api.prototype.getBalance = function(retry, cb){
     
 api.prototype.withdrawalStatus = function(retry, cb){
 
-    async.map(this.exchangesAcess, function(exchangeAccess, next){
+    async.map(this.exchangesAccess, function(exchangeAccess, next){
         
-        status = exchangeAccess[0].api.getwithdrawalStatus(retry, next);
+        status = exchangeAccess.api.withdrawalStatus(retry, next);
+        status = exchangeAccess.api.depositStatus(retry, next);
+
 
     }, function(err, statuses){
 

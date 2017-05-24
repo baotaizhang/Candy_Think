@@ -18,7 +18,7 @@ processHandler.prototype.emergencyStop = function(){
         if(this.processor.q.running() + this.processor.q.length() + this.logger.q.running() + this.logger.q.length() == 0){
             this.processor.q.pause();
             this.logger.lineNotification("正常に取引モジュールを停止しました。プロセスを完了します", function(){
-                process.exit(0);    
+                process.exit(1);    
             });
         }else{
             this.logger.lineNotification("稼働中のスレッドの完了を待っています・・・");

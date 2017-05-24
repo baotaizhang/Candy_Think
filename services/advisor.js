@@ -79,7 +79,7 @@ var convert = function(groupedBoards, balances){
             exchange : key,
             currency_code : 'BTC',
             amount : balance[key].currencyAvailable
-        
+
         });
 
         candyThinkWay.balance.push({

@@ -138,9 +138,6 @@ candyThink.prototype.arbitrage = function(boards,balance,fee,callback){
         }.bind(this));
     }
 
-    // orderがなければnullをorderにセット
-    callback(this.order);
-
 // いくらの売り買いか確認
 
     var price_buy = 0;
@@ -155,9 +152,9 @@ candyThink.prototype.arbitrage = function(boards,balance,fee,callback){
         price_sell = price_sell + selllist.price * selllist.size;
         num_sell = num_sell + selllist.size;
     });
-    console.log("price_buy:"+price_buy + "    num_buy:" + num_buy);
-    console.log("price_sell:"+price_sell + "    num_sell:" + num_sell);
-    console.log("total:"+(price_sell-price_buy));
+
+    // orderがなければnullをorderにセット
+    callback(this.order, price_sell-price_buy);
 
     //orderをclear
     this.orderclear();
@@ -190,7 +187,7 @@ candyThink.prototype.orderpush = function(eachboardAsk,eachboardBid,num){
     }else if((balance_ask[0].amount > 0 && balance_bid[0].amount > 0) && (balance_ask[0].amount >= cost_ask && balance_bid[0].amount < num) ){
         num_order = balance_bid[0].amount;
         calucrate = 1;
-        _.where(this.balance, {currency_code: 'JPY',exchange : eachboardAsk.exchange})[0].amount = balance_ask[0].amount - (eachboardAsk.amount * num_order);
+        _.where(this.balance, {currency_code: eachboardAsk.product_code.split ("_")[1],exchange : eachboardAsk.exchange})[0].amount = balance_ask[0].amount - (eachboardAsk.amount * num_order);
         _.where(this.balance, {currency_code: eachboardBid.product_code.split ("_")[0],exchange : eachboardBid.exchange})[0].amount = 0;
     }
     //console.log(this.balance);

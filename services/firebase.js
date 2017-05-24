@@ -62,7 +62,7 @@ firebase.prototype.boardConnection = function(cb){
 
     _.each(exchanges, function(pass, exchange){
 
-        this.FirebaseAccess.child(pass).orderByChild("time").limitToLast(3).on("child_added", function(snapshot) {
+        this.FirebaseAccess.child(pass).orderByChild("time").limitToLast(1).on("child_added", function(snapshot) {
             var data = snapshot.val();
             data.exchange = exchange;
             data.key = snapshot.key;
@@ -78,21 +78,27 @@ firebase.prototype.boardConnection = function(cb){
 
 firebase.prototype.placeOrder = function(pass, orderType){
 
-    this.FirebaseAccess.child(pass + 'test').push().set(orderType).then(function(){
+    this.FirebaseAccess.child(pass).push().set(orderType).then(function(){
         }, function(error) {
             console.log("Error: " + error);
         }
     );
 }
 
-firebase.prototype.lineNotification = function(message, finished){
+firebase.prototype.lineNotification = function(message, finished, callback){
+
+    console.log(message);
 
     this.FirebaseAccess.child('common/system/line').push().set({
         "system" : "candy_think",
         "message" : message,
-        "time" : moment().format("YYYY-MM-DD HH:mm:ss")
+        "time" : moment().format("YYYY-MM-DD HH:mm:ss") + 1
     }).then(function(){
-        finished();
+        if (typeof(callback) === 'function' ) { 
+            callback(finished);
+        }else{
+            finished();
+        }
     }, function(error) {
         console.log("Error: " + error);
         finished();

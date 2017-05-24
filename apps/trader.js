@@ -9,7 +9,7 @@ var loggingservice = require(__dirname + '/../services/loggingservice.js');
 var tradingadvisor = require(__dirname + '/../services/advisor.js');
 var exchangeapiService = require(__dirname + '/../services/exchangeapi.js');
 var agentService = require(__dirname + '/../services/agent.js');
-var pocessHandlerService = require(__dirname + '/../services/pocessHandler.js');
+var processHandlerService = require(__dirname + '/../services/processHandler.js');
 
 var config = require(__dirname + '/../config.js');
 var candyConfig = config.init();
@@ -22,7 +22,7 @@ var streamAggregator = new streamAggregatorService(stream);
 var processor = new processorService(advisor, stream, logger);
 var exchangeapi = new exchangeapiService(candyConfig, logger);
 var agent = new agentService(stream);
-var pocessHandler = new pocessHandlerService(logger, processor, firebase);
+var processHandler = new processHandlerService(logger, processor, firebase);
 
 var trader = function(){
 
@@ -39,8 +39,9 @@ var trader = function(){
     stream.on('systemStream',function(system){
         if(system.running == 'stop'){
             stream.removeAllListeners('systemStream');
-            logger.lineNotification("‹Ù‹}’â~‚ª‘I‘ğ‚³‚ê‚Ü‚µ‚½B", function(){
-                systemHandler.emergencyStop();
+            logger.lineNotification("ç·Šæ€¥åœæ­¢ãŒé¸æŠã•ã‚Œã¾ã—ãŸ", function(finished){
+                finished();
+                processHandler.emergencyStop();
             });
         }
     });
@@ -57,7 +58,7 @@ Util.inherits(trader, EventEmitter);
 
 trader.prototype.start = function() {
 
-    logger.lineNotification('trader mode‚ª‘I‘ğ‚³‚ê‚Ü‚µ‚½BFirebase‚ÉÚ‘±‚µ‚Ü‚·B');
+    logger.lineNotification("trader modeã§èµ·å‹•ã—ã¾ã™");
     stream.activation();
     processHandler.start();
 
@@ -66,3 +67,4 @@ trader.prototype.start = function() {
 var traderApp = new trader();
 
 module.exports = traderApp;
+

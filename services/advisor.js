@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var async = require('async');
 var candyThinkOBJ = require(__dirname + '/../indicator/candyThink.js');
+var tools = require(__dirname + '/../util/tools.js');
 
 var candyThink = new candyThinkOBJ();
 
@@ -8,6 +9,7 @@ var advisor = function(logger) {
 
     this.logger = logger;
     this.indicator = candyThink;
+    this.sendingFee = 0.001;
 
   _.bindAll(this, 'update');
 
@@ -21,19 +23,41 @@ Util.inherits(advisor, EventEmitter);
 
 advisor.prototype.update = function(groupedBoards, balance, callback) {
 
+    this.logger.lineNotification("arbitrageを試みます");
+
+    balance.forEach(function(balance){
+    
+        var key = Object.keys(balance)[0];
+        this.logger.lineNotification(key + "の残高は\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + "\nETH : " + tools.round(balance[key].assetAvailable, 8) + "\nです");
+
+    }.bind(this));
+
+
     // convert data with candyThink way.
     // ******************************************************************
     var candyThinkWay = convert(groupedBoards, balance);
     // ******************************************************************
+    
+    this.indicator.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
 
-    this.indicator.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders){
+        var estimatedRevenue = tools.round(revenue - this.sendingFee, 8);
 
-        callback(orders);
-
-    });
+        if(orders.length == 0){
+            this.logger.lineNotification("arbitrage機会はありませんでした");
+            callback(orders);
+        }else if(estimatedRevenue < 0){
+            this.logger.lineNotification(revenue + "BTCが送金手数料" + this.sendingFee + "BTCに満たないため、オーダーは実施しません");
+            callback(orders);
+        }else if(orders && estimatedRevenue >= 0){
+            this.logger.lineNotification("予想最高利益額は" + estimatedRevenue + "BTCです");
+            callback(orders);
+        }else{
+            throw "オーダーの形式に誤りがあります";
+        }
+    }.bind(this));
 };
 
-function convert(groupedBoards, balances){
+var convert = function(groupedBoards, balances){
 
     var candyThinkWay = {
     
@@ -54,7 +78,7 @@ function convert(groupedBoards, balances){
             exchange_type : exchange_type_count,
             exchange : key,
             currency_code : 'BTC',
-            amount : 10000
+            amount : balance[key].currencyAvailable
         
         });
 
@@ -116,6 +140,6 @@ function convert(groupedBoards, balances){
         });
     });
     return candyThinkWay;
-}
+};
 
 module.exports = advisor;

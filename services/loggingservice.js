@@ -65,9 +65,9 @@ var EventEmitter = require('events').EventEmitter;
 Util.inherits(logger, EventEmitter);
 //---EventEmitter Setup
 
-logger.prototype.lineNotification = function(message){
+logger.prototype.lineNotification = function(message, callback){
     var wrapper = function(finished){
-        firebase.lineNotification(message, finished);
+        firebase.lineNotification(message, finished, callback);
     }.bind(this);
     this.q.push({name: 'lineNotification', func: wrapper});
 }

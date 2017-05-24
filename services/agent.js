@@ -10,6 +10,7 @@ var agent = function(stream){
 
 agent.prototype.order = function(ordertype){
     this.stream.placeOrder(ordertype);
+    this.stream.orderChart(ordertype);
 }
 
 module.exports = agent;

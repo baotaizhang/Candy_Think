@@ -5,24 +5,25 @@ var processHandler = function(logger, processor, firebase){
     this.logger = logger;
     this.processor = processor;
     this.firebase = firebase;
-    _.bindAll(this, 'emergencyStop');
+    _.bindAll(this, 'emergencyStop', 'start');
 
 }
 
 processHandler.prototype.emergencyStop = function(){
 
-    this.logger.lineNotification("‹Ù‹}’â~‚ğ‚İ‚Ü‚·");
+    this.logger.lineNotification("ç·Šæ€¥åœæ­¢ã‚’è©¦ã¿ã¾ã™");
     var emergencyStop = setInterval(function(){
 
+        console.log(this.processor.q.running()  + ',' + this.processor.q.length()+ ','  + this.logger.q.running()+ ','  + this.logger.q.length());
         if(this.processor.q.running() + this.processor.q.length() + this.logger.q.running() + this.logger.q.length() == 0){
-            this.logger.lineNotification("‘S‚Ä‚ÌƒvƒƒZƒX‚ÌI—¹‚ğŠm”F‚µ‚Ü‚µ‚½B\nƒVƒXƒeƒ€‚ğI—¹‚µ‚Ü‚·", function(){
-                firebase.disconnect();
-                clearInterval(emergencyStop);
+            this.processor.q.pause();
+            this.logger.lineNotification("æ­£å¸¸ã«å–å¼•ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã‚’åœæ­¢ã—ã¾ã—ãŸã€‚ãƒ—ãƒ­ã‚»ã‚¹ã‚’å®Œäº†ã—ã¾ã™", function(){
+                process.exit(0);    
             });
         }else{
-            logger.lineNotification("‰Ò“­’†‚ÌƒXƒŒƒbƒh‚ÌŠ®—¹‚ğ‘Ò‚Á‚Ä‚¢‚Ü‚·EEE");
+            this.logger.lineNotification("ç¨¼åƒä¸­ã®ã‚¹ãƒ¬ãƒƒãƒ‰ã®å®Œäº†ã‚’å¾…ã£ã¦ã„ã¾ã™ãƒ»ãƒ»ãƒ»");
         }
-    },5000);
+    }.bind(this),5000);
 
 }
 
@@ -30,9 +31,12 @@ processHandler.prototype.start = function(){
 
     process.on('uncaughtException', function (err) {
         console.log(err);
-        this.logger.lineNotification("—\Šú‚µ‚È‚¢ƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½\n" + err);
-        this.emergencyStop();
-    });
+        this.logger.lineNotification("ãƒªã‚«ãƒãƒªä¸å¯ã®ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚ã‚·ã‚¹ãƒ†ãƒ ã‚’å¼·åˆ¶çµ‚äº†ã—ã¾ã™\n" + err, function(finished){
+        
+            process.exit(1);
+        
+        });
+    }.bind(this));
 
     process.on('exit', function (code) {
         console.log('exit code : ' + code);
@@ -41,3 +45,4 @@ processHandler.prototype.start = function(){
 };
 
 module.exports = processHandler;
+

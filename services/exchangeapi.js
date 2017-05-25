@@ -12,11 +12,11 @@ var api = function(candyConfig, logger){
         {
             api:kraken_access, 
             name:"kraken"
-        }/*,
+        },
         {
             api:bitflyer_access, 
             name:"bitflyer"
-        }*/
+        }
     ];
             
 

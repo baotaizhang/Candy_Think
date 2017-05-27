@@ -18,8 +18,18 @@ var exchange = function(candyConfig, logger) {
 
     this.logger = logger;
 
-    _.bindAll(this, 'retry', 'errorHandler', 'getBalance', 'getTransactionFee');
-
+    _.bindAll(this, 
+        'retry', 
+        'errorHandler', 
+        'getBalance', 
+        'getTransactionFee',
+        'currencyWithdrawalStatus', 
+        'assetWithdrawalStatus',
+        'currencyDepositStatus',
+        'assetDepositStatus',
+        'currencyAddress',
+        'assetAddress'
+    );
 };
 
 // using variadic functions to bind
@@ -162,28 +172,60 @@ exchange.prototype.getTransactionFee = function(retry, cb) {
 
 };
 
-exchange.prototype.withdrawalStatus = function(retry, cb){
+exchange.prototype.currencyWithdrawalStatus = function(retry, cb){
 
     var args = arguments;
 
     var wrapper = function(finished) {
-
+        
         var currency = this.currencyPair.currency;
 
         var handler = function(err, data) {
-
-            console.log(data);
-            console.log(err);
-            
+            if(!err){    
+                cb(null, {
+                    kraken : {
+                        status : data.result
+                    }
+                });
+            }else{
+                cb(err, null);
+            }    
         };
 
-        this.kraken.api('WithdrawStatus', {"asset": currency}, this.errorHandler(this.withdrawalStatus, args, retry, 'withdrawalStatus', handler, finished));
+        this.kraken.api('WithdrawStatus', {"asset": currency}, this.errorHandler(this.currencyWithdrawalStatus, args, retry, 'currencyWithdrawalStatus', handler, finished));
+    
     }.bind(this);
-    this.q.push({name: 'withdrawalStatus', func: wrapper});
+    this.q.push({name: 'currencyWithdrawalStatus', func: wrapper});
 
 }
 
-exchange.prototype.depositStatus = function(retry, cb){
+exchange.prototype.assetWithdrawalStatus = function(retry, cb){
+
+    var args = arguments;
+
+    var wrapper = function(finished) {
+
+        var asset = this.currencyPair.asset;
+
+        var handler = function(err, data) {
+            if(!err){    
+                cb(null, {
+                    kraken : {
+                        status : data.result
+                    }
+                });
+            }else{
+                cb(err, null);
+            }    
+        };
+
+        this.kraken.api('WithdrawStatus', {"asset": asset}, this.errorHandler(this.assetWithdrawalStatus, args, retry, 'assetWithdrawalStatus', handler, finished));
+    }.bind(this);
+    this.q.push({name: 'assetWithdrawalStatus', func: wrapper});
+
+}
+
+exchange.prototype.currencyDepositStatus = function(retry, cb){
 
     var args = arguments;
 
@@ -192,17 +234,99 @@ exchange.prototype.depositStatus = function(retry, cb){
         var currency = this.currencyPair.currency;
 
         var handler = function(err, data) {
-
-            console.log(data);
-            console.log(err);
-            
+            if(!err){    
+                cb(null, {
+                    kraken : {
+                        status : data.result
+                    }
+                });
+            }else{
+                cb(err, null);
+            }    
         };
 
-        this.kraken.api('DepositStatus', {"asset": currency}, this.errorHandler(this.withdrawalStatus, args, retry, 'withdrawalStatus', handler, finished));
+        this.kraken.api('DepositStatus', {"asset": currency}, this.errorHandler(this.currencyDepositStatus, args, retry, 'currencyDepositStatus', handler, finished));
     }.bind(this);
     this.q.push({name: 'depositStatus', func: wrapper});
 
 }
 
+exchange.prototype.assetDepositStatus = function(retry, cb){
+
+    var args = arguments;
+
+    var wrapper = function(finished) {
+
+        var asset = this.currencyPair.asset;
+
+        var handler = function(err, data) {
+            if(!err){    
+                cb(null, {
+                    kraken : {
+                        status : data.result
+                    }
+                });
+            }else{
+                cb(err, null);
+            }    
+        };
+
+        this.kraken.api('DepositStatus', {"asset": asset}, this.errorHandler(this.assetDepositStatus, args, retry, 'assetDepositStatus', handler, finished));
+    }.bind(this);
+    this.q.push({name: 'depositStatus', func: wrapper});
+
+}
+
+exchange.prototype.currencyAddress = function(retry, cb){
+
+    var args = arguments;
+
+    var wrapper = function(finished) {
+
+        var currency = this.currencyPair.currency;
+
+        var handler = function(err, data) {
+            if(!err){    
+                cb(null, {
+                    kraken : {
+                        address : data.result
+                    }
+                });
+            }else{
+                cb(err, null);
+            }    
+        };
+
+        this.kraken.api('DepositAddresses', {"asset": currency}, this.errorHandler(this.currencyAddress, args, retry, 'currencyAddress', handler, finished));
+    }.bind(this);
+    this.q.push({name: 'currencyAddress', func: wrapper});
+
+}
+
+exchange.prototype.assetAddress = function(retry, cb){
+
+    var args = arguments;
+
+    var wrapper = function(finished) {
+
+        var asset = this.currencyPair.asset;
+
+        var handler = function(err, data) {
+            if(!err){    
+                cb(null, {
+                    kraken : {
+                        address : data.result
+                    }
+                });
+            }else{
+                cb(err, null);
+            }    
+        };
+
+        this.kraken.api('DepositAddresses', {"asset": asset}, this.errorHandler(this.currencyAddress, args, retry, 'currencyAddress', handler, finished));
+    }.bind(this);
+    this.q.push({name: 'currencyAddress', func: wrapper});
+
+}
 
 module.exports = exchange;

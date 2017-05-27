@@ -20,7 +20,15 @@ var api = function(candyConfig, logger){
     ];
             
 
-    _.bindAll(this, 'getBalance', 'withdrawalStatus');
+    _.bindAll(this, 
+        'getBalance', 
+        'currencyWithdrawalStatus', 
+        'assetWithdrawalStatus',
+        'currencyDepositStatus',
+        'assetDepositStatus',
+        'currencyAddresses',
+        'assetAddresses'
+    );
 
 };
 
@@ -39,22 +47,69 @@ api.prototype.getBalance = function(retry, cb){
     });
 };
     
-api.prototype.withdrawalStatus = function(retry, cb){
-
+api.prototype.currencyWithdrawalStatus = function(retry, cb){
     async.map(this.exchangesAccess, function(exchangeAccess, next){
-        
-        status = exchangeAccess.api.withdrawalStatus(retry, next);
-        status = exchangeAccess.api.depositStatus(retry, next);
-
-
+        status = exchangeAccess.api.currencyWithdrawalStatus(retry, next);
     }, function(err, statuses){
-
         if(err){
-            console.log(err);
+            throw err;
         }
-        
         cb(statuses);
+    });
+};
 
+api.prototype.assetWithdrawalStatus = function(retry, cb){
+    async.map(this.exchangesAccess, function(exchangeAccess, next){
+        status = exchangeAccess.api.assetWithdrawalStatus(retry, next);
+    }, function(err, statuses){
+        if(err){
+            throw err;
+        }
+        cb(statuses);
+    });
+};
+
+api.prototype.currencyDepositStatus = function(retry, cb){
+    async.map(this.exchangesAccess, function(exchangeAccess, next){
+        status = exchangeAccess.api.currencyDepositStatus(retry, next);
+    }, function(err, statuses){
+        if(err){
+            throw err;
+        }
+        cb(statuses);
+    });
+};
+
+api.prototype.assetDepositStatus = function(retry, cb){
+    async.map(this.exchangesAccess, function(exchangeAccess, next){
+        status = exchangeAccess.api.assetDepositStatus(retry, next);
+    }, function(err, statuses){
+        if(err){
+            throw err;
+        }
+        cb(statuses);
+    });
+};
+
+api.prototype.currencyAddresses = function(retry, cb){
+    async.map(this.exchangesAccess, function(exchangeAccess, next){
+        status = exchangeAccess.api.currencyAddress(retry, next);
+    }, function(err, addresses){
+        if(err){
+            throw err;
+        }
+        cb(addresses);
+    });
+};
+
+api.prototype.assetAddresses = function(retry, cb){
+    async.map(this.exchangesAccess, function(exchangeAccess, next){
+        status = exchangeAccess.api.assetAddress(retry, next);
+    }, function(err, addresses){
+        if(err){
+            throw err;
+        }
+        cb(addresses);
     });
 };
 

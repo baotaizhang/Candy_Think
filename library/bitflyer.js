@@ -37,7 +37,7 @@ function bitflyerClient(key, secret, otp){
     function api(method, query, body, callback) {
         var methods = {
             public: [],
-            private: ['getbalance','gettradingcommission']
+            private: ['getbalance','gettradingcommission','getcoinins','getcoinouts','getaddresses']
         };
         if(methods.public.indexOf(method) !== -1) {
             return publicMethod(method, query, body, callback);
@@ -46,7 +46,7 @@ function bitflyerClient(key, secret, otp){
             return privateMethod(method, query, body, callback);
         }
         else {
-            throw new Error(methods + ' is not a valid API method.');
+            throw new Error(method + ' is not a valid API method.');
         }
     }
 
@@ -164,7 +164,7 @@ function bitflyerClient(key, secret, otp){
                         }
                     });
                     if (bitflyerError) {
-                        return callback.call(self, new Error('Kraken API returned error: ' + krakenError), null);
+                        return callback.call(self, new Error('bitflyer API returned error: ' + bitflyerError), null);
                     }
                 }
                 else {

@@ -18,8 +18,18 @@ var exchange = function(candyConfig, logger) {
 
     this.logger = logger;
 
-    _.bindAll(this, 'retry', 'errorHandler', 'getBalance', 'getTransactionFee');
-
+    _.bindAll(this, 
+        'retry', 
+        'errorHandler', 
+        'getBalance', 
+        'getTransactionFee',
+        'currencyWithdrawalStatus', 
+        'assetWithdrawalStatus',
+        'currencyDepositStatus',
+        'assetDepositStatus',
+        'currencyAddress',
+        'assetAddress'
+    );
 };
 
 // using variadic functions to bind
@@ -38,7 +48,7 @@ exchange.prototype.retry = function(method, args) {
     }, 1000*15);
 };
 
-exchange.prototype.errorHandler = function(caller, receivedArgs, retlyAllowed, callerName, handler, finished){
+exchange.prototype.errorHandler = function(caller, receivedArgs, retryAllowed, callerName, handler, finished){
 
     return function(err, result){
         var args = _.toArray(receivedArgs);
@@ -165,6 +175,166 @@ exchange.prototype.getTransactionFee = function(retry, cb) {
 
 };
 
+exchange.prototype.currencyWithdrawalStatus = function(retry, cb){
 
+    var args = arguments;
+
+    var wrapper = function(finished) {
+        
+        var currency = this.currencyPair.currency;
+
+        var handler = function(err, data) {
+            if(!err){    
+                cb(null, {
+                    bitflyer : {
+                        status : _.filter(data, function(status){ return status.currency_code == currency})
+                    }
+                });
+            }else{
+                cb(err, null);
+            }    
+        };
+
+        this.bitflyer.api('getcoinouts', null, null, this.errorHandler(this.currencyWithdrawalStatus, args, retry, 'currencyWithdrawalStatus', handler, finished));
+    
+    }.bind(this);
+    this.q.push({name: 'currencygetcoinouts', func: wrapper});
+
+}
+
+exchange.prototype.assetWithdrawalStatus = function(retry, cb){
+
+    var args = arguments;
+
+    var wrapper = function(finished) {
+        
+        var asset = this.currencyPair.asset;
+
+        var handler = function(err, data) {
+            if(!err){    
+                cb(null, {
+                    bitflyer : {
+                        status : _.filter(data, function(status){ return status.currency_code == asset})
+                    }
+                });
+            }else{
+                cb(err, null);
+            }    
+        };
+
+        this.bitflyer.api('getcoinouts', null, null, this.errorHandler(this.assetWithdrawalStatus, args, retry, 'assetWithdrawalStatus', handler, finished));
+    
+    }.bind(this);
+    this.q.push({name: 'currencygetcoinouts', func: wrapper});
+
+}
+
+exchange.prototype.currencyDepositStatus = function(retry, cb){
+
+    var args = arguments;
+
+    var wrapper = function(finished) {
+        
+        var currency = this.currencyPair.currency;
+
+        var handler = function(err, data) {
+            if(!err){    
+                cb(null, {
+                    bitflyer : {
+                        status : _.filter(data, function(status){ return status.currency_code == currency})
+                    }
+                });
+            }else{
+                cb(err, null);
+            }    
+        };
+
+        this.bitflyer.api('getcoinins', null, null, this.errorHandler(this.currencyDepositStatus, args, retry, 'currencyDepositStatus', handler, finished));
+    
+    }.bind(this);
+    this.q.push({name: 'currencygetcoinins', func: wrapper});
+
+}
+
+exchange.prototype.assetDepositStatus = function(retry, cb){
+
+    var args = arguments;
+
+    var wrapper = function(finished) {
+        
+        var asset = this.currencyPair.asset;
+
+        var handler = function(err, data) {
+            if(!err){    
+                cb(null, {
+                    bitflyer : {
+                        status : _.filter(data, function(status){ return status.currency_code == asset})
+                    }
+                });
+            }else{
+                cb(err, null);
+            }    
+        };
+
+        this.bitflyer.api('getcoinins', null, null, this.errorHandler(this.assetDepositStatus, args, retry, 'assetDepositStatus', handler, finished));
+    
+    }.bind(this);
+    this.q.push({name: 'currencygetcoinins', func: wrapper});
+
+}
+
+exchange.prototype.currencyAddress = function(retry, cb){
+
+    var args = arguments;
+
+    var wrapper = function(finished) {
+        
+        var currency = this.currencyPair.currency;
+
+        var handler = function(err, data) {
+            if(!err){    
+                cb(null, {
+                    bitflyer : {
+                        address : _.filter(data, function(status){ return status.currency_code == currency})
+                    }
+                });
+            }else{
+                cb(err, null);
+            }    
+        };
+
+        this.bitflyer.api('getaddresses', null, null, this.errorHandler(this.currencyAddress, args, retry, 'currencyAddress', handler, finished));
+    
+    }.bind(this);
+    this.q.push({name: 'currencyAddress', func: wrapper});
+
+}
+
+exchange.prototype.assetAddress = function(retry, cb){
+
+    var args = arguments;
+
+    var wrapper = function(finished) {
+        
+        var asset = this.currencyPair.asset;
+
+        var handler = function(err, data) {
+            if(!err){    
+                cb(null, {
+                    bitflyer : {
+                        address : _.filter(data, function(status){ return status.currency_code == asset})
+                    }
+                });
+            }else{
+                cb(err, null);
+            }    
+        };
+
+        this.bitflyer.api('getaddresses', null, null, this.errorHandler(this.currencyAddress, args, retry, 'assetAddress', handler, finished));
+    
+    }.bind(this);
+    this.q.push({name: 'assetAddress', func: wrapper});
+
+}
 
 module.exports = exchange;

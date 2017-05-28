@@ -77,16 +77,17 @@ function balance(exchangeapi, logger){
         };
 
         var target = _.union(result.currencyWithdrawalStatus, result.assetWithdrawalStatus, result.currencyDepositStatus, result.assetDepositStatus);
+        var isPending = false;
 
         async.each(target, function(object, next){
             _.each(object, function(item, key){
                 _.each(item.status, function(item){
                     if(item.status != 'Success' && item.status != 'COMPLETED'){
-                        next("isPending");
+                        isPending = true;
                     }
                 })
             })
-            next();
+            next(isPending);
         }, function(isPending){
             if(!isPending){
                 async.parallel({
@@ -157,6 +158,8 @@ function balance(exchangeapi, logger){
                     }
                 })
                         
+            }else{
+                logger.lineNotification("pending statusの残高があるため、バランシングは実施しません");
             }
         });
     });   

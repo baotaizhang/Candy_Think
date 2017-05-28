@@ -120,13 +120,13 @@ api.prototype.sendBTC = function(retry, access, balance, address, cb){
             callback(item.name == access);
         },
         function(exchangeAccess){
-            exchangeAccess[0].api.sendBTC(retry, balance, access, function(err, result){
+            exchangeAccess[0].api.sendBTC(retry, access, balance, address, function(err, result){
 
                 if(err){
                     console.log(err);
                 }
 
-                cb(statuses);        
+                cb(result);        
             });
         }
     );
@@ -140,13 +140,13 @@ api.prototype.sendETH = function(retry, access, balance, address, cb){
             callback(item.name == access);
         },
         function(exchangeAccess){
-            exchangeAccess[0].api.sendETH(retry, balance, access, function(err, result){
+            exchangeAccess[0].api.sendETH(retry, access, balance, address, function(err, result){
 
                 if(err){
-                    console.log(err);
+                    throw err;
                 }
 
-                cb(statuses);        
+                cb(result);        
             });
         }
     );

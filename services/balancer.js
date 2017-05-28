@@ -6,7 +6,7 @@ var tools = require(__dirname + '/../util/tools.js');
 var balancer = function(exchangeapi, logger){
 
     this.job = new cronModule({
-        cronTime: '*/6 * * * *', 
+        cronTime: '*/3 * * * *', 
         onTick: function() {
             balance(exchangeapi, logger);
         },
@@ -78,79 +78,86 @@ function balance(exchangeapi, logger){
 
         var target = _.union(result.currencyWithdrawalStatus, result.assetWithdrawalStatus, result.currencyDepositStatus, result.assetDepositStatus);
 
-        _.each(target, function(object, key){
+        async.each(target, function(object, next){
             _.each(object, function(item, key){
                 _.each(item.status, function(item){
                     if(item.status != 'Success' && item.status != 'COMPLETED'){
-
-                        logger.lineNotification("Pending statusの送金が存在するため、バランシングは実施しません");
-
-                    }else{
-                        async.parallel({
-                            sendingAmount : function(next){
-
-                                var sendingAmount = {};
-
-                                result.balances.forEach(function(balance){
-                                    var key = Object.keys(balance)[0];
-                                    sendingAmount[key] = {
-                                        btc : balance[key].currencyAvailable,
-                                        eth : balance[key].assetAvailable
-                                    };
-                                });
-
-                                next(null, sendingAmount);
-
-                            },
-                            address : function(next){
-
-                                var address = {};
-
-                                result.assetAddresses.forEach(function(assetAddress){
-
-                                    var key = Object.keys(assetAddress)[0];
-                                    address[key] = {
-                                        eth : assetAddress[key].address[0].address
-                                    };
-
-                                });
-
-                                result.currencyAddresses.forEach(function(currencyAddress){
-
-                                    var key = Object.keys(currencyAddress)[0];
-                                    address[key] = {
-                                        btc : currencyAddress[key].address[0].address
-                                    };
-
-                                });
-
-                                next(null, address);
-
-                            }
-                        }, function(err, result){
-
-                            if(err){
-
-                                throw err;
-
-                            }
-
-                            logger.lineNotification("送金を開始\nTo Kraken : " + tools.round(result.sendingAmount.bitflyer.btc,8) + "BTC\nTo Bitflyer : " + tools.round(result.sendingAmount.kraken.eth, 8) + "ETH", function(finished){
-
-                                exchangeapi.sendBTC(true, 'bitflyer', result.sendingAmount.bitflyer.btc, result.address.kraken.btc, function(result){
-                                    console.log(result);
-                                });
-                                exchangeapi.sendETH(true, 'kraken', result.sendingAmount.kraken.eth, result.address.bitflyer.eth, function(result){
-                                    console.log(result);
-                                });
-
-                                finished();
-                            });
-                        });
-                        
+                        next("isPending");
                     }
                 })
             })
+            next();
+        }, function(isPending){
+            if(!isPending){
+                async.parallel({
+                    sendingAmount : function(next){
+
+                        var sendingAmount = {};
+
+                        result.balances.forEach(function(balance){
+                            var key = Object.keys(balance)[0];
+                            sendingAmount[key] = {
+                                btc : balance[key].currencyAvailable,
+                                eth : balance[key].assetAvailable
+                            };
+                        });
+
+                        next(null, sendingAmount);
+
+                    },
+                    address : function(next){
+
+                        var address = {};
+
+                        result.assetAddresses.forEach(function(assetAddress){
+
+                            var key = Object.keys(assetAddress)[0];
+                            address[key] = {
+                                eth : assetAddress[key].address[0].address
+                            };
+
+                        });
+
+                        result.currencyAddresses.forEach(function(currencyAddress){
+
+                            var key = Object.keys(currencyAddress)[0];
+                            address[key] = {
+                                btc : currencyAddress[key].address[0].address
+                            };
+
+                        });
+
+                        next(null, address);
+
+                    }
+                }, function(err, result){
+
+                    if(err){
+
+                        throw err;
+
+                    }
+
+                    if(result.sendingAmount.bitflyer.btc > 0.001){
+                        logger.lineNotification("送金を開始\nTo kraken : " + tools.round(result.sendingAmount.bitflyer.btc, 8) + "BTC");
+                        exchangeapi.sendBTC(false, 'bitflyer', result.sendingAmount.bitflyer.btc, result.address.kraken.btc, function(result){
+                            console.log(result);
+                        });
+                    }
+
+                    if(result.sendingAmount.kraken.eth > 0.01){
+                        logger.lineNotification("送金を開始\nTo bitflyer : " + tools.round(result.sendingAmount.kraken.eth, 8) + "ETH");
+                        exchangeapi.sendETH(false, 'kraken', result.sendingAmount.kraken.eth, "bitflyer_eth", function(result){
+                            console.log(result);
+                        });
+                    }
+                    
+                    if(result.sendingAmount.kraken.eth < 0.01 && result.sendingAmount.bitflyer.btc < 0.001){
+                        logger.lineNotification("送金が必要な残高はありません");
+                    }
+                })
+                        
+            }
         });
     });   
 }

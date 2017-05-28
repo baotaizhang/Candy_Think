@@ -63,7 +63,7 @@ trader.prototype.start = function() {
     logger.lineNotification("trader modeで起動します");
     stream.activation();
     processHandler.start();
-    balancer.start();
+    // balancer.start();
 
 };
 

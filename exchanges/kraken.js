@@ -76,7 +76,7 @@ exchange.prototype.errorHandler = function(caller, receivedArgs, retryAllowed, c
 
                 if(retryAllowed) {
 
-                    this.logger.error('Retrying in 15 seconds!');
+                    this.logger.error('Retrying in 31 seconds!');
                     return this.retry(caller, args);
                     
                 }
@@ -326,6 +326,58 @@ exchange.prototype.assetAddress = function(retry, cb){
         this.kraken.api('DepositAddresses', {"asset": asset, "method" : "Ether (Hex)"}, this.errorHandler(this.currencyAddress, args, retry, 'currencyAddress', handler, finished));
     }.bind(this);
     this.q.push({name: 'currencyAddress', func: wrapper});
+
+}
+
+exchange.prototype.sendBTC = function(retry, access, balance, address, cb){
+
+    var args = arguments;
+
+    var wrapper = function(finished) {
+
+        var currency = this.currencyPair.currency;
+
+        var handler = function(err, data) {
+            if(!err){    
+                cb(null, {
+                    kraken : {
+                        refid : data.result
+                    }
+                });
+            }else{
+                cb(err, null);
+            }    
+        };
+
+        this.kraken.api('Withdraw', {"asset": currency, key : address, amount : balance}, this.errorHandler(this.sendBTC, args, retry, 'sendBTC', handler, finished));
+    }.bind(this);
+    this.q.push({name: 'Withdraw', func: wrapper});
+
+}
+
+exchange.prototype.sendETH = function(retry, access, balance, address, cb){
+
+    var args = arguments;
+
+    var wrapper = function(finished) {
+
+        var asset = this.currencyPair.asset;
+
+        var handler = function(err, data) {
+            if(!err){    
+                cb(null, {
+                    kraken : {
+                        refid : data.result
+                    }
+                });
+            }else{
+                cb(err, null);
+            }    
+        };
+
+        this.kraken.api('Withdraw', {"asset": asset, key : address, amount : balance}, this.errorHandler(this.sendETH, args, retry, 'sendETH', handler, finished));
+    }.bind(this);
+    this.q.push({name: 'Withdraw', func: wrapper});
 
 }
 

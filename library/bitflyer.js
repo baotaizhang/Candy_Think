@@ -36,18 +36,28 @@ function bitflyerClient(key, secret, otp){
 
     function api(method, query, body, callback) {
         var methods = {
-            public: [],
-            private: ['getbalance','gettradingcommission','getcoinins','getcoinouts','getaddresses']
+            get_public: [],
+            post_public: [],
+            get_private: ['getbalance','gettradingcommission','getcoinins','getcoinouts','getaddresses'],
+            post_private: ['sendcoin']
         };
-        if(methods.public.indexOf(method) !== -1) {
-            return publicMethod(method, query, body, callback);
+        
+        if(methods.get_public.indexOf(method) !== -1) {
+            return publicMethod(method, query, body, 'GET', callback);
         }
-        else if(methods.private.indexOf(method) !== -1) {
-            return privateMethod(method, query, body, callback);
+        else if(methods.post_public.indexOf(method) !== -1) {
+            return publicMethod(method, query, body, 'POST', callback);
+        }
+        else if(methods.get_private.indexOf(method) !== -1) {
+            return privateMethod(method, query, body, 'GET', callback);
+        }
+        else if(methods.post_private.indexOf(method) !== -1) {
+            return privateMethod(method, query, body, 'POST', callback);
         }
         else {
-            throw new Error(method + ' is not a valid API method.');
+            throw new Error(methods + ' is not a valid API method.');
         }
+
     }
 
     /**
@@ -58,7 +68,7 @@ function bitflyerClient(key, secret, otp){
      * @return {Object}            The request object
      */
 
-    function publicMethod(method, query, body, callback) {
+    function publicMethod(method, query, body, httpmethod, callback) {
         query = query || {};
         body = body || null;
 
@@ -67,7 +77,7 @@ function bitflyerClient(key, secret, otp){
         url.query = query;
         url = nodeurl.format(url);
 
-        return rawRequest(url, {}, body, callback);
+        return rawRequest(url, {}, body, httpmethod, callback);
     }
 
 
@@ -79,7 +89,7 @@ function bitflyerClient(key, secret, otp){
      * @return {Object}            The request object
      */
 
-    function privateMethod(method, query, body, callback) {
+    function privateMethod(method, query, body, httpmethod, callback) {
 
         query = query || {};
         body = body || null;
@@ -89,7 +99,7 @@ function bitflyerClient(key, secret, otp){
         url.query = query;
         url = nodeurl.format(url);
 
-        var signature = getMessageSignature(timestamp, nodeurl.parse(url).path, body);
+        var signature = getMessageSignature(timestamp, nodeurl.parse(url).path, httpmethod, body);
 
         var headers = {
             'ACCESS-KEY': config.key,
@@ -98,7 +108,7 @@ function bitflyerClient(key, secret, otp){
             'Content-Type': 'application/json'
         };
 
-        return rawRequest(url, headers, body, callback);
+        return rawRequest(url, headers, body, httpmethod, callback);
     }
 
     /**
@@ -108,11 +118,15 @@ function bitflyerClient(key, secret, otp){
      * @param  {Integer} nonce   A unique, incrementing integer
      * @return {String}          The request signature
      */
-    function getMessageSignature(timestamp, path, body) {
+    function getMessageSignature(timestamp, path, httpmethod, body) {
 
-        var method = 'GET';
+        var method = httpmethod;
         var secret = config.secret;
         var text = timestamp + method + path;
+
+        if(body){
+            text+= body;
+        }
 
         var hmac_digest = crypto.createHmac('sha256', secret).update(text).digest('hex');
 
@@ -128,13 +142,13 @@ function bitflyerClient(key, secret, otp){
      * @return {Object}            The request object
      */
 
-    function rawRequest(url, headers, body, callback){
+    function rawRequest(url, headers, body, httpmethod, callback){
         // Set custom User-Agent string
         // headers['User-Agent'] = 'Bitflyer Javascript API Client';
 
         var options = {
             url: url,
-            method: 'GET',
+            method: httpmethod,
             headers: headers 
         };
 
@@ -155,20 +169,8 @@ function bitflyerClient(key, secret, otp){
 
                 //If any errors occured, Bitflyer will give back an array with error strings under
                 //the key "error". We should then propagate back the error message as a proper error.
-                if(data.error && data.error.length) {
-                    var bitflyerError = null;
-                    data.error.forEach(function(element) {
-                        if (element.charAt(0) === "E") {
-                            bitflyerError = element.substr(1);
-                            return false;
-                        }
-                    });
-                    if (bitflyerError) {
-                        return callback.call(self, new Error('bitflyer API returned error: ' + bitflyerError), null);
-                    }
-                }
-                else {
-                    return callback.call(self, null, data);
+                if(data.error_message) {
+                    return callback.call(self, new Error('bitflyer API returned error: ' + data.error_message), null);
                 }
             }
         });

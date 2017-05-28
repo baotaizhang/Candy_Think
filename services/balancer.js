@@ -6,7 +6,7 @@ var tools = require(__dirname + '/../util/tools.js');
 var balancer = function(exchangeapi, logger){
 
     this.job = new cronModule({
-        cronTime: '*/3 * * * *', 
+        cronTime: '*/6 * * * *', 
         onTick: function() {
             balance(exchangeapi, logger);
         },
@@ -140,7 +140,7 @@ function balance(exchangeapi, logger){
 
                     if(result.sendingAmount.bitflyer.btc > 0.001){
                         logger.lineNotification("送金を開始\nTo kraken : " + tools.round(result.sendingAmount.bitflyer.btc, 8) + "BTC");
-                        exchangeapi.sendBTC(false, 'bitflyer', result.sendingAmount.bitflyer.btc, result.address.kraken.btc, function(result){
+                        exchangeapi.sendBTC(false, 'bitflyer', result.sendingAmount.bitflyer.btc - 0.0006, result.address.kraken.btc, function(result){
                             console.log(result);
                         });
                     }

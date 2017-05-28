@@ -357,12 +357,12 @@ exchange.prototype.sendBTC = function(retry, access, balance, address, cb){
             }    
         };
 
-        var body = {
+        var body = JSON.stringify({
             "currency_code": currency,
             "amount": balance,
             "address": address,
             "additional_fee": 0.0001
-        };
+        });
 
         this.bitflyer.api('sendcoin', null, body, this.errorHandler(this.sendBTC, args, retry, 'sendBTC', handler, finished));
     
@@ -391,18 +391,16 @@ exchange.prototype.sendETH = function(retry, access, balance, address, cb){
             }    
         };
 
-        var body = {
+        var body = JSON.stringify({
             "currency_code": asset,
             "amount": balance,
-            "address": address,
-            "additional_fee": 0.0001
-        };
+            "address": address
+        });
 
         this.bitflyer.api('sendcoin', null, body, this.errorHandler(this.sendETH, args, retry, 'sendETH', handler, finished));
-    
     }.bind(this);
     this.q.push({name: 'sendcoin', func: wrapper});
 
 }
 
-module.exports = exchange;
+module.exports = exchange;        

@@ -146,11 +146,20 @@ function bitflyerClient(key, secret, otp){
         // Set custom User-Agent string
         // headers['User-Agent'] = 'Bitflyer Javascript API Client';
 
-        var options = {
-            url: url,
-            method: httpmethod,
-            headers: headers 
-        };
+       if(httpmethod == 'GET'){
+            var options = {
+                url: url,
+                method: httpmethod,
+                headers: headers 
+            };
+        }else{
+            var options = {
+                url: url,
+                method: httpmethod,
+                body: body,
+                headers: headers 
+            };
+        } 
 
         var req = request(options, function(error, response, body){
             if(typeof callback === 'function'){
@@ -167,10 +176,13 @@ function bitflyerClient(key, secret, otp){
                     return callback.call(self, new Error('Could not understand response from server: ' + body), null);
                 }
 
-                //If any errors occured, Bitflyer will give back an array with error strings under
-                //the key "error". We should then propagate back the error message as a proper error.
-                if(data.error_message) {
-                    return callback.call(self, new Error('bitflyer API returned error: ' + data.error_message), null);
+                //If any errors occured, Bitflyer will give back error status 
+                //https://bitflyer.jp/ja/corporate/echo/api
+                if(data.status <= -100){
+                    return callback.call(self, new Error('Bitflyer API returned error: ' + data.status + ':' + data.error_message), null);
+                }
+                else {
+                    return callback.call(self, null, data);
                 }
             }
         });

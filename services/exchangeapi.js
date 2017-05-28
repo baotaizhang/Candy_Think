@@ -117,7 +117,7 @@ api.prototype.sendBTC = function(retry, access, balance, address, cb){
     async.filter(
         this.exchangesAccess,
         function(item, callback) {
-            callback(item.name == orderinfo.exchange);
+            callback(item.name == access);
         },
         function(exchangeAccess){
             exchangeAccess[0].api.sendBTC(retry, balance, access, function(err, result){
@@ -137,7 +137,7 @@ api.prototype.sendETH = function(retry, access, balance, address, cb){
     async.filter(
         this.exchangesAccess,
         function(item, callback) {
-            callback(item.name == orderinfo.exchange);
+            callback(item.name == access);
         },
         function(exchangeAccess){
             exchangeAccess[0].api.sendETH(retry, balance, access, function(err, result){

@@ -1,11 +1,12 @@
 var cronModule = require('cron').CronJob;
 var _ = require('underscore');
 var async = require('async');
+var tools = require(__dirname + '/../util/tools.js');
 
 var balancer = function(exchangeapi, logger){
 
     this.job = new cronModule({
-        cronTime: '*/1 * * * *', 
+        cronTime: '*/6 * * * *', 
         onTick: function() {
             balance(exchangeapi, logger);
         },
@@ -25,7 +26,7 @@ Util.inherits(balancer, EventEmitter);
 
 function balance(exchangeapi, logger){
 
-    logger.lineNotification("バランシングを実施します");
+    logger.lineNotification("バランシングを試みます");
 
     async.series({
         assetWithdrawalStatus: function(next){
@@ -75,36 +76,83 @@ function balance(exchangeapi, logger){
             throw err;
         };
 
-        var target = _.values(_.values(_.union(_.values(result.currencyWithdrawalStatus), _.values(result.assetWithdrawalStatus), _.values(result.currencyDepositStatus), _.values(result.assetDepositStatus))));
+        var target = _.union(result.currencyWithdrawalStatus, result.assetWithdrawalStatus, result.currencyDepositStatus, result.assetDepositStatus);
 
-        async.filter(_.union(_.values(result.currencyWithdrawalStatus), _.values(result.assetWithdrawalStatus), _.values(result.currencyDepositStatus), _.values(result.assetDepositStatus)), function(status, next){
-            next(status != 'Success' || 'COMPLETED');
-        }, function(isPending){
+        _.each(target, function(object, key){
+            _.each(object, function(item, key){
+                _.each(item.status, function(item){
+                    if(item.status != 'Success' && item.status != 'COMPLETED'){
 
-            console.log(isPending);
-            
-            if(_.isEmpty(isPending)){
-                /*
-                async.parallel([
-                    function(next){
-                        exchangeapi.sendETH(true, 'kraken', result.balances.kraken.eth, result.bitflyerETHAddress, function(result){
-                            console.log(result);
+                        logger.lineNotification("Pending statusの送金が存在するため、バランシングは実施しません");
+
+                    }else{
+                        async.parallel({
+                            sendingAmount : function(next){
+
+                                var sendingAmount = {};
+
+                                result.balances.forEach(function(balance){
+                                    var key = Object.keys(balance)[0];
+                                    sendingAmount[key] = {
+                                        btc : balance[key].currencyAvailable,
+                                        eth : balance[key].assetAvailable
+                                    };
+                                });
+
+                                next(null, sendingAmount);
+
+                            },
+                            address : function(next){
+
+                                var address = {};
+
+                                result.assetAddresses.forEach(function(assetAddress){
+
+                                    var key = Object.keys(assetAddress)[0];
+                                    address[key] = {
+                                        eth : assetAddress[key].address[0].address
+                                    };
+
+                                });
+
+                                result.currencyAddresses.forEach(function(currencyAddress){
+
+                                    var key = Object.keys(currencyAddress)[0];
+                                    address[key] = {
+                                        btc : currencyAddress[key].address[0].address
+                                    };
+
+                                });
+
+                                next(null, address);
+
+                            }
+                        }, function(err, result){
+
+                            if(err){
+
+                                throw err;
+
+                            }
+
+                            logger.lineNotification("送金を開始\nTo Kraken : " + tools.round(result.sendingAmount.bitflyer.btc,8) + "BTC\nTo Bitflyer : " + tools.round(result.sendingAmount.kraken.eth, 8) + "ETH", function(finished){
+
+                                exchangeapi.sendBTC(true, 'bitflyer', result.sendingAmount.bitflyer.btc, result.address.kraken.btc, function(result){
+                                    console.log(result);
+                                });
+                                exchangeapi.sendETH(true, 'kraken', result.sendingAmount.kraken.eth, result.address.bitflyer.eth, function(result){
+                                    console.log(result);
+                                });
+
+                                finished();
+                            });
                         });
-                    },
-                    function(next){
-                        exchangeapi.sendBTC(true, 'bitflyer', result.balances.bitflyer.btc, result.krakenBTCAddress, function(result){
-                            console.log(result);
-                        });
+                        
                     }
-                ], function(err, result){
-                    console.log(err);
-                });
-                */
-            }else{
-                logger.lineNotification("送金中のため、バランシングは実施しません");
-            }
-        })
-    });
+                })
+            })
+        });
+    });   
 }
 
 

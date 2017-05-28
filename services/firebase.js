@@ -89,7 +89,7 @@ firebase.prototype.lineNotification = function(message, finished, callback){
 
     console.log(message);
 
-    this.FirebaseAccess.child('common/system/test').push().set({
+    this.FirebaseAccess.child('common/system/line').push().set({
         "system" : "candy_think",
         "message" : message,
         "time" : moment().format("YYYY-MM-DD HH:mm:ss") + 1

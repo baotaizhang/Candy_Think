@@ -61,7 +61,7 @@ Util.inherits(trader, EventEmitter);
 trader.prototype.start = function() {
 
     logger.lineNotification("trader modeで起動します");
-    // stream.activation();
+    stream.activation();
     processHandler.start();
     balancer.start();
 

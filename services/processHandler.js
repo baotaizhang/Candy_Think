@@ -14,7 +14,6 @@ processHandler.prototype.emergencyStop = function(){
     this.logger.lineNotification("緊急停止を試みます");
     var emergencyStop = setInterval(function(){
 
-        console.log(this.processor.q.running()  + ',' + this.processor.q.length()+ ','  + this.logger.q.running()+ ','  + this.logger.q.length());
         if(this.processor.q.running() + this.processor.q.length() + this.logger.q.running() + this.logger.q.length() == 0){
             this.processor.q.pause();
             this.logger.lineNotification("正常に取引モジュールを停止しました。プロセスを完了します", function(){

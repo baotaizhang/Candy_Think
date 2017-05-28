@@ -13,7 +13,7 @@ var exchange = function(candyConfig, logger) {
     this.q = async.queue(function (task, callback) {
         this.logger.debug('Added ' + task.name + ' API call to the queue.');
         this.logger.debug('There are currently ' + this.q.running() + ' running jobs and ' + this.q.length() + ' jobs in queue.');
-        task.func(function() { setTimeout(callback, 2000); });
+        task.func(function() { setTimeout(callback, 3100); });
     }.bind(this), 1);
 
     this.logger = logger;
@@ -45,7 +45,7 @@ exchange.prototype.retry = function(method, args) {
 
     setTimeout(function() {
         method.apply(self, args);
-    }, 1000*15);
+    }, 1000*31);
 };
 
 exchange.prototype.errorHandler = function(caller, receivedArgs, retryAllowed, callerName, handler, finished){

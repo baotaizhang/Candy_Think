@@ -65,7 +65,7 @@ function balance(exchangeapi, logger){
             });
         },
         balances: function(next){
-            this.exchangeapi.getBalance(true, function(balances){
+            exchangeapi.getBalance(true, function(balances){
                 next(null, balances);  
             });
         }
@@ -75,11 +75,16 @@ function balance(exchangeapi, logger){
             throw err;
         };
 
-        async.filter(_.union(_.values(withdrawalStatus), _.values(depositStatus)), function(status, next){
+        var target = _.values(_.values(_.union(_.values(result.currencyWithdrawalStatus), _.values(result.assetWithdrawalStatus), _.values(result.currencyDepositStatus), _.values(result.assetDepositStatus))));
+
+        async.filter(_.union(_.values(result.currencyWithdrawalStatus), _.values(result.assetWithdrawalStatus), _.values(result.currencyDepositStatus), _.values(result.assetDepositStatus)), function(status, next){
             next(status != 'Success' || 'COMPLETED');
         }, function(isPending){
+
+            console.log(isPending);
             
-            if(isPending.length == 0){
+            if(_.isEmpty(isPending)){
+                /*
                 async.parallel([
                     function(next){
                         exchangeapi.sendETH(true, 'kraken', result.balances.kraken.eth, result.bitflyerETHAddress, function(result){
@@ -94,6 +99,7 @@ function balance(exchangeapi, logger){
                 ], function(err, result){
                     console.log(err);
                 });
+                */
             }else{
                 logger.lineNotification("送金中のため、バランシングは実施しません");
             }

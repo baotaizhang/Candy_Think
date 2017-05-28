@@ -297,7 +297,7 @@ exchange.prototype.currencyAddress = function(retry, cb){
             }    
         };
 
-        this.kraken.api('DepositAddresses', {"asset": currency}, this.errorHandler(this.currencyAddress, args, retry, 'currencyAddress', handler, finished));
+        this.kraken.api('DepositAddresses', {"asset": currency, "method" : "Bitcoin"}, this.errorHandler(this.currencyAddress, args, retry, 'currencyAddress', handler, finished));
     }.bind(this);
     this.q.push({name: 'currencyAddress', func: wrapper});
 
@@ -323,7 +323,7 @@ exchange.prototype.assetAddress = function(retry, cb){
             }    
         };
 
-        this.kraken.api('DepositAddresses', {"asset": asset}, this.errorHandler(this.currencyAddress, args, retry, 'currencyAddress', handler, finished));
+        this.kraken.api('DepositAddresses', {"asset": asset, "method" : "Ether (Hex)"}, this.errorHandler(this.currencyAddress, args, retry, 'currencyAddress', handler, finished));
     }.bind(this);
     this.q.push({name: 'currencyAddress', func: wrapper});
 

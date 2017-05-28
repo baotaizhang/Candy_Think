@@ -83,8 +83,8 @@ logger.prototype.debug = function(message) {
     }
 };
 
-logger.prototype.error = function(module, message) {
-    this.logger.log('ERROR', util.inspect(message));
+logger.prototype.error = function(message) {
+    this.logger.log('DEBUG', util.inspect(message));
 };
 
 logger.prototype.linelog = function(message){

@@ -145,19 +145,9 @@ function KrakenClient(key, secret, otp) {
 				}
 				//If any errors occured, Kraken will give back an array with error strings under
 				//the key "error". We should then propagate back the error message as a proper error.
-				if(data.error && data.error.length) {
-					var krakenError = null;
-					data.error.forEach(function(element) {
-						if (element.charAt(0) === "E") {
-							krakenError = element.substr(1);
-							return false;
-						}
-					});
-					if (krakenError) {
-						return callback.call(self, new Error('Kraken API returned error: ' + krakenError), null);
-					}
-				}
-				else {
+				if(data.error && data.error.length > 0) {
+				    return callback.call(self, new Error('Kraken API returned error: ' + data.error), null);
+				} else {
 					return callback.call(self, null, data);
 				}
 			}

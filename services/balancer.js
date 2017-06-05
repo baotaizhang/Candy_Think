@@ -6,7 +6,7 @@ var tools = require(__dirname + '/../util/tools.js');
 var balancer = function(exchangeapi, logger){
 
     this.job = new cronModule({
-        cronTime: '*/6 * * * *', 
+        cronTime: '*/60 * * * *', 
         onTick: function() {
             balance(exchangeapi, logger);
         },
@@ -87,6 +87,7 @@ function balance(exchangeapi, logger){
                     }
                 })
             })
+            // skipのため仮置き
             next(isPending);
         }, function(isPending){
             if(!isPending){
@@ -101,6 +102,9 @@ function balance(exchangeapi, logger){
                                 btc : balance[key].currencyAvailable,
                                 eth : balance[key].assetAvailable
                             };
+                            logger.lineNotification(key + "の残高は\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + "\nETH : " + tools.round(balance[key].assetAvailable, 8) + "\nです");
+
+
                         });
 
                         next(null, sendingAmount);
@@ -139,21 +143,21 @@ function balance(exchangeapi, logger){
 
                     }
 
-                    if(result.sendingAmount.bitflyer.btc > 0.001){
-                        logger.lineNotification("送金を開始\nTo kraken : " + tools.round(result.sendingAmount.bitflyer.btc, 8) + "BTC");
-                        exchangeapi.sendBTC(false, 'bitflyer', result.sendingAmount.bitflyer.btc - 0.0006, result.address.kraken.btc, function(result){
+                    if(result.sendingAmount.bitflyer.btc > 0.4){
+                        logger.lineNotification("送金が必要です。下記の通り送金を実施してください。\nTo kraken : " + tools.round(result.sendingAmount.bitflyer.btc, 8) + "BTC");
+                        exchangeapi.sendBTC(true, 'bitflyer', result.sendingAmount.bitflyer.btc - 0.0006, result.address.kraken.btc, function(result){
                             console.log(result);
                         });
                     }
 
-                    if(result.sendingAmount.kraken.eth > 0.01){
+                    if(result.sendingAmount.kraken.eth > 4){
                         logger.lineNotification("送金を開始\nTo bitflyer : " + tools.round(result.sendingAmount.kraken.eth, 8) + "ETH");
-                        exchangeapi.sendETH(false, 'kraken', result.sendingAmount.kraken.eth, "bitflyer_eth", function(result){
+                        exchangeapi.sendETH(true, 'kraken', result.sendingAmount.kraken.eth, "bitflyer_eth", function(result){
                             console.log(result);
                         });
                     }
                     
-                    if(result.sendingAmount.kraken.eth < 0.01 && result.sendingAmount.bitflyer.btc < 0.001){
+                    if(result.sendingAmount.kraken.eth < 4 && result.sendingAmount.bitflyer.btc < 0.4){
                         logger.lineNotification("送金が必要な残高はありません");
                     }
                 })

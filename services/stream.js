@@ -17,9 +17,11 @@ Util.inherits(stream, EventEmitter);
 
 stream.prototype.activation = function(){
 
+    /*
     this.firebase.settingConnection(function(setting){
         this.emit('settingStream', setting);
     }.bind(this));
+    */
 
     this.firebase.systemConnection(function(system){
         this.emit('systemStream', system);

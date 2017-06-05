@@ -23,12 +23,12 @@ Util.inherits(advisor, EventEmitter);
 
 advisor.prototype.update = function(groupedBoards, balance, callback) {
 
-    this.logger.lineNotification("arbitrageを試みます");
+    // this.logger.lineNotification("arbitrageを試みます");
 
     balance.forEach(function(balance){
     
         var key = Object.keys(balance)[0];
-        this.logger.lineNotification(key + "の残高は\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + "\nETH : " + tools.round(balance[key].assetAvailable, 8) + "\nです");
+        // this.logger.lineNotification(key + "の残高は\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + "\nETH : " + tools.round(balance[key].assetAvailable, 8) + "\nです");
 
     }.bind(this));
 
@@ -43,11 +43,11 @@ advisor.prototype.update = function(groupedBoards, balance, callback) {
         var estimatedRevenue = tools.round(revenue - this.sendingFee, 8);
 
         if(orders.length == 0){
-            this.logger.lineNotification("arbitrage機会はありませんでした");
-            callback(orders);
+            // this.logger.lineNotification("arbitrage機会はありませんでした");
+            callback(new Array());
         }else if(estimatedRevenue < 0){
-            this.logger.lineNotification(revenue + "BTCが送金手数料" + this.sendingFee + "BTCに満たないため、オーダーは実施しません");
-            callback(orders);
+            this.logger.lineNotification(tools.round(revenue, 8) + "BTCが送金手数料" + this.sendingFee + "BTCに満たないため、オーダーは実施しません");
+            callback(new Array());
         }else if(orders && estimatedRevenue >= 0){
             this.logger.lineNotification("予想最高利益額は" + estimatedRevenue + "BTCです");
             callback(orders);
@@ -79,6 +79,7 @@ var convert = function(groupedBoards, balances){
             exchange : key,
             currency_code : 'BTC',
             amount : balance[key].currencyAvailable
+            // amount : key == 'kraken' ? 10 : 0
 
         });
 
@@ -88,6 +89,7 @@ var convert = function(groupedBoards, balances){
             exchange : key,
             currency_code : 'ETH',
             amount : balance[key].assetAvailable
+            // amount : key == 'bitflyer' ? 100 : 0
         
         });
 

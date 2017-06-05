@@ -78,7 +78,7 @@ firebase.prototype.boardConnection = function(cb){
 
 firebase.prototype.placeOrder = function(pass, orderType){
 
-    this.FirebaseAccess.child(pass).push().set(orderType).then(function(){
+    this.FirebaseAccess.child("test/" + pass).push().set(orderType).then(function(){
         }, function(error) {
             console.log("Error: " + error);
         }
@@ -89,7 +89,7 @@ firebase.prototype.lineNotification = function(message, finished, callback){
 
     console.log(message);
 
-    this.FirebaseAccess.child('common/system/line').push().set({
+    this.FirebaseAccess.child('test/common/system/line').push().set({
         "system" : "candy_think",
         "message" : message,
         "time" : moment().format("YYYY-MM-DD HH:mm:ss") + 1

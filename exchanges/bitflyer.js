@@ -394,7 +394,7 @@ exchange.prototype.sendETH = function(retry, access, balance, address, cb){
         var body = JSON.stringify({
             "currency_code": asset,
             "amount": balance,
-            "address": address
+            "address": address 
         });
 
         this.bitflyer.api('sendcoin', null, body, this.errorHandler(this.sendETH, args, retry, 'sendETH', handler, finished));

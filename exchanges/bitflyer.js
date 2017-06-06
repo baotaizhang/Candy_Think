@@ -27,8 +27,6 @@ var exchange = function(candyConfig, logger) {
         'assetWithdrawalStatus',
         'currencyDepositStatus',
         'assetDepositStatus',
-        'currencyAddress',
-        'assetAddress'
     );
 };
 
@@ -280,126 +278,6 @@ exchange.prototype.assetDepositStatus = function(retry, cb){
     
     }.bind(this);
     this.q.push({name: 'currencygetcoinins', func: wrapper});
-
-}
-
-exchange.prototype.currencyAddress = function(retry, cb){
-
-    var args = arguments;
-
-    var wrapper = function(finished) {
-        
-        var currency = this.currencyPair.currency;
-
-        var handler = function(err, data) {
-            if(!err){    
-                cb(null, {
-                    bitflyer : {
-                        address : _.filter(data, function(status){ return status.currency_code == currency})
-                    }
-                });
-            }else{
-                cb(err, null);
-            }    
-        };
-
-        this.bitflyer.api('getaddresses', null, null, this.errorHandler(this.currencyAddress, args, retry, 'currencyAddress', handler, finished));
-    
-    }.bind(this);
-    this.q.push({name: 'currencyAddress', func: wrapper});
-
-}
-
-exchange.prototype.assetAddress = function(retry, cb){
-
-    var args = arguments;
-
-    var wrapper = function(finished) {
-        
-        var asset = this.currencyPair.asset;
-
-        var handler = function(err, data) {
-            if(!err){    
-                cb(null, {
-                    bitflyer : {
-                        address : _.filter(data, function(status){ return status.currency_code == asset})
-                    }
-                });
-            }else{
-                cb(err, null);
-            }    
-        };
-
-        this.bitflyer.api('getaddresses', null, null, this.errorHandler(this.currencyAddress, args, retry, 'assetAddress', handler, finished));
-    
-    }.bind(this);
-    this.q.push({name: 'assetAddress', func: wrapper});
-
-}
-
-exchange.prototype.sendBTC = function(retry, access, balance, address, cb){
-
-    var args = arguments;
-
-    var wrapper = function(finished) {
-        
-        var currency = this.currencyPair.currency;
-
-        var handler = function(err, data) {
-            if(!err){    
-                cb(null, {
-                    bitflyer : {
-                        message_id : data.message_id
-                    }
-                });
-            }else{
-                cb(err, null);
-            }    
-        };
-
-        var body = JSON.stringify({
-            "currency_code": currency,
-            "amount": balance,
-            "address": address,
-            "additional_fee": 0.0001
-        });
-
-        this.bitflyer.api('sendcoin', null, body, this.errorHandler(this.sendBTC, args, retry, 'sendBTC', handler, finished));
-    
-    }.bind(this);
-    this.q.push({name: 'sendcoin', func: wrapper});
-
-}
-
-exchange.prototype.sendETH = function(retry, access, balance, address, cb){
-
-    var args = arguments;
-
-    var wrapper = function(finished) {
-        
-        var asset = this.currencyPair.asset;
-
-        var handler = function(err, data) {
-            if(!err){    
-                cb(null, {
-                    bitflyer : {
-                        message_id : data.message_id
-                    }
-                });
-            }else{
-                cb(err, null);
-            }    
-        };
-
-        var body = JSON.stringify({
-            "currency_code": asset,
-            "amount": balance,
-            "address": address 
-        });
-
-        this.bitflyer.api('sendcoin', null, body, this.errorHandler(this.sendETH, args, retry, 'sendETH', handler, finished));
-    }.bind(this);
-    this.q.push({name: 'sendcoin', func: wrapper});
 
 }
 

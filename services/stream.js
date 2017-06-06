@@ -5,7 +5,7 @@ var stream = function(firebase){
     this.firebase = firebase;
     this.boards = [];
 
-    _.bindAll(this, 'activation', 'placeOrder', 'orderChart');
+    _.bindAll(this, 'systemConnection', 'boardConnection');
 
 }
 
@@ -15,40 +15,20 @@ var EventEmitter = require('events').EventEmitter;
 Util.inherits(stream, EventEmitter);
 //---EventEmitter Setup
 
-stream.prototype.activation = function(){
-
-    /*
-    this.firebase.settingConnection(function(setting){
-        this.emit('settingStream', setting);
-    }.bind(this));
-    */
+stream.prototype.systemConnection = function(){
 
     this.firebase.systemConnection(function(system){
         this.emit('systemStream', system);
     }.bind(this));
 
+}
+
+stream.prototype.boardConnection = function(){
+
     this.firebase.boardConnection(function(boards){
         this.emit('boardsStream', boards);
     }.bind(this));
 
-}
-
-stream.prototype.placeOrder = function(orderType){
-
-    var pass = 'think/order_1_NotYet/ETH_BTC/' + orderType.exchange;
-    this.firebase.placeOrder(pass, orderType);
-
-}
-
-stream.prototype.orderChart = function(order){
-
-    var time = order.time;
-
-    _.each(_.pick(order, 'price', 'size'), function(item, key){
-        var pass = 'think/order/ETH_BTC/' + order.exchange + '/' + order.result + '/' + key;
-        this.firebase.chartUpdate(pass, item, time);
-    }.bind(this));
-    
 }
 
 module.exports = stream;

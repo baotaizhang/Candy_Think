@@ -5,11 +5,11 @@ var tools = require(__dirname + '/../util/tools.js');
 
 var candyThink = new candyThinkOBJ();
 
-var advisor = function(logger) {
+var advisor = function(logger, setting) {
 
     this.logger = logger;
     this.indicator = candyThink;
-    this.sendingFee = 0.001;
+    this.setting = setting;
 
   _.bindAll(this, 'update');
 
@@ -23,16 +23,6 @@ Util.inherits(advisor, EventEmitter);
 
 advisor.prototype.update = function(groupedBoards, balance, callback) {
 
-    // this.logger.lineNotification("arbitrageを試みます");
-
-    balance.forEach(function(balance){
-    
-        var key = Object.keys(balance)[0];
-        // this.logger.lineNotification(key + "の残高は\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + "\nETH : " + tools.round(balance[key].assetAvailable, 8) + "\nです");
-
-    }.bind(this));
-
-
     // convert data with candyThink way.
     // ******************************************************************
     var candyThinkWay = convert(groupedBoards, balance);
@@ -40,17 +30,16 @@ advisor.prototype.update = function(groupedBoards, balance, callback) {
     
     this.indicator.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
 
-        var estimatedRevenue = tools.round(revenue - this.sendingFee, 8);
+        var estimatedRevenue = tools.round(revenue - this.setting.space, 8);
 
         if(orders.length == 0){
-            // this.logger.lineNotification("arbitrage機会はありませんでした");
             callback(new Array());
         }else if(estimatedRevenue < 0){
-            this.logger.lineNotification(tools.round(revenue, 8) + "BTCが送金手数料" + this.sendingFee + "BTCに満たないため、オーダーは実施しません");
+            this.logger.lineNotification("利益額 + "tools.round(revenue, 8) + "BTCはリスク回避額" + this.setting.space + "BTCに満たないため、オーダーは実施しません");
             callback(new Array());
         }else if(orders && estimatedRevenue >= 0){
-            this.logger.lineNotification("予想最高利益額は" + estimatedRevenue + "BTCです");
             callback(orders);
+            this.logger.lineNotification("予想最高利益額は" + estimatedRevenue + "BTCです");
         }else{
             throw "オーダーの形式に誤りがあります";
         }
@@ -77,9 +66,8 @@ var convert = function(groupedBoards, balances){
         
             exchange_type : exchange_type_count,
             exchange : key,
-            currency_code : 'BTC',
+            currency_code : this.setting.currency,
             amount : balance[key].currencyAvailable
-            // amount : key == 'kraken' ? 10 : 0
 
         });
 
@@ -87,9 +75,8 @@ var convert = function(groupedBoards, balances){
         
             exchange_type : exchange_type_count,
             exchange : key,
-            currency_code : 'ETH',
+            currency_code : this.setting.asset,
             amount : balance[key].assetAvailable
-            // amount : key == 'bitflyer' ? 100 : 0
         
         });
 
@@ -120,7 +107,7 @@ var convert = function(groupedBoards, balances){
                         ask_bid : ask_bid.substr(0,3),
                         num : order.size,
                         amount : order.price,
-                        product_code : 'ETH_BTC',
+                        product_code : this.setting.pair,
                         time : board.time
                     })
 
@@ -133,7 +120,7 @@ var convert = function(groupedBoards, balances){
                         ask_bid : ask_bid.substr(0,3),
                         num : order[1],
                         amount : order[0],
-                        product_code : 'ETH_BTC',
+                        product_code : this.setting.pair,
                         time : board.time
                     })
                 }

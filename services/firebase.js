@@ -2,45 +2,34 @@ var _ = require('underscore');
 var async = require('async');
 var moment = require("moment");
 
-var firebase = function(candyConfig){
+var firebase = function(candyConfig,setting){
 
-    var admin = require("firebase-admin");
-    this.admin = admin;
+    this.setting = setting;
+    this.admin = require("firebase-admin");
     var serviceAccount = require(__dirname + "/../candyConfig/candy-crypto-chart-firebase-adminsdk-szicg-bee5dc8975.json");
 
     //to check if Firebase has already been initialized.
-    if (admin.apps.length === 0) {
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount),
+    if (this.admin.apps.length === 0) {
+        this.admin.initializeApp({
+            credential: this.admin.credential.cert(serviceAccount),
             databaseURL: candyConfig.databaseURL
         });
     }
 
     // As an admin, the app has access to read and write all data, regardless of Security Rules
-    this.FirebaseAccess = admin.database().ref();
+    this.FirebaseAccess = this.admin.database().ref();
 
     _.bindAll(this,
         'boardConnection',
-        'settingConnection',
         'systemConnection',
         'placeOrder',
         'chartUpdate',
         'lineNotification',
-        'disconnect'
+        'disconnect',
+        'boardDetach'
     );
 
 };
-
-firebase.prototype.settingConnection = function(cb){
-
-    this.FirebaseAccess.child('think/settings').on("value", function(snapshot) {
-        var data = snapshot.val();
-        data.name = 'settings';
-        cb(data);
-    }, function (errorObject) {
-        console.log("The read failed: " + errorObject.code);
-    });
-}
 
 firebase.prototype.systemConnection = function(cb){
 
@@ -55,12 +44,7 @@ firebase.prototype.systemConnection = function(cb){
 
 firebase.prototype.boardConnection = function(cb){
 
-    var exchanges = {
-        bitflyer : 'crypto/bitflyer/v1/getboard/ETH_BTC/board',
-        kraken : 'crypto/kraken/0/public/Depth/XETHXXBT'
-    };
-
-    _.each(exchanges, function(pass, exchange){
+    _.each(this.setting.exchanges, function(pass, exchange){
 
         this.FirebaseAccess.child(pass).orderByChild("time").limitToLast(1).on("child_added", function(snapshot) {
             var data = snapshot.val();
@@ -92,9 +76,9 @@ firebase.prototype.lineNotification = function(message, finished, callback){
     this.FirebaseAccess.child('test/common/system/line').push().set({
         "system" : "candy_think",
         "message" : message,
-        "time" : moment().format("YYYY-MM-DD HH:mm:ss") + 1
+        "time" : moment().format("YYYY-MM-DD HH:mm:ss")
     }).then(function(){
-        if (typeof(callback) === 'function' ) { 
+        if (typeof(callback) === 'function') { 
             callback(finished);
         }else{
             finished();
@@ -123,5 +107,13 @@ firebase.prototype.chartUpdate = function(pass, item, time){
 firebase.prototype.disconnect = function(){
     this.admin.app().delete();
 }
+
+firebase.boardDetach = function(){
+    this.setting.exchanges.forEach(function(pass){
+        this.FirebaseAccess.child(pass).off();
+    });
+}
+
+
 
 module.exports = firebase;

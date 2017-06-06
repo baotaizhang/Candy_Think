@@ -26,8 +26,6 @@ var api = function(candyConfig, logger){
         'assetWithdrawalStatus',
         'currencyDepositStatus',
         'assetDepositStatus',
-        'currencyAddresses',
-        'assetAddresses'
     );
 
 };
@@ -39,7 +37,7 @@ api.prototype.getBalance = function(retry, cb){
     }, function(err, balances){
 
         if(err){
-            console.log(err);
+            throw err;
         }
 
         cb(balances);
@@ -90,66 +88,5 @@ api.prototype.assetDepositStatus = function(retry, cb){
         cb(statuses);
     });
 };
-
-api.prototype.currencyAddresses = function(retry, cb){
-    async.map(this.exchangesAccess, function(exchangeAccess, next){
-        status = exchangeAccess.api.currencyAddress(retry, next);
-    }, function(err, addresses){
-        if(err){
-            throw err;
-        }
-        cb(addresses);
-    });
-};
-
-api.prototype.assetAddresses = function(retry, cb){
-    async.map(this.exchangesAccess, function(exchangeAccess, next){
-        status = exchangeAccess.api.assetAddress(retry, next);
-    }, function(err, addresses){
-        if(err){
-            throw err;
-        }
-        cb(addresses);
-    });
-};
-
-api.prototype.sendBTC = function(retry, access, balance, address, cb){
-    async.filter(
-        this.exchangesAccess,
-        function(item, callback) {
-            callback(item.name == access);
-        },
-        function(exchangeAccess){
-            exchangeAccess[0].api.sendBTC(retry, access, balance, address, function(err, result){
-
-                if(err){
-                    console.log(err);
-                }
-
-                cb(result);        
-            });
-        }
-    );
-}
-
-api.prototype.sendETH = function(retry, access, balance, address, cb){
-
-    async.filter(
-        this.exchangesAccess,
-        function(item, callback) {
-            callback(item.name == access);
-        },
-        function(exchangeAccess){
-            exchangeAccess[0].api.sendETH(retry, access, balance, address, function(err, result){
-
-                if(err){
-                    throw err;
-                }
-
-                cb(result);        
-            });
-        }
-    );
-}
 
 module.exports = api;

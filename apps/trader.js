@@ -9,26 +9,43 @@ var loggingservice = require(__dirname + '/../services/loggingservice.js');
 var tradingadvisor = require(__dirname + '/../services/advisor.js');
 var exchangeapiService = require(__dirname + '/../services/exchangeapi.js');
 var agentService = require(__dirname + '/../services/agent.js');
-var processHandlerService = require(__dirname + '/../services/processHandler.js');
-var balancingService = require(__dirname + '/../services/balancer.js');
 
 var config = require(__dirname + '/../config.js');
 var candyConfig = config.init();
+var setting = require('../setting.js');
 
 var logger = new loggingservice('trader');
-var advisor = new tradingadvisor(logger);
-var firebase = new firebaseService(candyConfig);
+var advisor = new tradingadvisor(logger, setting);
+var firebase = new firebaseService(candyConfig, setting);
 var stream = new streamService(firebase);
 var streamAggregator = new streamAggregatorService(stream);
 var processor = new processorService(advisor, stream, logger);
 var exchangeapi = new exchangeapiService(candyConfig, logger);
 var agent = new agentService(stream);
-var processHandler = new processHandlerService(logger, processor, firebase);
-var balancer = new balancingService(exchangeapi, logger);
 
 var trader = function(){
 
-    streamAggregator.on('currentBoardPairStream', function(boards){
+    stream.on('systemStream',function(system){
+        if(system.running == 'stop'){
+            logger.lineNotification("‹Ù‹}’â~‚ª‘I‘ğ‚³‚ê‚Ü‚µ‚½BƒVƒXƒeƒ€‚ğ’â~‚µ‚Ü‚·", function(finished){
+                process.exit();
+            });
+        }else if(system.running == 'idle'){
+            logger.lineNotification("ƒAƒCƒhƒŠƒ“ƒOƒ‚[ƒh‚Å‘Ò‹@‚µ‚Ü‚·", function(finished){
+                finished();
+                firebase.boardDetach();
+            });
+        }else if(system.running == 'running'){
+            logger.lineNotification("æˆø‚ğŠJn‚µ‚Ü‚·", function(finished){
+                finished();
+                stream.boardConnection();
+            });
+        }else{
+            throw "•s³‚Èƒ‚[ƒh‚ª‘I‘ğ‚³‚ê‚Ä‚¢‚Ü‚·";
+        }
+    });
+
+    streamAggregator.on('boardPairStream', function(boards){
         exchangeapi.getBalance(true, function(balances){
             processor.process(boards, balances);
         });
@@ -38,14 +55,14 @@ var trader = function(){
         agent.order(order); 
     });
 
-    stream.on('systemStream',function(system){
-        if(system.running == 'stop'){
-            stream.removeAllListeners('systemStream');
-            logger.lineNotification("ç·Šæ€¥åœæ­¢ãŒé¸æŠã•ã‚Œã¾ã—ãŸ", function(finished){
-                finished();
-                processHandler.emergencyStop();
-            });
-        }
+    process.on('uncaughtException', function (err) {
+        logger.lineNotification("ƒŠƒJƒoƒŠ•s‰Â‚ÌƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½BƒVƒXƒeƒ€‚ğ‹­§I—¹‚µ‚Ü‚·\n" + err, function(finished){
+            process.exit(1);
+        });
+    });
+
+    process.on('exit', function (code) {
+        console.log('exit code : ' + code);
     });
 
     _.bindAll(this, 'start');
@@ -59,15 +76,9 @@ Util.inherits(trader, EventEmitter);
 //---EventEmitter Setup
 
 trader.prototype.start = function() {
-
-    logger.lineNotification("trader modeã§èµ·å‹•ã—ã¾ã™");
-    stream.activation();
-    processHandler.start();
-    balancer.start();
-
+    stream.systemConnection();
 };
 
 var traderApp = new trader();
 
 module.exports = traderApp;
-

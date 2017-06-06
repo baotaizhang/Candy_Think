@@ -10,7 +10,7 @@ var streamAggregator = function(stream){
     
         this.unpairedBoards.push(boards);
 
-        var pairedBoards =  _.groupBy(this.unpairedBoards, function(board){
+        var pairedBoards = _.groupBy(this.unpairedBoards, function(board){
             if(board){
                 return moment(board.time).format("YYYY-MM-DD HH:mm");
             }
@@ -23,19 +23,13 @@ var streamAggregator = function(stream){
                         return unpairedBoard.key !== _.property('key')(board);
                     }.bind(this));
                 }.bind(this));
-                this.emit('boardsPairStream', boards);
 
-                var time =  moment().format("YYYY-MM-DD HH:mm");
-
-                if(moment().diff(boards[0].time,'minutes') < 5){ 
-                    this.emit('currentBoardPairStream', boards);
+                if(moment().diff(boards[0].time,'minutes') < 1){ 
+                    this.emit('boardPairStream', boards);
                 }
-
             }
         }.bind(this));
-
     }.bind(this));
-
 }
 
 //---EventEmitter Setup

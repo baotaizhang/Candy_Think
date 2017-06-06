@@ -10,7 +10,7 @@ var loggingservice = require(__dirname + '/services/loggingservice.js');
 
 var app = function(){
  
-    _.bindAll(this, 'initializeModule', 'launchTrader','launchBacktester', 'start');  
+    _.bindAll(this, 'initializeModule', 'launchTrader', 'start');  
     
 };
 
@@ -20,49 +20,18 @@ app.prototype.initializeModule = function(appName) {
 
 };
 
-
 app.prototype.launchTrader = function(){
 
     this.logger.log('----------------------------------------------------');
-    this.logger.log('Production mode init.')
     this.logger.log('Launching trader module.');
     this.logger.log('----------------------------------------------------');
+    this.appName = 'trader';
     this.app = require(__dirname + '/apps/trader.js');
     this.app.start();
 
 }
 
-app.prototype.launchBacktester = function() {
-
-    this.logger.log('----------------------------------------------------');
-    this.logger.log('Backtest mode init.')
-    this.logger.log('Launching backtest module.');
-    this.logger.log('----------------------------------------------------');
-    this.app = require(__dirname + '/apps/backtester.js');
-    this.app.start();
-
-};
-
 app.prototype.start = function(){
-
-    var argument = process.argv[2];
-
-    if(!argument){
-
-        this.appName = 'trader';
-        this.run = this.launchTrader;
-
-    }else if(argument === '-b'){
-
-        this.appName = 'backtester';
-        this.run = this.launchBacktester;
-
-   }else{
-
-       this.appName = 'app';
-       run = null;
-
-    }
 
     this.initializeModule(this.appName);
 
@@ -72,19 +41,8 @@ app.prototype.start = function(){
     this.logger.log('Working Dir = ' + process.cwd());
     this.logger.log('----------------------------------------------------');
 
-    if(this.run) {
+    this.launchBacktester();
 
-        this.run();
-
-    } else {
-
-        this.logger.log('----------------------------------------------------');
-        this.logger.log('Invalid argument, supported options:');
-        this.logger.log(': Launch Real trader');
-        this.logger.log('-b: Launch Backtester');
-        this.logger.log('----------------------------------------------------');
-
-    }
 }
 
 var candyThink = new app();

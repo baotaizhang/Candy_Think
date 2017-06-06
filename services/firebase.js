@@ -109,7 +109,7 @@ firebase.prototype.disconnect = function(){
 }
 
 firebase.boardDetach = function(){
-    this.setting.exchanges.forEach(function(pass){
+    _.each(this.setting.exchanges, function(pass, key){
         this.FirebaseAccess.child(pass).off();
     });
 }

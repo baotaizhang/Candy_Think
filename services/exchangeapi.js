@@ -18,7 +18,6 @@ var api = function(candyConfig, logger){
             name:"bitflyer"
         }
     ];
-            
 
     _.bindAll(this, 
         'getBalance', 

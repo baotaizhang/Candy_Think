@@ -51,6 +51,25 @@ var trader = function(){
         });
     });
 
+    stream.on('alterBoardStream'function(boards){
+        exchangeapi.getBalance(true, function(balances){
+            processor.process(board, balances);
+        });
+    });
+
+    blanceMonitor.on('balance', function(boards){
+        exchangeapi.getBalance(true, function(balances){
+            balances.forEach(function(balance){
+                var key = Object.keys(balance)[0];
+                sendingAmount[key] = {
+                    btc : balance[key].currencyAvailable,
+                    eth : balance[key].assetAvailable
+                };
+                logger.lineNotification(key + "ÇÃécçÇÇÕ\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + "\nETH : " + tools.round(balance[key].assetAvailable, 8) + "\nÇ≈Ç∑");
+            });
+        });
+    });
+
     processor.on('orderStream', function(order){
         agent.order(order); 
     });

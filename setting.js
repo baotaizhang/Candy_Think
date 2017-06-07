@@ -10,3 +10,15 @@ setting.space = 0.001;
 setting.currency = "BTC";
 setting.asset = "ETH";
 setting.pair = "BTC_ETH";
+
+setting.bitflyer = {
+    product_code : "BTC_ETH",
+    currency : "BTC",
+    asset : "ETH"
+};
+
+setting.kraken = {
+    pair: 'XETHXXBT',
+    currency: 'XXBT',
+    asset: 'XETH'
+};

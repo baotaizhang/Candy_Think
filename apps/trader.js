@@ -1,5 +1,6 @@
 var _ = require('underscore');
 var async = require('async');
+var moment = require('moment');
 
 var firebaseService = require(__dirname + '/../services/firebase.js');
 var streamService = require(__dirname + '/../services/stream.js');
@@ -9,6 +10,7 @@ var loggingservice = require(__dirname + '/../services/loggingservice.js');
 var tradingadvisor = require(__dirname + '/../services/advisor.js');
 var exchangeapiService = require(__dirname + '/../services/exchangeapi.js');
 var agentService = require(__dirname + '/../services/agent.js');
+var balanceMonitorService = require(__dirname + '/../services/balanceMonitor.js');
 
 var config = require(__dirname + '/../config.js');
 var candyConfig = config.init();
@@ -20,8 +22,9 @@ var firebase = new firebaseService(candyConfig, setting);
 var stream = new streamService(firebase);
 var streamAggregator = new streamAggregatorService(stream);
 var processor = new processorService(advisor, stream, logger);
-var exchangeapi = new exchangeapiService(candyConfig, logger);
+var exchangeapi = new exchangeapiService(candyConfig, logger, setting);
 var agent = new agentService(stream);
+var balanceMonitor = new balanceMonitorService(exchangeapi, logger);
 
 var trader = function(){
 
@@ -51,22 +54,20 @@ var trader = function(){
         });
     });
 
-    stream.on('alterBoardStream'function(boards){
+    stream.on('singleBoardStream'function(boards){
         exchangeapi.getBalance(true, function(balances){
             processor.process(board, balances);
         });
     });
 
-    blanceMonitor.on('balance', function(boards){
-        exchangeapi.getBalance(true, function(balances){
-            balances.forEach(function(balance){
-                var key = Object.keys(balance)[0];
-                sendingAmount[key] = {
-                    btc : balance[key].currencyAvailable,
-                    eth : balance[key].assetAvailable
-                };
-                logger.lineNotification(key + "ÇÃécçÇÇÕ\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + "\nETH : " + tools.round(balance[key].assetAvailable, 8) + "\nÇ≈Ç∑");
-            });
+    balanceMonitor.on('balance', function(balances){
+        balances.forEach(function(balance){
+            var key = Object.keys(balance)[0];
+            logger.lineNotification(key + "ÇÃécçÇÇÕ\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + 
+            "\nETH : " + tools.round(balance[key].assetAvailable, 8) + "\nÇ≈Ç∑");
+
+            firebase.chartUpdate('/think/balance/' + key + '/' + setting.currency, balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
+            firebase.chartUpdate('/think/balance/' + key + '/' + setting.asset, balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
         });
     });
 

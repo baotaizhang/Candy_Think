@@ -20,10 +20,10 @@ var processor = function(advisor, stream, logger){
 
 };
 
-processor.prototype.process = function(groupedBoards, balances) {
+processor.prototype.process = function(boards, balances) {
 
     var wrapper = function(finished){
-        this.advisor.update(groupedBoards, balances, function(orders){
+        this.advisor.update(boards, balances, function(orders){
             async.each(orders, function(order, next){         
                 if(order.result) {
                     this.emit('orderStream', order);

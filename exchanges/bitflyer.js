@@ -2,13 +2,13 @@ var _ = require('underscore');
 var async = require('async');
 var bitflyer = require(__dirname + '/../Library/bitflyer.js');
 
-var exchange = function(candyConfig, logger) {
+var exchange = function(candyConfig, logger, setting) {
 
     this.bitflyer = new bitflyer(candyConfig.bitflyer.apiKey, candyConfig.bitflyer.secret);
     this.currencyPair = {
-        product_code: 'ETH_BTC',
-        currency: 'BTC',
-        asset: 'ETH'
+        product_code: setting.bitflyer.product_code,
+        currency: setting.bitflyer.currency,
+        asset: setting.bitflyer.asset
     };
     this.q = async.queue(function (task, callback) {
         this.logger.debug('Added ' + task.name + ' API call to the queue.');
@@ -69,8 +69,8 @@ exchange.prototype.errorHandler = function(caller, receivedArgs, retryAllowed, c
 
             } else {
 
-                this.logger.error(callerName + ': bitflyer API returned the following error:');
-                this.logger.error(parsedError.substring(0,99));
+                this.logger.lineNotification(callerName + ': bitflyer API がエラーです。リトライを継続します');
+                this.logger.lineNotification(parsedError.substring(0,99));
 
                 if(retryAllowed) {
 

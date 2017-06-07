@@ -87,17 +87,13 @@ firebase.prototype.lineNotification = function(message, finished, callback){
         console.log("Error: " + error);
         finished();
     });
-
 }
 
 
 firebase.prototype.chartUpdate = function(pass, item, time){
-
     this.FirebaseAccess.child(pass).push().set({
-        
         time : time,
         item : item
-            
     }).then(function(){
     }, function(error) {
         console.log("Error: " + error);

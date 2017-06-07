@@ -25,8 +25,12 @@ stream.prototype.systemConnection = function(){
 
 stream.prototype.boardConnection = function(){
 
-    this.firebase.boardConnection(function(boards){
-        this.emit('boardsStream', boards);
+    this.firebase.boardConnection(function(board){
+        if(board.orderFailed){
+            this.emit('singleBoardStream', board);            
+        }else{
+            this.emit('boardsStream', board);
+        }
     }.bind(this));
 
 }

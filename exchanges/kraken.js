@@ -2,13 +2,13 @@ var _ = require('underscore');
 var async = require('async');
 var Kraken = require(__dirname + '/../Library/kraken.js');
 
-var exchange = function(candyConfig, logger) {
+var exchange = function(candyConfig, logger, setting) {
 
     this.kraken = new Kraken(candyConfig.kraken.apiKey, candyConfig.kraken.secret, candyConfig.kraken.otp);
     this.currencyPair = {
-        pair: 'XETHXXBT',
-        currency: 'XXBT',
-        asset: 'XETH'
+        pair: setting.kraken.pair,
+        currency: setting.kraken.currency,
+        asset: setting.kraken.asset
     };
     this.q = async.queue(function (task, callback) {
         this.logger.debug('Added ' + task.name + ' API call to the queue.');
@@ -27,8 +27,6 @@ var exchange = function(candyConfig, logger) {
         'assetWithdrawalStatus',
         'currencyDepositStatus',
         'assetDepositStatus',
-        'currencyAddress',
-        'assetAddress'
     );
 };
 
@@ -71,8 +69,8 @@ exchange.prototype.errorHandler = function(caller, receivedArgs, retryAllowed, c
 
             } else {
 
-                this.logger.error(callerName + ': Kraken API returned the following error:');
-                this.logger.error(parsedError.substring(0,99));
+                this.logger.lineNotification(callerName + ': kraken API がエラーです。リトライを継続します');
+                this.logger.lineNotification(parsedError.substring(0,99));
 
                 if(retryAllowed) {
 
@@ -274,110 +272,6 @@ exchange.prototype.assetDepositStatus = function(retry, cb){
         this.kraken.api('DepositStatus', {"asset": asset}, this.errorHandler(this.assetDepositStatus, args, retry, 'assetDepositStatus', handler, finished));
     }.bind(this);
     this.q.push({name: 'depositStatus', func: wrapper});
-
-}
-
-exchange.prototype.currencyAddress = function(retry, cb){
-
-    var args = arguments;
-
-    var wrapper = function(finished) {
-
-        var currency = this.currencyPair.currency;
-
-        var handler = function(err, data) {
-            if(!err){    
-                cb(null, {
-                    kraken : {
-                        address : data.result
-                    }
-                });
-            }else{
-                cb(err, null);
-            }    
-        };
-
-        this.kraken.api('DepositAddresses', {"asset": currency, "method" : "Bitcoin"}, this.errorHandler(this.currencyAddress, args, retry, 'currencyAddress', handler, finished));
-    }.bind(this);
-    this.q.push({name: 'currencyAddress', func: wrapper});
-
-}
-
-exchange.prototype.assetAddress = function(retry, cb){
-
-    var args = arguments;
-
-    var wrapper = function(finished) {
-
-        var asset = this.currencyPair.asset;
-
-        var handler = function(err, data) {
-            if(!err){    
-                cb(null, {
-                    kraken : {
-                        address : data.result
-                    }
-                });
-            }else{
-                cb(err, null);
-            }    
-        };
-
-        this.kraken.api('DepositAddresses', {"asset": asset, "method" : "Ether (Hex)"}, this.errorHandler(this.currencyAddress, args, retry, 'currencyAddress', handler, finished));
-    }.bind(this);
-    this.q.push({name: 'currencyAddress', func: wrapper});
-
-}
-
-exchange.prototype.sendBTC = function(retry, access, balance, address, cb){
-
-    var args = arguments;
-
-    var wrapper = function(finished) {
-
-        var currency = this.currencyPair.currency;
-
-        var handler = function(err, data) {
-            if(!err){    
-                cb(null, {
-                    kraken : {
-                        refid : data.result
-                    }
-                });
-            }else{
-                cb(err, null);
-            }    
-        };
-
-        this.kraken.api('Withdraw', {"asset": currency, key : address, amount : balance}, this.errorHandler(this.sendBTC, args, retry, 'sendBTC', handler, finished));
-    }.bind(this);
-    this.q.push({name: 'Withdraw', func: wrapper});
-
-}
-
-exchange.prototype.sendETH = function(retry, access, balance, address, cb){
-
-    var args = arguments;
-
-    var wrapper = function(finished) {
-
-        var asset = this.currencyPair.asset;
-
-        var handler = function(err, data) {
-            if(!err){    
-                cb(null, {
-                    kraken : {
-                        refid : data.result
-                    }
-                });
-            }else{
-                cb(err, null);
-            }    
-        };
-
-        this.kraken.api('Withdraw', {"asset": asset, key : address, amount : balance}, this.errorHandler(this.sendETH, args, retry, 'sendETH', handler, finished));
-    }.bind(this);
-    this.q.push({name: 'Withdraw', func: wrapper});
 
 }
 

@@ -21,28 +21,40 @@ var EventEmitter = require('events').EventEmitter;
 Util.inherits(advisor, EventEmitter);
 //---EventEmitter Setup
 
-advisor.prototype.update = function(groupedBoards, balance, callback) {
+advisor.prototype.update = function(boards, balance, callback) {
 
     // convert data with candyThink way.
     // ******************************************************************
-    var candyThinkWay = convert(groupedBoards, balance);
+    var candyThinkWay = convert(boards, balance);
     // ******************************************************************
     
-    this.indicator.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
+    if(candyThinkWay.boards.length == 1){
+        //再オーダー作成
+    
+    }else if(candyThinkWay.boards.length <= 2){
 
-        var estimatedRevenue = tools.round(revenue - this.setting.space, 8);
+        this.indicator.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
 
-        if(orders.length == 0){
-            callback(new Array());
-        }else if(estimatedRevenue < 0){
-            this.logger.lineNotification("利益額 + "tools.round(revenue, 8) + "BTCはリスク回避額" + this.setting.space + "BTCに満たないため、オーダーは実施しません");
-            callback(new Array());
-        }else if(orders && estimatedRevenue >= 0){
-            callback(orders);
-            this.logger.lineNotification("予想最高利益額は" + estimatedRevenue + "BTCです");
-        }else{
-            throw "オーダーの形式に誤りがあります";
+            var estimatedRevenue = tools.round(revenue - this.setting.space, 8);
+
+            if(orders.length == 0){
+                callback(new Array());
+            }else if(estimatedRevenue < 0){
+                this.logger.lineNotification("利益額 + "tools.round(revenue, 8) + "BTCはリスク回避額" + this.setting.space + "BTCに満たないため、オーダーは実施しません");
+                callback(new Array());
+            }else if(orders && estimatedRevenue >= 0){
+                callback(orders);
+                this.logger.lineNotification("予想最高利益額は" + estimatedRevenue + "BTCです");
+            }else{
+                throw "オーダーの形式に誤りがあります";
+            }
+
         }
+
+    }else{
+
+        throw "boardの形式に誤りがあります";
+
     }.bind(this));
 };
 

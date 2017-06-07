@@ -41,7 +41,7 @@ app.prototype.start = function(){
     this.logger.log('Working Dir = ' + process.cwd());
     this.logger.log('----------------------------------------------------');
 
-    this.launchBacktester();
+    this.launchTrader();
 
 }
 

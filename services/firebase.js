@@ -89,7 +89,6 @@ firebase.prototype.lineNotification = function(message, finished, callback){
     });
 }
 
-
 firebase.prototype.chartUpdate = function(pass, item, time){
     this.FirebaseAccess.child(pass).push().set({
         time : time,
@@ -102,6 +101,14 @@ firebase.prototype.chartUpdate = function(pass, item, time){
 
 firebase.prototype.disconnect = function(){
     this.admin.app().delete();
+}
+
+firebase.prototype.orderFailedConnection = function(){
+    this.FirebaseAccess.child(this.setting.orderFailedPass).on("value", function(snapshot) {
+        cb(snapshot.numChildren());
+    }, function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+    });
 }
 
 firebase.boardDetach = function(){

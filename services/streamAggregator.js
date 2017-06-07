@@ -5,6 +5,11 @@ var streamAggregator = function(stream){
 
     this.stream = stream;
     this.unpairedBoards = [];
+    this.orderFailed = true;
+
+    this.stream.on('orderFailedStream', function(orderAmount){
+        orderAmount == 0 ? orderFailed = false : orderFailed = true;
+    })
 
     this.stream.on('boardsStream', function(boards){
     
@@ -24,8 +29,10 @@ var streamAggregator = function(stream){
                     }.bind(this));
                 }.bind(this));
 
-                if(moment().diff(boards[0].time,'minutes') < 1){ 
-                    this.emit('boardPairStream', boards);
+                if(moment().diff(boards[0].time,'minutes') < 1){
+                    if(!this.orderFailed){
+                        this.emit('boardPairStream', boards);
+                    }
                 }
             }
         }.bind(this));

@@ -23,7 +23,7 @@ stream.prototype.systemConnection = function(){
 
 }
 
-stream.prototype.boardConnection = function(){
+stream.prototype.dealConnection = function(){
 
     this.firebase.boardConnection(function(board){
         if(board.orderFailed){
@@ -31,6 +31,10 @@ stream.prototype.boardConnection = function(){
         }else{
             this.emit('boardsStream', board);
         }
+    }.bind(this));
+
+    this.firebase.orderFailedConnection(function(orderAmount){
+        this.emit('orderFailedStream', orderAmount);
     }.bind(this));
 
 }

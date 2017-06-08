@@ -275,7 +275,8 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
                 size: num,
                 time : eachboards.time,
                 commission_settlement_pre : eachboards.amount * num * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100,
-                commission_key_pre : eachboards.amount * num * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100 / eachboards.amount
+                commission_key_pre : eachboards.amount * num * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100 / eachboards.amount,
+                orderfailkey : orderFailed.key
             });
             //break this loop
             return false;
@@ -287,7 +288,8 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
                 size: eachboards.num,
                 time : eachboards.time,
                 commission_settlement_pre : eachboards.amount * num * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100,
-                commission_key_pre : eachboards.amount * num * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100 / eachboards.amount
+                commission_key_pre : eachboards.amount * num * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100 / eachboards.amount,
+                orderfailkey : orderFailed.key
             });
             num = num - eachboards.num;
         }

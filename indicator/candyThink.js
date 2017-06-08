@@ -237,9 +237,25 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
     var boards_reorder;
     
     if(orderFailed.result = 'SELL'){
+        boards_reorder = 
+            _.filter(boards_reorder, function(sellboards){
+                    return (
+                        //bidのデータを抽出
+                        sellboards.ask_bid === "bid"
+                        && sellboards.exchange === orderFailed.exchange
+                    )
+            });
         //order by desc of amount
         boards_reorder = _.sortBy(boards, 'amount').reverse();
     }else{
+        boards_reorder = 
+            _.filter(boards_reorder, function(buyboards){
+                    return (
+                        //bidのデータを抽出
+                        buyboards.ask_bid === "ask"
+                        && buyboards.exchange === orderFailed.exchange
+                    )
+            });
         //order by ask of amount
         boards_reorder = _.sortBy(boards, 'amount');
     }

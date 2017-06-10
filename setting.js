@@ -14,7 +14,7 @@ setting.asset = "ETH";
 setting.pair = "BTC_ETH";
 
 setting.bitflyer = {
-    product_code : "BTC_ETH",
+    product_code : "ETH_BTC",
     currency : "BTC",
     asset : "ETH"
 };
@@ -24,3 +24,5 @@ setting.kraken = {
     currency: 'XXBT',
     asset: 'XETH'
 };
+
+module.exports = setting;

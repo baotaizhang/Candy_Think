@@ -26,7 +26,7 @@ var exchange = function(candyConfig, logger, setting) {
         'currencyWithdrawalStatus', 
         'assetWithdrawalStatus',
         'currencyDepositStatus',
-        'assetDepositStatus',
+        'assetDepositStatus'
     );
 };
 

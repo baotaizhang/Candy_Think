@@ -32,21 +32,22 @@ var trader = function(){
 
     stream.on('systemStream',function(system){
         if(system.running == 'stop'){
-            logger.lineNotification("‹Ù‹}’â~‚ª‘I‘ğ‚³‚ê‚Ü‚µ‚½BƒVƒXƒeƒ€‚ğ’â~‚µ‚Ü‚·", function(finished){
+            logger.lineNotification("ç·Šæ€¥åœæ­¢ãŒé¸æŠã•ã‚Œã¾ã—ãŸã€‚ã‚·ã‚¹ãƒ†ãƒ ã‚’åœæ­¢ã—ã¾ã™", function(finished){
+                finished();
                 process.exit();
             });
         }else if(system.running == 'idle'){
-            logger.lineNotification("ƒAƒCƒhƒŠƒ“ƒOƒ‚[ƒh‚Å‘Ò‹@‚µ‚Ü‚·", function(finished){
+            logger.lineNotification("ã‚¢ã‚¤ãƒ‰ãƒªãƒ³ã‚°ãƒ¢ãƒ¼ãƒ‰ã§å¾…æ©Ÿã—ã¾ã™", function(finished){
                 finished();
                 firebase.boardDetach();
             });
         }else if(system.running == 'running'){
-            logger.lineNotification("æˆø‚ğŠJn‚µ‚Ü‚·", function(finished){
+            logger.lineNotification("å–å¼•ã‚’é–‹å§‹ã—ã¾ã™", function(finished){
                 finished();
-                stream.boardConnection();
+                stream.dealConnection();
             });
         }else{
-            throw "•s³‚Èƒ‚[ƒh‚ª‘I‘ğ‚³‚ê‚Ä‚¢‚Ü‚·";
+            throw "ä¸æ­£ãªãƒ¢ãƒ¼ãƒ‰ãŒé¸æŠã•ã‚Œã¦ã„ã¾ã™";
         }
     });
 
@@ -56,7 +57,7 @@ var trader = function(){
         });
     });
 
-    stream.on('singleBoardStream'function(boards){
+    stream.on('singleBoardStream', function(boards){
         exchangeapi.getBalance(true, function(balances){
             processor.process(board, balances);
         });
@@ -65,8 +66,8 @@ var trader = function(){
     balanceMonitor.on('balance', function(balances){
         balances.forEach(function(balance){
             var key = Object.keys(balance)[0];
-            logger.lineNotification(key + "‚Ìc‚‚Í\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + 
-            "\nETH : " + tools.round(balance[key].assetAvailable, 8) + "\n‚Å‚·");
+            logger.lineNotification(key + "ã®æ®‹é«˜ã¯\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + 
+            "\nETH : " + tools.round(balance[key].assetAvailable, 8) + "\nã§ã™");
 
             firebase.chartUpdate('/think/balance/' + key + '/' + setting.currency, balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
             firebase.chartUpdate('/think/balance/' + key + '/' + setting.asset, balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
@@ -78,7 +79,7 @@ var trader = function(){
     });
 
     process.on('uncaughtException', function (err) {
-        logger.lineNotification("ƒŠƒJƒoƒŠ•s‰Â‚ÌƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½BƒVƒXƒeƒ€‚ğ‹­§I—¹‚µ‚Ü‚·\n" + err, function(finished){
+        logger.lineNotification("ãƒªã‚«ãƒãƒªä¸å¯ã®ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚ã‚·ã‚¹ãƒ†ãƒ ã‚’å¼·åˆ¶çµ‚äº†ã—ã¾ã™\n" + err, function(finished){
             process.exit(1);
         });
     });
@@ -104,3 +105,4 @@ trader.prototype.start = function() {
 var traderApp = new trader();
 
 module.exports = traderApp;
+

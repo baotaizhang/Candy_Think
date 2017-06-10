@@ -20,14 +20,15 @@ var firebase = function(candyConfig,setting){
     this.FirebaseAccess = this.admin.database().ref();
 
     _.bindAll(this,
-        'boardConnection',
         'systemConnection',
+        'boardConnection',
         'placeOrder',
-        'chartUpdate',
         'lineNotification',
+        'chartUpdate',
         'disconnect',
+        'orderFailedConnection',
         'boardDetach'
-    );
+   );
 
 };
 
@@ -103,7 +104,7 @@ firebase.prototype.disconnect = function(){
     this.admin.app().delete();
 }
 
-firebase.prototype.orderFailedConnection = function(){
+firebase.prototype.orderFailedConnection = function(cb){
     this.FirebaseAccess.child(this.setting.orderFailedPass).on("value", function(snapshot) {
         cb(snapshot.numChildren());
     }, function (errorObject) {
@@ -111,7 +112,7 @@ firebase.prototype.orderFailedConnection = function(){
     });
 }
 
-firebase.boardDetach = function(){
+firebase.prototype.boardDetach = function(){
     _.each(this.setting.exchanges, function(pass, key){
         this.FirebaseAccess.child(pass).off();
     });

@@ -1,9 +1,6 @@
 var _ = require('underscore');
 var async = require('async');
-var candyThinkOBJ = require(__dirname + '/../indicator/candyThink.js');
 var tools = require(__dirname + '/../util/tools.js');
-
-var candyThink = new candyThinkOBJ();
 
 var advisor = function(candyThink, logger, setting) {
 
@@ -25,10 +22,10 @@ advisor.prototype.update = function(boards, balance, callback) {
 
     // convert data with candyThink way.
     // ******************************************************************
-    var candyThinkWay = convert(boards, balance);
+    var candyThinkWay = convert(boards, balance, this.setting);
     // ******************************************************************
     
-    if(candyThinkWay.boards.length == 1){
+    if(boards.orderFailed){
         this.indicator.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, boards.orderFailed, function(err, reorder){
             if(err){
                 throw err.message;
@@ -38,7 +35,7 @@ advisor.prototype.update = function(boards, balance, callback) {
                 callback(reorder);
             }
         });
-    }else if(candyThinkWay.boards.length <= 2){
+    }else if(candyThinkWay.boards.length >= 1){
 
         this.indicator.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
 
@@ -47,7 +44,7 @@ advisor.prototype.update = function(boards, balance, callback) {
             if(orders.length == 0){
                 callback(new Array());
             }else if(estimatedRevenue < 0){
-                this.logger.lineNotification("利益額 + "tools.round(revenue, 8) + "BTCはリスク回避額" + this.setting.space + "BTCに満たないため、オーダーは実施しません");
+                this.logger.lineNotification("利益額" + tools.round(revenue, 8) + "BTCはリスク回避額" + this.setting.space + "BTCに満たないため、オーダーは実施しません");
                 callback(new Array());
             }else if(orders && estimatedRevenue >= 0){
                 callback(orders);
@@ -56,16 +53,16 @@ advisor.prototype.update = function(boards, balance, callback) {
                 throw "オーダーの形式に誤りがあります";
             }
 
-        }
+        }.bind(this));
 
     }else{
 
         throw "boardの形式に誤りがあります";
 
-    }.bind(this));
+    }
 };
 
-var convert = function(groupedBoards, balances){
+var convert = function(groupedBoards, balances, setting){
 
     var candyThinkWay = {
     
@@ -85,7 +82,7 @@ var convert = function(groupedBoards, balances){
         
             exchange_type : exchange_type_count,
             exchange : key,
-            currency_code : this.setting.currency,
+            currency_code : setting.currency,
             amount : balance[key].currencyAvailable
 
         });
@@ -94,7 +91,7 @@ var convert = function(groupedBoards, balances){
         
             exchange_type : exchange_type_count,
             exchange : key,
-            currency_code : this.setting.asset,
+            currency_code : setting.asset,
             amount : balance[key].assetAvailable
         
         });
@@ -126,7 +123,7 @@ var convert = function(groupedBoards, balances){
                         ask_bid : ask_bid.substr(0,3),
                         num : order.size,
                         amount : order.price,
-                        product_code : this.setting.pair,
+                        product_code : setting.pair,
                         time : board.time
                     })
 
@@ -139,7 +136,7 @@ var convert = function(groupedBoards, balances){
                         ask_bid : ask_bid.substr(0,3),
                         num : order[1],
                         amount : order[0],
-                        product_code : this.setting.pair,
+                        product_code : setting.pair,
                         time : board.time
                     })
                 }

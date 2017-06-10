@@ -5,7 +5,7 @@ var stream = function(firebase){
     this.firebase = firebase;
     this.boards = [];
 
-    _.bindAll(this, 'systemConnection', 'boardConnection');
+    _.bindAll(this, 'systemConnection', 'dealConnection');
 
 }
 

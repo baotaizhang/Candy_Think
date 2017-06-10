@@ -16,8 +16,6 @@ var balancer = function(exchangeapi, logger){
 
     this.job.start();
 
-    _.bindAll(this, 'start');
-
 }
 
 //---EventEmitter Setup

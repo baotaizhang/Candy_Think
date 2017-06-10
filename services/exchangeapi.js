@@ -5,8 +5,8 @@ var bitflyer = require(__dirname + '/../exchanges/bitflyer.js');
 
 var api = function(candyConfig, logger, setting){
 
-    var kraken_access = new kraken(candyConfig, logger);
-    var bitflyer_access = new bitflyer(candyConfig, logger);
+    var kraken_access = new kraken(candyConfig, logger, setting);
+    var bitflyer_access = new bitflyer(candyConfig, logger, setting);
 
     this.exchangesAccess = [
         {
@@ -24,7 +24,7 @@ var api = function(candyConfig, logger, setting){
         'currencyWithdrawalStatus', 
         'assetWithdrawalStatus',
         'currencyDepositStatus',
-        'assetDepositStatus',
+        'assetDepositStatus'
     );
 
 };

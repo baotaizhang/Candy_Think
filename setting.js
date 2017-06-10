@@ -25,4 +25,11 @@ setting.kraken = {
     asset: 'XETH'
 };
 
+setting.profit = {
+    'ETH_BTC' : {
+        profit_percentage : 1.005,
+        profit_sum : 0.001
+    }
+};
+
 module.exports = setting;

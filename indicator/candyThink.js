@@ -205,7 +205,10 @@ candyThink.prototype.orderpush = function(eachboardAsk,eachboardBid,num){
         var ask_profit = eachboardAsk.amount * num_order - commission_ask_settlement - commission_bid_settlement;
         var bid_profit = eachboardBid.amount * num_order;
         //1%以上の利益率 and 0.005BTC以上
-        if( (ask_profit / bid_profit > 1.005) && (ask_profit - bid_profit) > 0.005 ){
+        var profit_percentage = this.candySettings.profit[eachboardAsk.product_code].profit_percentage;
+        var profit_sum = this.candySettings.profit[eachboardAsk.product_code].profit_sum;
+        if( (ask_profit / bid_profit > profit_percentage) 
+          && (ask_profit - bid_profit) > profit_sum ){
             ask_order = 
                 {
                     result : "BUY",
@@ -235,6 +238,7 @@ candyThink.prototype.orderpush = function(eachboardAsk,eachboardBid,num){
 
 candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,callback){
     var boards_reorder;
+    var balance_conf;
     
     if(orderFailed.result = 'SELL'){
         boards_reorder = 
@@ -247,6 +251,7 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
             });
         //order by desc of amount
         boards_reorder = _.sortBy(boards, 'amount').reverse();
+        balance_conf = _.where(balance, {currency_code: orderFailed.pair.split ("_")[0],exchange : orderFailed.exchange})[0].amount;
     }else{
         boards_reorder = 
             _.filter(boards_reorder, function(buyboards){
@@ -258,44 +263,59 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
             });
         //order by ask of amount
         boards_reorder = _.sortBy(boards, 'amount');
+        balance_conf = _.where(balance, {currency_code: orderFailed.pair.split ("_")[1],exchange : orderFailed.exchange})[0].amount;
     }
 
     //再orderの配列
     var reorder = [];
     //再orderの数量
-    var num = orderFailed.size;
-    
+    var num = Number(orderFailed.size) - Number(orderFailed.size_exec);
     //板情報のfor文
     _.every(boards_reorder, function(eachboards){
-        if(eachboards.num >= num){
+        var num_exec = num;
+        var reorder_posssible = 0;
+        if(eachboards.num <= num){
+            num_exec = eachboards.num;
+        }
+        var fee_settlement = eachboards.amount * num_exec;
+        var commission_settlement_pre = fee_settlement * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100;
+        var commission_key_pre = fee_settlement * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100 / eachboards.amount;
+        //残高の確認
+        if(orderFailed.result = 'SELL'){
+            if(balance_conf >= num_exec){
+                reorder_posssible = 1;
+                balance_conf = balance_conf - num_exec;
+            }
+        }else{
+            if(balance_conf >= fee_settlement + commission_settlement_pre ){
+                reorder_posssible = 1;
+                balance_conf = balance_conf - (fee_settlement + commission_settlement_pre);
+            }
+        }
+
+        if(reorder_posssible === 1){
             reorder.push({
                 result : orderFailed.result,
                 exchange : eachboards.exchange,
                 price: eachboards.amount,
-                size: num,
+                size: num_exec,
                 time : eachboards.time,
-                commission_settlement_pre : eachboards.amount * num * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100,
-                commission_key_pre : eachboards.amount * num * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100 / eachboards.amount,
+                commission_settlement_pre : commission_settlement_pre,
+                commission_key_pre : commission_key_pre,
                 orderfailkey : orderFailed.orderfailedkey
             });
-            //break this loop
-            return false;
-        }else if(eachboards.num < num){
-            reorder.push({
-                result : orderFailed.result,
-                exchange : eachboards.exchange,
-                price: eachboards.amount,
-                size: eachboards.num,
-                time : eachboards.time,
-                commission_settlement_pre : eachboards.amount * num * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100,
-                commission_key_pre : eachboards.amount * num * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100 / eachboards.amount,
-                orderfailkey : orderFailed.orderfailedkey
-            });
-            num = num - eachboards.num;
+            num = num - num_exec;
+            if( num ===0 ){
+                //break this loop
+                return false;
+            }
         }
     });
-    if(reorder.length > 0){
+    if(reorder.length > 0 && num === 0){
         callback(null,reorder);
+    }else if(reorder.length > 0 && num !== 0){
+        var err = {err:'1',message:'order失敗のsize分購入できませんでした。'};
+        callback(err,null);
     }else{
         var err = {err:'1',message:'残高が足りません。'};
         callback(err,null);

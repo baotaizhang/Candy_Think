@@ -14,7 +14,7 @@ agent.prototype.order = function(ordertype){
     this.firebase.placeOrder(pass, orderType);
 
     _.each(_.pick(order, 'price', 'size'), function(item, key){
-        var pass = 'think/order/ETH_BTC/' + order.exchange + '/' + order.result + '/' + key;
+        var pass = 'think/chart/order/ETH_BTC/' + order.exchange + '/' + order.result + '/' + key;
         this.firebase.chartUpdate(pass, item, order.time);
     }.bind(this));
 

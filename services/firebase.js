@@ -34,7 +34,7 @@ var firebase = function(candyConfig,setting){
 
 firebase.prototype.systemConnection = function(cb){
 
-    this.FirebaseAccess.child('common/system').on("value", function(snapshot) {
+    this.FirebaseAccess.child('common/system/running').on("value", function(snapshot) {
         var data = snapshot.val();
         data.name = 'system';
         cb(data);
@@ -74,7 +74,7 @@ firebase.prototype.lineNotification = function(message, finished, callback){
 
     console.log(message);
 
-    this.FirebaseAccess.child('test/common/system/line').push().set({
+    this.FirebaseAccess.child('/common/system/line').push().set({
         "system" : "candy_think",
         "message" : message,
         "time" : moment().format("YYYY-MM-DD HH:mm:ss")
@@ -115,7 +115,7 @@ firebase.prototype.orderFailedConnection = function(cb){
 firebase.prototype.boardDetach = function(){
     _.each(this.setting.exchanges, function(pass, key){
         this.FirebaseAccess.child(pass).off();
-    });
+    }.bind(this));
 }
 
 

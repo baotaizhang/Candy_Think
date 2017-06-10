@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var async = require('async');
 var moment = require('moment');
+var tools = require(__dirname + '/../util/tools.js');
 
 var firebaseService = require(__dirname + '/../services/firebase.js');
 var streamService = require(__dirname + '/../services/stream.js');
@@ -31,17 +32,17 @@ var balanceMonitor = new balanceMonitorService(exchangeapi, logger);
 var trader = function(){
 
     stream.on('systemStream',function(system){
-        if(system.running == 'stop'){
+        if(system == 'stop'){
             logger.lineNotification("緊急停止が選択されました。システムを停止します", function(finished){
                 finished();
                 process.exit();
             });
-        }else if(system.running == 'idle'){
+        }else if(system == 'idle'){
             logger.lineNotification("アイドリングモードで待機します", function(finished){
                 finished();
                 firebase.boardDetach();
             });
-        }else if(system.running == 'running'){
+        }else if(system == 'running'){
             logger.lineNotification("取引を開始します", function(finished){
                 finished();
                 stream.dealConnection();
@@ -69,8 +70,8 @@ var trader = function(){
             logger.lineNotification(key + "の残高は\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + 
             "\nETH : " + tools.round(balance[key].assetAvailable, 8) + "\nです");
 
-            firebase.chartUpdate('/think/balance/' + key + '/' + setting.currency, balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
-            firebase.chartUpdate('/think/balance/' + key + '/' + setting.asset, balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
+            firebase.chartUpdate('/think/chart/balance/' + key + '/' + setting.currency, balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
+            firebase.chartUpdate('/think/chart/balance/' + key + '/' + setting.asset, balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
         });
     });
 

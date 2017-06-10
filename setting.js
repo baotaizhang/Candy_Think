@@ -5,7 +5,7 @@ setting.exchanges = {
     kraken : 'crypto/kraken/0/public/Depth/XETHXXBT'
 };
 
-setting.orderFailedPass = 'trade/orderFailed';
+setting.orderFailedPass = 'trade/orderfailed';
 
 setting.space = 0.001;
 

@@ -3,28 +3,31 @@ var _ = require('underscore');
 var async = require('async');
 var tools = require(__dirname + '/../util/tools.js');
 
+//---EventEmitter Setup
+var EventEmitter = require('events').EventEmitter;
+//---EventEmitter Setup
+
 var balancer = function(exchangeapi, logger){
 
+    var ev = new EventEmitter;
+
     this.job = new cronModule({
-        cronTime: '*/30 * * * *', 
+        cronTime: '*/60 * * * *', 
         onTick: function() {
-            balance(exchangeapi, logger);
-        },
+            balance(exchangeapi, logger, function(result){
+                ev.emit('balance' ,result);
+            });
+        }.bind(this),
         start: true, 
         timeZone: "Asia/Tokyo"
     });
 
     this.job.start();
+    return ev;
 
 }
 
-//---EventEmitter Setup
-var Util = require('util');
-var EventEmitter = require('events').EventEmitter;
-Util.inherits(balancer, EventEmitter);
-//---EventEmitter Setup
-
-function balance(exchangeapi, logger){
+function balance(exchangeapi, logger, cb){
 
     async.series({
         assetWithdrawalStatus: function(next){
@@ -72,7 +75,7 @@ function balance(exchangeapi, logger){
         }, function(isPending){
             if(!isPending){
                 exchangeapi.getBalance(true, function(balances){
-                    this.emit(balances);
+                    cb(balances);
                 }.bind(this));
             }
         });

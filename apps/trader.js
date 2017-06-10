@@ -11,13 +11,15 @@ var tradingadvisor = require(__dirname + '/../services/advisor.js');
 var exchangeapiService = require(__dirname + '/../services/exchangeapi.js');
 var agentService = require(__dirname + '/../services/agent.js');
 var balanceMonitorService = require(__dirname + '/../services/balanceMonitor.js');
+var candyThinkOBJ = require(__dirname + '/../indicator/candyThink.js');
 
 var config = require(__dirname + '/../config.js');
 var candyConfig = config.init();
 var setting = require('../setting.js');
 
 var logger = new loggingservice('trader');
-var advisor = new tradingadvisor(logger, setting);
+var candyThink = new candyThinkOBJ(setting);
+var advisor = new tradingadvisor(candyThink, logger, setting);
 var firebase = new firebaseService(candyConfig, setting);
 var stream = new streamService(firebase);
 var streamAggregator = new streamAggregatorService(stream);

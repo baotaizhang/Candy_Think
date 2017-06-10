@@ -5,6 +5,8 @@ setting.exchanges = {
     kraken : 'crypto/kraken/0/public/Depth/XETHXXBT'
 };
 
+setting.orderFailedPass = 'trade/orderFailed';
+
 setting.space = 0.001;
 
 setting.currency = "BTC";

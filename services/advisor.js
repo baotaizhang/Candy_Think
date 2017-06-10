@@ -5,7 +5,7 @@ var tools = require(__dirname + '/../util/tools.js');
 
 var candyThink = new candyThinkOBJ();
 
-var advisor = function(logger, setting) {
+var advisor = function(candyThink, logger, setting) {
 
     this.logger = logger;
     this.indicator = candyThink;
@@ -29,8 +29,15 @@ advisor.prototype.update = function(boards, balance, callback) {
     // ******************************************************************
     
     if(candyThinkWay.boards.length == 1){
-        //再オーダー作成
-    
+        this.indicator.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, boards.orderFailed, function(err, reorder){
+            if(err){
+                throw err.message;
+            }else if(reorder.length == 0){
+                 callback(new Array());
+            }else{
+                callback(reorder);
+            }
+        });
     }else if(candyThinkWay.boards.length <= 2){
 
         this.indicator.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){

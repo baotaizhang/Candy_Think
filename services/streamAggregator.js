@@ -8,7 +8,7 @@ var streamAggregator = function(stream){
     this.orderFailed = true;
 
     this.stream.on('orderFailedStream', function(orderAmount){
-        orderAmount == 0 ? orderFailed = false : orderFailed = true;
+        orderAmount == 0 ? this.orderFailed = false : this.orderFailed = true;
     })
 
     this.stream.on('boardsStream', function(boards){

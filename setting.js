@@ -1,11 +1,11 @@
 var setting = {};
 
 setting.exchanges = {
-    bitflyer : 'crypto/bitflyer/v1/getboard/ETH_BTC/board',
-    kraken : 'crypto/kraken/0/public/Depth/XETHXXBT'
+    bitflyer : 'test/crypto/bitflyer/v1/getboard/ETH_BTC/board',
+    kraken : 'test/crypto/kraken/0/public/Depth/XETHXXBT'
 };
 
-setting.orderFailedPass = 'trade/orderfailed';
+setting.orderFailedPass = 'test/trade/orderfailed';
 
 setting.space = 0.001;
 

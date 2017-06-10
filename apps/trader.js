@@ -58,9 +58,13 @@ var trader = function(){
         });
     });
 
-    stream.on('singleBoardStream', function(boards){
+    stream.on('singleBoardStream', function(board){
+
+        var pushed = [];
+        pushed.push(board);
+
         exchangeapi.getBalance(true, function(balances){
-            processor.process(board, balances);
+            processor.process(pushed, balances);
         });
     });
 

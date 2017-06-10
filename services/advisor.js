@@ -25,7 +25,7 @@ advisor.prototype.update = function(boards, balance, callback) {
     var candyThinkWay = convert(boards, balance, this.setting);
     // ******************************************************************
     
-    if(boards.orderFailed){
+    if(boards.orderfailed){
         this.indicator.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, boards.orderFailed, function(err, reorder){
             if(err){
                 throw err.message;

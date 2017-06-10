@@ -26,7 +26,7 @@ stream.prototype.systemConnection = function(){
 stream.prototype.dealConnection = function(){
 
     this.firebase.boardConnection(function(board){
-        if(board.orderFailed){
+        if(board.orderfailed){
             this.emit('singleBoardStream', board);            
         }else{
             this.emit('boardsStream', board);

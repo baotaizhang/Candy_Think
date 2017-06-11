@@ -25,8 +25,8 @@ advisor.prototype.update = function(boards, balance, callback) {
     var candyThinkWay = convert(boards, balance, this.setting);
     // ******************************************************************
     
-    if(boards.orderfailed){
-        this.indicator.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, boards.orderFailed, function(err, reorder){
+    if(boards[0].orderfailed){
+        this.indicator.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, boards[0].orderfailed, function(err, reorder){
             if(err){
                 throw err.message;
             }else if(reorder.length == 0){
@@ -40,6 +40,7 @@ advisor.prototype.update = function(boards, balance, callback) {
         this.indicator.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
 
             var estimatedRevenue = tools.round(revenue - this.setting.space, 8);
+            console.log('想定利益は' + estimatedRevenue + 'BTCです');
 
             if(orders.length == 0){
                 callback(new Array());
@@ -83,7 +84,8 @@ var convert = function(groupedBoards, balances, setting){
             exchange_type : exchange_type_count,
             exchange : key,
             currency_code : setting.currency,
-            amount : balance[key].currencyAvailable
+            // amount : balance[key].currencyAvailable
+            amount : 10000
 
         });
 
@@ -92,7 +94,8 @@ var convert = function(groupedBoards, balances, setting){
             exchange_type : exchange_type_count,
             exchange : key,
             currency_code : setting.asset,
-            amount : balance[key].assetAvailable
+            // amount : balance[key].assetAvailable
+            amount : 10000
         
         });
 
@@ -100,7 +103,7 @@ var convert = function(groupedBoards, balances, setting){
 
             exchange_type:exchange_type_count,
             exchange: key,
-            fee: key == 'bitflyer' ? balance[key].fee * 100 : balance[key].fee
+            fee: balance[key].fee
 
         });
 
@@ -139,8 +142,20 @@ var convert = function(groupedBoards, balances, setting){
                         product_code : setting.pair,
                         time : board.time
                     })
-                }
+                }else if(board.exchange === 'poloniex'){
 
+                    candyThinkWay.boards.push({
+                        no : no++,
+                        exchange_type : 3,
+                        exchange : board.exchange,
+                        ask_bid : ask_bid.substr(0,3),
+                        num : order[0],
+                        amount : order[1],
+                        product_code : setting.pair,
+                        time : board.time
+                    })
+
+                }
            });
         });
     });

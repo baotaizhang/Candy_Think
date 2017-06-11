@@ -1,11 +1,12 @@
 var _ = require('underscore');
 var moment = require('moment');
 
-var streamAggregator = function(stream){
+var streamAggregator = function(stream, setting){
 
     this.stream = stream;
+    this.setting = setting;
     this.unpairedBoards = [];
-    var orderFailed = true;
+    var orderFailed = false;
 
     this.stream.on('orderFailedStream', function(orderAmount){
         orderAmount == 0 ? orderFailed = false : orderFailed = true;
@@ -29,7 +30,7 @@ var streamAggregator = function(stream){
                     }.bind(this));
                 }.bind(this));
 
-                if(moment().diff(boards[0].time,'minutes') < 5){
+                if(moment().diff(boards[0].time,'minutes') < this.setting.boardLimit * 5){
                     if(!orderFailed){
                         this.emit('boardPairStream', boards);
                     }

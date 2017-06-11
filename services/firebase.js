@@ -34,7 +34,7 @@ var firebase = function(candyConfig,setting){
 
 firebase.prototype.systemConnection = function(cb){
 
-    this.FirebaseAccess.child('common/system/running').on("value", function(snapshot) {
+    this.FirebaseAccess.child(this.setting.systemPass).on("value", function(snapshot) {
         var data = snapshot.val();
         data.name = 'system';
         cb(data);
@@ -47,7 +47,7 @@ firebase.prototype.boardConnection = function(cb){
 
     _.each(this.setting.exchanges, function(pass, exchange){
 
-        this.FirebaseAccess.child(pass).orderByChild("time").limitToLast(1).on("child_added", function(snapshot) {
+        this.FirebaseAccess.child(pass).orderByChild("time").limitToLast(this.setting.boardLimit).on("child_added", function(snapshot) {
             var data = snapshot.val();
             data.exchange = exchange;
             data.key = snapshot.key;
@@ -74,7 +74,7 @@ firebase.prototype.lineNotification = function(message, finished, callback){
 
     console.log(message);
 
-    this.FirebaseAccess.child('test/common/system/line').push().set({
+    this.FirebaseAccess.child(this.setting.lineNotificationPass).push().set({
         "system" : "candy_think",
         "message" : message,
         "time" : moment().format("YYYY-MM-DD HH:mm:ss")
@@ -91,7 +91,7 @@ firebase.prototype.lineNotification = function(message, finished, callback){
 }
 
 firebase.prototype.chartUpdate = function(pass, item, time){
-    this.FirebaseAccess.child(pass).push().set({
+    this.FirebaseAccess.child('backtest/' + pass).push().set({
         time : time,
         item : item
     }).then(function(){

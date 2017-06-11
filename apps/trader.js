@@ -23,7 +23,7 @@ var candyThink = new candyThinkOBJ(setting);
 var advisor = new tradingadvisor(candyThink, logger, setting);
 var firebase = new firebaseService(candyConfig, setting);
 var stream = new streamService(firebase);
-var streamAggregator = new streamAggregatorService(stream);
+var streamAggregator = new streamAggregatorService(stream, setting);
 var processor = new processorService(advisor, stream, logger);
 var exchangeapi = new exchangeapiService(candyConfig, logger, setting);
 var agent = new agentService(stream);
@@ -45,15 +45,21 @@ var trader = function(){
         }else if(system == 'running'){
             logger.lineNotification("取引を開始します", function(finished){
                 finished();
-                stream.dealConnection();
             });
         }else{
             throw "不正なモードが選択されています";
         }
     });
 
-    streamAggregator.on('boardPairStream', function(boards){
+    /*streamAggregator.on('boardPairStream', function(boards){
         exchangeapi.getBalance(true, function(balances){
+            processor.process(boards, balances);
+        });
+    });*/
+    
+    exchangeapi.getBalance(true, function(balances){
+        stream.dealConnection();
+        streamAggregator.on('boardPairStream', function(boards){
             processor.process(boards, balances);
         });
     });
@@ -63,9 +69,9 @@ var trader = function(){
         var pushed = [];
         pushed.push(board);
 
-        exchangeapi.getBalance(true, function(balances){
+        /*exchangeapi.getBalance(true, function(balances){
             processor.process(pushed, balances);
-        });
+        });*/
     });
 
     balanceMonitor.on('balance', function(balances){

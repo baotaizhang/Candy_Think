@@ -155,7 +155,7 @@ exchange.prototype.getTransactionFee = function(retry, cb) {
         var handler = function(err, data) {
 
             if (!err) {
-                var fee = parseFloat(data.commission_rate);
+                var fee = parseFloat(data.commission_rate) * 100;
                 cb(null, {
                     bitflyer : {
                         fee: fee

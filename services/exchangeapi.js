@@ -2,11 +2,13 @@ var _ = require('underscore');
 var async = require('async');
 var kraken = require(__dirname + '/../exchanges/kraken.js');
 var bitflyer = require(__dirname + '/../exchanges/bitflyer.js');
+var poloniex = require(__dirname + '/../exchanges/poloniex.js');
 
 var api = function(candyConfig, logger, setting){
 
     var kraken_access = new kraken(candyConfig, logger, setting);
     var bitflyer_access = new bitflyer(candyConfig, logger, setting);
+    var poloniex_access = new poloniex(candyConfig, logger, setting);
 
     this.exchangesAccess = [
         {
@@ -16,6 +18,10 @@ var api = function(candyConfig, logger, setting){
         {
             api:bitflyer_access, 
             name:"bitflyer"
+        },
+        {
+            api:poloniex_access, 
+            name:"poloniex"
         }
     ];
 

@@ -30,6 +30,8 @@ candyThink.prototype.arbitrage = function(boards,balance,fee,callback){
 
     this.balance = balance;
     this.fee = fee;
+    //orderをclear
+    this.orderclear();
     //再オーダーでBUYが高くなることを想定して、残高を95%に変更する。
     _.each(this.balance, function(balancelist,key){
         balancelist.amount = balancelist.amount * 0.95;

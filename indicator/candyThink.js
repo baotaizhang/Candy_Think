@@ -72,7 +72,7 @@ candyThink.prototype.arbitrage = function(boards,balance,fee,callback){
                         //bidのデータを抽出
                         bidboards.ask_bid === "bid"
                         //bid(売れる)のamout > 1.ask(売注文 =買える)算出で取得したamountを抽出(taker手数料も考慮)
-                        && (bidboards.amount * (100 - bid_fee)) > (eachboardAsk.amount * (100 + ask_fee))
+                        && (bidboards.amount) > (eachboardAsk.amount)
                         //自身の取引所は含めない(ownexchange === 0の場合)
                         && bidboards.exchange !== eachboardAsk.exchange
                     ) 
@@ -202,13 +202,14 @@ candyThink.prototype.orderpush = function(eachboardAsk,eachboardBid,num){
         commission_ask_key = eachboardAsk.amount * num_order * fee_ask / eachboardAsk.amount;
         commission_bid_key = eachboardBid.amount * num_order * fee_bid / eachboardBid.amount;
         //利益を考慮した約定金額
-        var ask_profit = eachboardAsk.amount * num_order - commission_ask_settlement - commission_bid_settlement;
-        var bid_profit = eachboardBid.amount * num_order;
+        var ask_profit = eachboardAsk.amount * num_order;
+        var bid_profit = eachboardBid.amount * num_order - commission_ask_settlement - commission_bid_settlement;
         //1%以上の利益率 and 0.005BTC以上
         var profit_percentage = this.candySettings.profit[eachboardAsk.product_code].profit_percentage;
         var profit_sum = this.candySettings.profit[eachboardAsk.product_code].profit_sum;
-        if( (ask_profit / bid_profit > profit_percentage) 
-          && (ask_profit - bid_profit) > profit_sum ){
+        
+        if( (bid_profit / ask_profit > profit_percentage) 
+          && (bid_profit - ask_profit) > profit_sum ){
             ask_order = 
                 {
                     result : "BUY",

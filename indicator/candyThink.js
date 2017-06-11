@@ -240,7 +240,7 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
     var boards_reorder;
     var balance_conf;
     
-    if(orderFailed.result = 'SELL'){
+    if(orderFailed.result === 'SELL'){
         boards_reorder = 
             _.filter(boards_reorder, function(sellboards){
                     return (
@@ -281,7 +281,7 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
         var commission_settlement_pre = fee_settlement * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100;
         var commission_key_pre = fee_settlement * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100 / eachboards.amount;
         //残高の確認
-        if(orderFailed.result = 'SELL'){
+        if(orderFailed.result === 'SELL'){
             if(balance_conf >= num_exec){
                 reorder_posssible = 1;
                 balance_conf = balance_conf - num_exec;

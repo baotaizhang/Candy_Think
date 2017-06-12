@@ -219,6 +219,7 @@ candyThink.prototype.orderpush = function(eachboardAsk,eachboardBid,num){
                     price: eachboardAsk.amount,
                     size: num_order,
                     time : eachboardAsk.time,
+                    pair : eachboardAsk.product_code,
                     commission_settlement_pre : commission_ask_settlement,
                     commission_key_pre : commission_ask_key
                 }
@@ -229,6 +230,7 @@ candyThink.prototype.orderpush = function(eachboardAsk,eachboardBid,num){
                     price: eachboardBid.amount,
                     size: num_order,
                     time : eachboardAsk.time,
+                    pair : eachboardBid.product_code,
                     commission_settlement_pre : commission_bid_settlement,
                     commission_key_pre : commission_bid_key
                 }
@@ -303,6 +305,7 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
                 price: eachboards.amount,
                 size: num_exec,
                 time : eachboards.time,
+                pair : eachboards.product_code,
                 commission_settlement_pre : commission_settlement_pre,
                 commission_key_pre : commission_key_pre,
                 orderfailkey : orderFailed.orderfailedkey

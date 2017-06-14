@@ -84,8 +84,7 @@ var convert = function(groupedBoards, balances, setting){
             exchange_type : exchange_type_count,
             exchange : key,
             currency_code : setting.currency,
-            // amount : balance[key].currencyAvailable
-            amount : 10000
+            amount : balance[key].currencyAvailable
 
         });
 
@@ -94,8 +93,7 @@ var convert = function(groupedBoards, balances, setting){
             exchange_type : exchange_type_count,
             exchange : key,
             currency_code : setting.asset,
-            // amount : balance[key].assetAvailable
-            amount : 10000
+            amount : balance[key].assetAvailable
         
         });
 
@@ -149,8 +147,8 @@ var convert = function(groupedBoards, balances, setting){
                         exchange_type : 3,
                         exchange : board.exchange,
                         ask_bid : ask_bid.substr(0,3),
-                        num : order[0],
-                        amount : order[1],
+                        num : order[1],
+                        amount : order[0],
                         product_code : setting.pair,
                         time : board.time
                     })

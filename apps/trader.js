@@ -26,7 +26,7 @@ var stream = new streamService(firebase);
 var streamAggregator = new streamAggregatorService(stream, setting);
 var processor = new processorService(advisor, stream, logger);
 var exchangeapi = new exchangeapiService(candyConfig, logger, setting);
-var agent = new agentService(stream);
+var agent = new agentService(firebase);
 var balanceMonitor = new balanceMonitorService(exchangeapi, logger);
 
 var trader = function(){
@@ -39,11 +39,12 @@ var trader = function(){
             });
         }else if(system == 'idle'){
             logger.lineNotification("アイドリングモードで待機します", function(finished){
-                finished();
                 firebase.boardDetach();
+                finished();
             });
         }else if(system == 'running'){
             logger.lineNotification("取引を開始します", function(finished){
+                stream.dealConnection();
                 finished();
             });
         }else{
@@ -51,27 +52,20 @@ var trader = function(){
         }
     });
 
-    /*streamAggregator.on('boardPairStream', function(boards){
+    streamAggregator.on('boardPairStream', function(boards){
         exchangeapi.getBalance(true, function(balances){
             processor.process(boards, balances);
         });
-    });*/
-    
-    exchangeapi.getBalance(true, function(balances){
-        stream.dealConnection();
-        streamAggregator.on('boardPairStream', function(boards){
-            processor.process(boards, balances);
-        });
     });
-
+    
     stream.on('singleBoardStream', function(board){
 
         var pushed = [];
         pushed.push(board);
 
-        /*exchangeapi.getBalance(true, function(balances){
+        exchangeapi.getBalance(true, function(balances){
             processor.process(pushed, balances);
-        });*/
+        });
     });
 
     balanceMonitor.on('balance', function(balances){

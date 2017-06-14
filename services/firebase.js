@@ -55,7 +55,7 @@ firebase.prototype.boardConnection = function(cb){
 
         }, function (errorObject) {
             console.log("The read failed: " + errorObject.code);
-        });
+        }.bind(this));
 
     }.bind(this));
 
@@ -91,7 +91,7 @@ firebase.prototype.lineNotification = function(message, finished, callback){
 }
 
 firebase.prototype.chartUpdate = function(pass, item, time){
-    this.FirebaseAccess.child('backtest/' + pass).push().set({
+    this.FirebaseAccess.child(pass).push().set({
         time : time,
         item : item
     }).then(function(){

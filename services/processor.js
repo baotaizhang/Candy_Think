@@ -24,20 +24,17 @@ processor.prototype.process = function(boards, balances) {
 
     var wrapper = function(finished){
         this.advisor.update(boards, balances, function(orders){
-            async.each(orders, function(order, next){         
+            orders.forEach(function(order){         
                 if(order.result) {
                     this.emit('orderStream', order);
                 } else {
                     var err = 'Invalid advice from indicator, should be either: buy or sell.';
                     throw err;
                 }
-                next();
-            }.bind(this),function(err){
-                if (err){
-                    throw err;
-                }
-                finished();   
-            });
+            }.bind(this));
+
+            finished();
+
         }.bind(this));
     }.bind(this);
 

@@ -65,7 +65,7 @@ exchange.prototype.errorHandler = function(caller, receivedArgs, retryAllowed, c
 
             } else {
 
-                this.logger.lineNotification(callerName + ': poloniex API がエラーです。リトライを継続します¥n' + parsedError.substring(0,99));
+                this.logger.lineNotification(callerName + ': poloniex API がエラーです。リトライを継続します\n' + parsedError.substring(0,99));
 
                 if(retryAllowed) {
 

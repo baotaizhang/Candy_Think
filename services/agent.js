@@ -8,10 +8,10 @@ var agent = function(firebase){
 
 };
 
-agent.prototype.order = function(ordertype){
+agent.prototype.order = function(order){
 
-    var pass = 'think/order_1_NotYet/ETH_BTC/' + orderType.exchange;
-    this.firebase.placeOrder(pass, orderType);
+    var pass = 'think/order_1_NotYet/ETH_BTC/' + order.exchange;
+    this.firebase.placeOrder(pass, order);
 
     _.each(_.pick(order, 'price', 'size'), function(item, key){
         var pass = 'think/chart/order/ETH_BTC/' + order.exchange + '/' + order.result + '/' + key;

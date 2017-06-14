@@ -6,7 +6,7 @@ var streamAggregator = function(stream, setting){
     this.stream = stream;
     this.setting = setting;
     this.unpairedBoards = [];
-    var orderFailed = false;
+    var orderFailed = true;
 
     this.stream.on('orderFailedStream', function(orderAmount){
         orderAmount == 0 ? orderFailed = false : orderFailed = true;
@@ -30,7 +30,7 @@ var streamAggregator = function(stream, setting){
                     }.bind(this));
                 }.bind(this));
 
-                if(moment().diff(boards[0].time,'minutes') < this.setting.boardLimit * 5){
+                if(moment().diff(boards[0].time,'minutes') < this.setting.boardLimit){
                     if(!orderFailed){
                         this.emit('boardPairStream', boards);
                     }

@@ -5,13 +5,14 @@ require('winston-daily-rotate-file');
 var fs = require('fs');
 var util = require('util');
 var async = require('async');
+var setting = require(__dirname + '/../setting.js');
 
 var firebaseService = require(__dirname + '/../services/firebase.js');
 
 var config = require(__dirname + '/../config.js');
 var candyConfig = config.init();
 
-var firebase = new firebaseService(candyConfig);
+var firebase = new firebaseService(candyConfig, setting);
 
 var logger = function(app, setting) {
 

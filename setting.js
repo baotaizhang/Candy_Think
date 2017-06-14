@@ -2,16 +2,16 @@ var setting = {};
 
 setting.exchanges = {
     bitflyer : '/crypto/bitflyer/v1/getboard/ETH_BTC/board',
-    kraken : '/crypto/kraken/0/public/Depth/XETHXXBT',
-    poloniex : '/crypto/poloniex/public/poloniexOrderBooks/BTC_ETH/boards'
+    kraken : '/crypto/kraken/0/public/Depth/XETHXXBT'
+    // poloniex : '/crypto/poloniex/public/poloniexOrderBooks/BTC_ETH/boards'
 };
 
 setting.systemPass = 'common/system/running';
-setting.lineNotificationPass = 'test/common/system/line';
+setting.lineNotificationPass = 'common/system/line';
 setting.orderFailedPass = '/trade/orderfailed';
 
 setting.space = 0.001;
-setting.boardLimit = 10;
+setting.boardLimit = 1;
 
 setting.currency = "BTC";
 setting.asset = "ETH";

@@ -322,11 +322,11 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
     if(reorder.length > 0 && num === 0){
         callback(null,reorder);
     }else if(reorder.length > 0 && num !== 0){
-        var message = orderFailed.exchange + "(" + orderFailed.result + ") Size:" + num + '\n' + '上記のsize分実行できませんでした。'
+        var message = orderFailed.exchange + "(" + orderFailed.result + ") Size:" + num + '\n' + '残高不足で上記のsize分実行できませんでした。実行可能分のみreorderを行います。'
         var err = {err:'1',message: message};
         callback(err,null);
     }else{
-        var err = {err:'1',message:'残高が足りません。'};
+        var err = {err:'1',message:'残高が足りません。reorderは実施しません。'};
         callback(err,null);
     }
     reorder.length = 0;

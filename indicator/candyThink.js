@@ -322,7 +322,7 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
     if(reorder.length > 0 && num === 0){
         callback(null,reorder);
     }else if(reorder.length > 0 && num !== 0){
-        var message = orderFailed.exchange + "(" + orderFailed.result + ") Size:" + num + '\n' + '残高不足で上記のsize分実行できませんでした。実行可能分のみreorderを行います。'
+        var message = orderFailed.exchange + "(" + orderFailed.result + ":" + orderFailed.orderfailedkey + ") Size:" + num + '\n' + '残高不足で上記のsize分実行できませんでした。reorderは実施しません。'
         var err = {err:'1',message: message};
         callback(err,null);
     }else{

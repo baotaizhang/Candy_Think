@@ -247,19 +247,20 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
     
     if(orderFailed.result === 'SELL'){
         boards_reorder = 
-            _.filter(boards_reorder, function(sellboards){
+            _.filter(boards, function(sellboards){
                     return (
                         //bidのデータを抽出
                         sellboards.ask_bid === "bid"
                         && sellboards.exchange === orderFailed.exchange
                     )
             });
+        var test = _.where(boards, {ask_bid: "bid", exchange : orderFailed.exchange});
         //order by desc of amount
-        boards_reorder = _.sortBy(boards, 'amount').reverse();
+        boards_reorder = _.sortBy(boards_reorder, 'amount').reverse();
         balance_conf = _.where(balance, {currency_code: orderFailed.pair.split ("_")[0],exchange : orderFailed.exchange})[0].amount;
     }else{
         boards_reorder = 
-            _.filter(boards_reorder, function(buyboards){
+            _.filter(boards, function(buyboards){
                     return (
                         //bidのデータを抽出
                         buyboards.ask_bid === "ask"
@@ -267,14 +268,14 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
                     )
             });
         //order by ask of amount
-        boards_reorder = _.sortBy(boards, 'amount');
+        boards_reorder = _.sortBy(boards_reorder, 'amount');
         balance_conf = _.where(balance, {currency_code: orderFailed.pair.split ("_")[1],exchange : orderFailed.exchange})[0].amount;
     }
 
     //再orderの配列
     var reorder = [];
     //再orderの数量
-    var num = Number(orderFailed.size) - Number(orderFailed.size_exec);
+    var num = (Number(orderFailed.size) * 1000000 - Number(orderFailed.size_exec) * 1000000) / 1000000;
     //板情報のfor文
     _.every(boards_reorder, function(eachboards){
         var num_exec = num;
@@ -297,7 +298,7 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
                 balance_conf = balance_conf - (fee_settlement + commission_settlement_pre);
             }
         }
-
+        
         if(reorder_posssible === 1){
             reorder.push({
                 result : orderFailed.result,
@@ -311,16 +312,18 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
                 orderfailkey : orderFailed.orderfailedkey
             });
             num = num - num_exec;
-            if( num ===0 ){
+            if( num === 0 ){
                 //break this loop
                 return false;
             }
         }
+        return true;
     });
     if(reorder.length > 0 && num === 0){
         callback(null,reorder);
     }else if(reorder.length > 0 && num !== 0){
-        var err = {err:'1',message:'order失敗のsize分購入できませんでした。'};
+        var message = orderFailed.exchange + "(" + orderFailed.result + ") Size:" + num + '\n' + '上記のsize分実行できませんでした。'
+        var err = {err:'1',message: message};
         callback(err,null);
     }else{
         var err = {err:'1',message:'残高が足りません。'};

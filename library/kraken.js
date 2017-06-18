@@ -134,7 +134,7 @@ function KrakenClient(key, secret, otp) {
 				var data;
 
 				if(error) {
-					return callback.call(self, new Error('Error in server response: ' + JSON.stringify(error)), null);
+					return callback.call(self, new Error(JSON.stringify(error)), null);
 				}
 
 				try {

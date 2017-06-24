@@ -37,7 +37,7 @@ setting.poloniex = {
 
 setting.profit = {
     'ETH_BTC' : {
-        profit_percentage : 1.005,
+        profit_percentage : 1.008,
         profit_sum : 0.0015
     }
 };

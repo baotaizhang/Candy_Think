@@ -56,7 +56,11 @@ exchange.prototype.errorHandler = function(caller, receivedArgs, retryAllowed, c
 
         if(err) {
 
-            parsedError = JSON.parse(err.message);
+            try {
+                parsedError = JSON.parse(err.message);
+            } catch (e) {
+                parsedError = err;
+            }
 
             if(parsedError === '["EQuery:Unknown asset pair"]') {
 
@@ -66,7 +70,7 @@ exchange.prototype.errorHandler = function(caller, receivedArgs, retryAllowed, c
             } else {
 
                 if(parsedError.code != "ESOCKETTIMEDOUT"){
-                    this.logger.lineNotification(callerName + ': kraken API がエラーです。リトライを継続します\n' + parsedError.substring(0,99));
+                    this.logger.lineNotification(callerName + ': kraken API がエラーです。リトライを継続します\n' + parsedError);
                 }
                 
                 if(retryAllowed) {

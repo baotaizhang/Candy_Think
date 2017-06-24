@@ -1,6 +1,6 @@
 var _ = require('underscore');
 var async = require('async');
-var Kraken = require(__dirname + '/../Library/kraken.js');
+var Kraken = require(__dirname + '/../library/kraken.js');
 
 var exchange = function(candyConfig, logger, setting) {
 

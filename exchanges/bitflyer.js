@@ -1,6 +1,6 @@
 var _ = require('underscore');
 var async = require('async');
-var bitflyer = require(__dirname + '/../Library/bitflyer.js');
+var bitflyer = require(__dirname + '/../library/bitflyer.js');
 
 var exchange = function(candyConfig, logger, setting) {
 

@@ -1,6 +1,6 @@
 var _ = require('underscore');
 var async = require('async');
-var poloniex = require(__dirname + '/../Library/poloniex.js');
+var poloniex = require(__dirname + '/../library/poloniex.js');
 
 var exchange = function(candyConfig, logger, setting) {
 

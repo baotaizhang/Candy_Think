@@ -5,13 +5,12 @@ var tools = require(__dirname + '/../util/tools.js');
 
 var firebaseService = require(__dirname + '/../services/firebase.js');
 var streamService = require(__dirname + '/../services/stream.js');
-var streamAggregatorService = require(__dirname + '/../services/streamAggregator.js');
 var processorService = require(__dirname + '/../services/processor.js');
 var loggingservice = require(__dirname + '/../services/loggingservice.js');
 var tradingadvisor = require(__dirname + '/../services/advisor.js');
 var exchangeapiService = require(__dirname + '/../services/exchangeapi.js');
 var agentService = require(__dirname + '/../services/agent.js');
-var balanceMonitorService = require(__dirname + '/../services/balanceMonitor.js');
+var cronService = require(__dirname + '/../services/cron.js');
 var candyThinkOBJ = require(__dirname + '/../indicator/candyThink.js');
 
 var config = require(__dirname + '/../config.js');
@@ -23,60 +22,68 @@ var candyThink = new candyThinkOBJ(setting);
 var advisor = new tradingadvisor(candyThink, logger, setting);
 var firebase = new firebaseService(candyConfig, setting);
 var stream = new streamService(firebase);
-var streamAggregator = new streamAggregatorService(stream, setting);
 var processor = new processorService(advisor, stream, logger);
 var exchangeapi = new exchangeapiService(candyConfig, logger, setting);
 var agent = new agentService(firebase);
-var balanceMonitor = new balanceMonitorService(exchangeapi, logger);
+var cron = new cronService(exchangeapi, logger);
 
 var trader = function(){
 
     stream.on('systemStream',function(system){
         if(system == 'stop'){
-            logger.lineNotification("ç·Šæ€¥åœæ­¢ãŒé¸æŠã•ã‚Œã¾ã—ãŸã€‚ã‚·ã‚¹ãƒ†ãƒ ã‚’åœæ­¢ã—ã¾ã™", function(finished){
+            logger.lineNotification("‹Ù‹}’â~‚ª‘I‘ğ‚³‚ê‚Ü‚µ‚½BƒVƒXƒeƒ€‚ğ’â~‚µ‚Ü‚·", function(finished){
                 finished();
                 process.exit();
             });
         }else if(system == 'idle'){
-            logger.lineNotification("ã‚¢ã‚¤ãƒ‰ãƒªãƒ³ã‚°ãƒ¢ãƒ¼ãƒ‰ã§å¾…æ©Ÿã—ã¾ã™", function(finished){
-                firebase.boardDetach();
+            logger.lineNotification("ƒAƒCƒhƒŠƒ“ƒOƒ‚[ƒh‚Å‘Ò‹@‚µ‚Ü‚·", function(finished){
+                cron.job.stop();
                 finished();
             });
         }else if(system == 'running'){
-            logger.lineNotification("å–å¼•ã‚’é–‹å§‹ã—ã¾ã™", function(finished){
-                stream.dealConnection();
+            logger.lineNotification("æˆø‚ğŠJn‚µ‚Ü‚·", function(finished){
+                cron.job.start();
                 finished();
             });
         }else{
-            throw "ä¸æ­£ãªãƒ¢ãƒ¼ãƒ‰ãŒé¸æŠã•ã‚Œã¦ã„ã¾ã™";
+            throw "•s³‚Èƒ‚[ƒh‚ª‘I‘ğ‚³‚ê‚Ä‚¢‚Ü‚·";
         }
     });
 
-    streamAggregator.on('boardPairStream', function(boards){
-        exchangeapi.getBalance(true, function(balances){
-            processor.process(boards, balances);
-        });
-    });
-    
-    stream.on('singleBoardStream', function(board){
-
-        var pushed = [];
-        pushed.push(board);
+    stream.on('orderFailedStream', function(orderFailed){
 
         exchangeapi.getBalance(true, function(balances){
-            processor.process(pushed, balances);
+            exchangapi.getBoards(true, orderFailed.exchange, function(board){
+                board[0].orderFailed = orderFailed;
+                processor.process(board, balances);
+            });
         });
+
     });
 
-    balanceMonitor.on('balance', function(balances){
-        balances.forEach(function(balance){
-            var key = Object.keys(balance)[0];
-            logger.lineNotification(key + "ã®æ®‹é«˜ã¯\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + 
-            "\nETH : " + tools.round(balance[key].assetAvailable, 8) + "\nã§ã™");
+    stream.on('orderFailedCheck', function(count){
+        
+        if(count == 0){
+            cron.job.start();
+        }else{
+            cron.job.stop();
+        }
 
-            firebase.chartUpdate('/think/chart/balance/' + key + '/' + setting.currency, balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
-            firebase.chartUpdate('/think/chart/balance/' + key + '/' + setting.asset, balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
+    });
+
+    cron.ev.on('job', function(status){
+
+        exchangeapi.getBalance(true, function(balances){
+            exchangeapi.getBoards(true, function(boards){
+                processor.process(boards, balances);
+            });
+            balances.forEach(function(balance){
+                var key = Object.keys(balance)[0];
+                firebase.chartUpdate('/think/chart/balance/' +key + '/' + setting.currency, balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
+                firebase.chartUpdate('/think/chart/balance/' + key + '/' + setting.asset, balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
+            });
         });
+
     });
 
     processor.on('orderStream', function(order){
@@ -84,7 +91,7 @@ var trader = function(){
     });
 
     process.on('uncaughtException', function (err) {
-        logger.lineNotification("ãƒªã‚«ãƒãƒªä¸å¯ã®ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚ã‚·ã‚¹ãƒ†ãƒ ã‚’å¼·åˆ¶çµ‚äº†ã—ã¾ã™\n" + err, function(finished){
+        logger.lineNotification("ƒŠƒJƒoƒŠ•s‰Â‚ÌƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½BƒVƒXƒeƒ€‚ğ‹­§I—¹‚µ‚Ü‚·\n" + err, function(finished){
             process.exit(1);
         });
     });
@@ -110,4 +117,3 @@ trader.prototype.start = function() {
 var traderApp = new trader();
 
 module.exports = traderApp;
-

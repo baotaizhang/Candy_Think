@@ -77,7 +77,7 @@ var trader = function(){
             });
             balances.forEach(function(balance){
                 var key = Object.keys(balance)[0];
-                firebase.chartUpdate(setting.balancePass +key + '/' + setting.currency, balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
+                firebase.chartUpdate(setting.balancePass + key + '/' + setting.currency, balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
                 firebase.chartUpdate(setting.balancePass + key + '/' + setting.asset, balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
             });
         });

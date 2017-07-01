@@ -36,7 +36,7 @@ function bitflyerClient(key, secret, otp){
 
     function api(method, query, body, callback) {
         var methods = {
-            get_public: [],
+            get_public: ['getboard'],
             post_public: [],
             get_private: ['getbalance','gettradingcommission','getcoinins','getcoinouts','getaddresses'],
             post_private: ['sendcoin']

@@ -23,10 +23,7 @@ var exchange = function(candyConfig, logger, setting) {
         'errorHandler', 
         'getBalance', 
         'getTransactionFee',
-        'currencyWithdrawalStatus', 
-        'assetWithdrawalStatus',
-        'currencyDepositStatus',
-        'assetDepositStatus'
+        'getBoard'
     );
 };
 
@@ -172,112 +169,28 @@ exchange.prototype.getTransactionFee = function(retry, cb) {
 
 };
 
-exchange.prototype.currencyWithdrawalStatus = function(retry, cb){
+exchange.prototype.getBoard = function(retry, cb) {
 
     var args = arguments;
 
     var wrapper = function(finished) {
-        
-        var currency = this.currencyPair.currency;
+        var pair = this.currencyPair.product_code;
 
         var handler = function(err, data) {
-            if(!err){    
-                cb(null, {
-                    bitflyer : {
-                        status : _.filter(data, function(status){ return status.currency_code == currency})
-                    }
-                });
-            }else{
+
+            if (!err) {
+                var board = data;
+                board.exchange = 'bitflyer';
+                cb(null, board);
+            } else {
                 cb(err, null);
-            }    
+            }
         };
 
-        this.bitflyer.api('getcoinouts', null, null, this.errorHandler(this.currencyWithdrawalStatus, args, retry, 'currencyWithdrawalStatus', handler, finished));
-    
+        this.bitflyer.api('getboard', {"product_code": pair}, null, this.errorHandler(this.getBoard, args, retry, 'getboard', handler, finished));
     }.bind(this);
-    this.q.push({name: 'currencygetcoinouts', func: wrapper});
+    this.q.push({name: 'getboard', func: wrapper});
 
-}
-
-exchange.prototype.assetWithdrawalStatus = function(retry, cb){
-
-    var args = arguments;
-
-    var wrapper = function(finished) {
-        
-        var asset = this.currencyPair.asset;
-
-        var handler = function(err, data) {
-            if(!err){    
-                cb(null, {
-                    bitflyer : {
-                        status : _.filter(data, function(status){ return status.currency_code == asset})
-                    }
-                });
-            }else{
-                cb(err, null);
-            }    
-        };
-
-        this.bitflyer.api('getcoinouts', null, null, this.errorHandler(this.assetWithdrawalStatus, args, retry, 'assetWithdrawalStatus', handler, finished));
-    
-    }.bind(this);
-    this.q.push({name: 'currencygetcoinouts', func: wrapper});
-
-}
-
-exchange.prototype.currencyDepositStatus = function(retry, cb){
-
-    var args = arguments;
-
-    var wrapper = function(finished) {
-        
-        var currency = this.currencyPair.currency;
-
-        var handler = function(err, data) {
-            if(!err){    
-                cb(null, {
-                    bitflyer : {
-                        status : _.filter(data, function(status){ return status.currency_code == currency})
-                    }
-                });
-            }else{
-                cb(err, null);
-            }    
-        };
-
-        this.bitflyer.api('getcoinins', null, null, this.errorHandler(this.currencyDepositStatus, args, retry, 'currencyDepositStatus', handler, finished));
-    
-    }.bind(this);
-    this.q.push({name: 'currencygetcoinins', func: wrapper});
-
-}
-
-exchange.prototype.assetDepositStatus = function(retry, cb){
-
-    var args = arguments;
-
-    var wrapper = function(finished) {
-        
-        var asset = this.currencyPair.asset;
-
-        var handler = function(err, data) {
-            if(!err){    
-                cb(null, {
-                    bitflyer : {
-                        status : _.filter(data, function(status){ return status.currency_code == asset})
-                    }
-                });
-            }else{
-                cb(err, null);
-            }    
-        };
-
-        this.bitflyer.api('getcoinins', null, null, this.errorHandler(this.assetDepositStatus, args, retry, 'assetDepositStatus', handler, finished));
-    
-    }.bind(this);
-    this.q.push({name: 'currencygetcoinins', func: wrapper});
-
-}
+};
 
 module.exports = exchange;        

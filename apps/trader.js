@@ -51,10 +51,10 @@ var trader = function(){
     firebase.on('orderFailedStream', function(orderFailed){
 
         exchangeapi.getBalance(true, function(balances){
-            exchangapi.getBoards(true, orderFailed.exchange, function(board){
+            exchangapi.getBoards(true, function(board){
                 board[0].orderFailed = orderFailed;
                 processor.process(board, balances);
-            });
+            }, orderFailed.exchange);
         });
 
     });

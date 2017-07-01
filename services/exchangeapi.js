@@ -27,10 +27,7 @@ var api = function(candyConfig, logger, setting){
 
     _.bindAll(this, 
         'getBalance', 
-        'currencyWithdrawalStatus', 
-        'assetWithdrawalStatus',
-        'currencyDepositStatus',
-        'assetDepositStatus'
+        'getBoards'
     );
 
 };
@@ -49,49 +46,23 @@ api.prototype.getBalance = function(retry, cb){
 
     });
 };
-    
-api.prototype.currencyWithdrawalStatus = function(retry, cb){
-    async.map(this.exchangesAccess, function(exchangeAccess, next){
-        status = exchangeAccess.api.currencyWithdrawalStatus(retry, next);
-    }, function(err, statuses){
-        if(err){
-            throw err;
-        }
-        cb(statuses);
-    });
-};
 
-api.prototype.assetWithdrawalStatus = function(retry, cb){
-    async.map(this.exchangesAccess, function(exchangeAccess, next){
-        status = exchangeAccess.api.assetWithdrawalStatus(retry, next);
-    }, function(err, statuses){
-        if(err){
-            throw err;
-        }
-        cb(statuses);
-    });
-};
+api.prototype.getBoards = function(retry, cb, exchange){
 
-api.prototype.currencyDepositStatus = function(retry, cb){
-    async.map(this.exchangesAccess, function(exchangeAccess, next){
-        status = exchangeAccess.api.currencyDepositStatus(retry, next);
-    }, function(err, statuses){
-        if(err){
-            throw err;
-        }
-        cb(statuses);
+    var exchangesAccess = exchange === undefined ? this.exchangesAccess : _.find(this.exchangesAccess, function(exchangeAccess){
+        return exchangeAccess.name == exchange;
     });
-};
 
-api.prototype.assetDepositStatus = function(retry, cb){
     async.map(this.exchangesAccess, function(exchangeAccess, next){
-        status = exchangeAccess.api.assetDepositStatus(retry, next);
-    }, function(err, statuses){
-        if(err){
-            throw err;
-        }
-        cb(statuses);
-    });
-};
+        board = exchangeAccess.api.getBoard(retry, next);
+        }, function(err, boards){
+            if(err){
+                throw err;
+            }
+            cb(boards);
+        });
+    }
+
+}
 
 module.exports = api;

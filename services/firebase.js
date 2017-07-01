@@ -46,6 +46,7 @@ firebase.prototype.systemConnection = (function(cb){
     }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
     });
+
 }());
 
 firebase.prototype.placeOrder = function(pass, orderType){
@@ -55,6 +56,7 @@ firebase.prototype.placeOrder = function(pass, orderType){
             console.log("Error: " + error);
         }
     );
+
 }
 
 firebase.prototype.lineNotification = function(message, finished, callback){

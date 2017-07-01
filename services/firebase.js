@@ -21,45 +21,32 @@ var firebase = function(candyConfig,setting){
 
     _.bindAll(this,
         'systemConnection',
-        'boardConnection',
         'placeOrder',
         'lineNotification',
         'chartUpdate',
         'disconnect',
         'orderFailedConnection',
-        'boardDetach'
+        'orderFailedCount'
    );
 
 };
 
-firebase.prototype.systemConnection = function(cb){
+//---EventEmitter Setup
+var Util = require('util');
+var EventEmitter = require('events').EventEmitter;
+Util.inherits(firebase, EventEmitter);
+//---EventEmitter Setup
+
+firebase.prototype.systemConnection = (function(cb){
 
     this.FirebaseAccess.child(this.setting.systemPass).on("value", function(snapshot) {
         var data = snapshot.val();
         data.name = 'system';
-        cb(data);
+        this.emit('systemStream', data);
     }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
     });
-}
-
-firebase.prototype.boardConnection = function(cb){
-
-    _.each(this.setting.exchanges, function(pass, exchange){
-
-        this.FirebaseAccess.child(pass).orderByChild("time").limitToLast(this.setting.boardLimit).on("child_added", function(snapshot) {
-            var data = snapshot.val();
-            data.exchange = exchange;
-            data.key = snapshot.key;
-            cb(data);
-
-        }, function (errorObject) {
-            console.log("The read failed: " + errorObject.code);
-        }.bind(this));
-
-    }.bind(this));
-
-}
+}());
 
 firebase.prototype.placeOrder = function(pass, orderType){
 
@@ -104,20 +91,22 @@ firebase.prototype.disconnect = function(){
     this.admin.app().delete();
 }
 
-firebase.prototype.orderFailedConnection = function(cb){
-    this.FirebaseAccess.child(this.setting.orderFailedPass).on("value", function(snapshot) {
-        cb(snapshot.numChildren());
+firebase.prototype.orderFailedConnection = (function(cb){
+    this.FirebaseAccess.child(this.setting.orderFailedPass).on("child_added", function(snapshot) {
+        var data = snapshot.val();
+        data.orderfailedkey = snapshot.key;
+        this.emit('orderFailedStream', data);
     }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
     });
-}
+}());
 
-firebase.prototype.boardDetach = function(){
-    _.each(this.setting.exchanges, function(pass, key){
-        this.FirebaseAccess.child(pass).off();
-    }.bind(this));
-}
-
-
+firebase.prototype.orderFailedCount = (function(cb){
+    this.FirebaseAccess.child(this.setting.orderFailedPass).on("value", function(snapshot) {
+        this.emit('orderFailedCheck', snapshot.numChildren());
+    }, function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+    });
+}());
 
 module.exports = firebase;

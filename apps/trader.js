@@ -4,7 +4,6 @@ var moment = require('moment');
 var tools = require(__dirname + '/../util/tools.js');
 
 var firebaseService = require(__dirname + '/../services/firebase.js');
-var streamService = require(__dirname + '/../services/stream.js');
 var processorService = require(__dirname + '/../services/processor.js');
 var loggingservice = require(__dirname + '/../services/loggingservice.js');
 var tradingadvisor = require(__dirname + '/../services/advisor.js');
@@ -21,15 +20,14 @@ var logger = new loggingservice('trader');
 var candyThink = new candyThinkOBJ(setting);
 var advisor = new tradingadvisor(candyThink, logger, setting);
 var firebase = new firebaseService(candyConfig, setting);
-var stream = new streamService(firebase);
 var processor = new processorService(advisor, stream, logger);
 var exchangeapi = new exchangeapiService(candyConfig, logger, setting);
-var agent = new agentService(firebase);
+var agent = new agentService(firebase, setting);
 var cron = new cronService(exchangeapi, logger);
 
 var trader = function(){
 
-    stream.on('systemStream',function(system){
+    firebase.on('systemStream',function(system){
         if(system == 'stop'){
             logger.lineNotification("ãŸã}í‚é~Ç™ëIëÇ≥ÇÍÇ‹ÇµÇΩÅBÉVÉXÉeÉÄÇí‚é~ÇµÇ‹Ç∑", function(finished){
                 finished();
@@ -50,7 +48,7 @@ var trader = function(){
         }
     });
 
-    stream.on('orderFailedStream', function(orderFailed){
+    firebase.on('orderFailedStream', function(orderFailed){
 
         exchangeapi.getBalance(true, function(balances){
             exchangapi.getBoards(true, orderFailed.exchange, function(board){
@@ -61,7 +59,7 @@ var trader = function(){
 
     });
 
-    stream.on('orderFailedCheck', function(count){
+    firebase.on('orderFailedCheck', function(count){
         
         if(count == 0){
             cron.job.start();
@@ -79,8 +77,8 @@ var trader = function(){
             });
             balances.forEach(function(balance){
                 var key = Object.keys(balance)[0];
-                firebase.chartUpdate('/think/chart/balance/' +key + '/' + setting.currency, balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
-                firebase.chartUpdate('/think/chart/balance/' + key + '/' + setting.asset, balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
+                firebase.chartUpdate(setting.balancePass +key + '/' + setting.currency, balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
+                firebase.chartUpdate(setting.balancePass + key + '/' + setting.asset, balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
             });
         });
 
@@ -111,7 +109,7 @@ Util.inherits(trader, EventEmitter);
 //---EventEmitter Setup
 
 trader.prototype.start = function() {
-    stream.systemConnection();
+    cron.job.start();
 };
 
 var traderApp = new trader();

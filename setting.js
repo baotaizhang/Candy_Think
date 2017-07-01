@@ -9,6 +9,8 @@ setting.exchanges = {
 setting.systemPass = 'common/system/running';
 setting.lineNotificationPass = 'common/system/line';
 setting.orderFailedPass = '/trade/orderfailed';
+setting.orderPass = 'think/order_1_NotYet/ETH_BTC/';
+setting.balancePass = '/think/chart/balance/';
 
 setting.space = 0.001;
 setting.boardLimit = 1;
@@ -37,7 +39,7 @@ setting.poloniex = {
 
 setting.profit = {
     'ETH_BTC' : {
-        profit_percentage : 1.003,
+        profit_percentage : 1.005,
         profit_sum : 0.0015
     }
 };

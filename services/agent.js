@@ -1,16 +1,17 @@
 var _ = require('underscore');
 var async = require('async');
 
-var agent = function(firebase){
+var agent = function(firebase, setting){
 
     this.firebase = firebase;
+    this.setting = setting;
     _.bindAll(this, 'order');
 
 };
 
 agent.prototype.order = function(order){
 
-    var pass = 'think/order_1_NotYet/ETH_BTC/' + order.exchange;
+    var pass = this.setting.orderPass + order.exchange;
     this.firebase.placeOrder(pass, order);
 
 }

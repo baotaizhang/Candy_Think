@@ -37,17 +37,17 @@ var EventEmitter = require('events').EventEmitter;
 Util.inherits(firebase, EventEmitter);
 //---EventEmitter Setup
 
-firebase.prototype.systemConnection = (function(cb){
+firebase.prototype.systemConnection = function(){
 
     this.FirebaseAccess.child(this.setting.systemPass).on("value", function(snapshot) {
         var data = snapshot.val();
         data.name = 'system';
         this.emit('systemStream', data);
-    }, function (errorObject) {
+    }.bind(this), function (errorObject) {
         console.log("The read failed: " + errorObject.code);
     });
 
-}());
+};
 
 firebase.prototype.placeOrder = function(pass, orderType){
 
@@ -93,22 +93,22 @@ firebase.prototype.disconnect = function(){
     this.admin.app().delete();
 }
 
-firebase.prototype.orderFailedConnection = (function(cb){
+firebase.prototype.orderFailedConnection = function(){
     this.FirebaseAccess.child(this.setting.orderFailedPass).on("child_added", function(snapshot) {
         var data = snapshot.val();
         data.orderfailedkey = snapshot.key;
         this.emit('orderFailedStream', data);
-    }, function (errorObject) {
+    }.bind(this), function (errorObject) {
         console.log("The read failed: " + errorObject.code);
     });
-}());
+};
 
-firebase.prototype.orderFailedCount = (function(cb){
+firebase.prototype.orderFailedCount = function(){
     this.FirebaseAccess.child(this.setting.orderFailedPass).on("value", function(snapshot) {
         this.emit('orderFailedCheck', snapshot.numChildren());
-    }, function (errorObject) {
+    }.bind(this), function (errorObject) {
         console.log("The read failed: " + errorObject.code);
     });
-}());
+};
 
 module.exports = firebase;

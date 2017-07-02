@@ -2,11 +2,10 @@ var _ = require('underscore');
 var moment = require('moment');
 var async = require('async');
 
-var processor = function(advisor, stream, logger){
+var processor = function(advisor, logger){
 
     this.logger = logger;
     this.advisor = advisor;
-    this.stream = stream;
 
     this.q = async.queue(function (task, callback) {
         this.logger.debug('Added ' + task.name + ' call to the process queue.');

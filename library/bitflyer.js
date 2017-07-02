@@ -73,7 +73,7 @@ function bitflyerClient(key, secret, otp){
         body = body || null;
 
         var url = config.url;
-        url.pathname = '/' + config.version + '/public/' + method;
+        url.pathname = '/' + config.version + '/' + method;
         url.query = query;
         url = nodeurl.format(url);
 

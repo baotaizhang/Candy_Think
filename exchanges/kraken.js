@@ -1,5 +1,7 @@
 var _ = require('underscore');
 var async = require('async');
+var moment = require("moment");
+
 var Kraken = require(__dirname + '/../library/kraken.js');
 
 var exchange = function(candyConfig, logger, setting) {
@@ -173,20 +175,24 @@ exchange.prototype.getBoard = function(retry, cb) {
     var args = arguments;
 
     var wrapper = function(finished) {
-        var pair = this.currencyPairpair;
+        var pair = this.currencyPair.pair;
 
         var handler = function(err, data) {
 
             if (!err) {
-                var board = data;
-                board.exchange = 'kraken';
+                var board = {
+                    exchange : 'kraken',
+                    time: moment().format("YYYY-MM-DD HH:mm:ss"),
+                    asks: data.result.XETHXXBT.asks,
+                    bids: data.result.XETHXXBT.bids
+                };
                 cb(null, board);
             } else {
                 cb(err, null);
             }
         };
 
-        this.bitflyer.api('Depth', {"pair": pair}, null, this.errorHandler(this.getBoard, args, retry, 'getboard', handler, finished));
+        this.kraken.api('Depth', {"pair": pair}, this.errorHandler(this.getBoard, args, retry, 'getboard', handler, finished));
     }.bind(this);
     this.q.push({name: 'getboard', func: wrapper});
 

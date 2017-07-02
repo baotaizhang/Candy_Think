@@ -1,5 +1,6 @@
 var _ = require('underscore');
 var async = require('async');
+var moment = require("moment");
 var bitflyer = require(__dirname + '/../library/bitflyer.js');
 
 var exchange = function(candyConfig, logger, setting) {
@@ -179,8 +180,12 @@ exchange.prototype.getBoard = function(retry, cb) {
         var handler = function(err, data) {
 
             if (!err) {
-                var board = data;
-                board.exchange = 'bitflyer';
+                var board = {
+                    exchange : 'bitflyer',
+                    time: moment().format("YYYY-MM-DD HH:mm:ss"),
+                    bids: data.bids,
+                    asks: data.asks
+                };
                 cb(null, board);
             } else {
                 cb(err, null);

@@ -55,13 +55,12 @@ api.prototype.getBoards = function(retry, cb, exchange){
 
     async.map(this.exchangesAccess, function(exchangeAccess, next){
         board = exchangeAccess.api.getBoard(retry, next);
-        }, function(err, boards){
-            if(err){
-                throw err;
-            }
-            cb(boards);
-        });
-    }
+    }, function(err, boards){
+        if(err){
+            throw err;
+        }
+        cb(boards);
+    });
 
 }
 

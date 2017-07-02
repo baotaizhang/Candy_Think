@@ -14,8 +14,8 @@ var cron = function(){
     this.job = new cronModule({
         cronTime: '*/05 * * * *', 
         onTick: function() {
-            ev.emit('job' ,'ontick!');
-        },
+            this.ev.emit('job' ,'ontick!');
+        }.bind(this),
         start: true, 
         timeZone: "Asia/Tokyo"
     });

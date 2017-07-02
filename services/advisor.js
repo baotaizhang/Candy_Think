@@ -39,7 +39,7 @@ advisor.prototype.update = function(boards, balance, callback) {
 
         this.indicator.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
 
-            var estimatedRevenue = tools.round(revenue - this.setting.space, 8);
+            var estimatedRevenue = tools.round(revenue, 8);
             console.log('想定利益は' + estimatedRevenue + 'BTCです');
 
             if(orders.length == 0){

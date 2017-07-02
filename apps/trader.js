@@ -20,7 +20,7 @@ var logger = new loggingservice('trader');
 var candyThink = new candyThinkOBJ(setting);
 var advisor = new tradingadvisor(candyThink, logger, setting);
 var firebase = new firebaseService(candyConfig, setting);
-var processor = new processorService(advisor, stream, logger);
+var processor = new processorService(advisor, logger);
 var exchangeapi = new exchangeapiService(candyConfig, logger, setting);
 var agent = new agentService(firebase, setting);
 var cron = new cronService(exchangeapi, logger);
@@ -29,29 +29,31 @@ var trader = function(){
 
     firebase.on('systemStream',function(system){
         if(system == 'stop'){
-            logger.lineNotification("‹Ù‹}’â~‚ª‘I‘ğ‚³‚ê‚Ü‚µ‚½BƒVƒXƒeƒ€‚ğ’â~‚µ‚Ü‚·", function(finished){
+            logger.lineNotification("ç·Šæ€¥åœæ­¢ãŒé¸æŠã•ã‚Œã¾ã—ãŸã€‚ã‚·ã‚¹ãƒ†ãƒ ã‚’åœæ­¢ã—ã¾ã™", function(finished){
                 finished();
                 process.exit();
             });
         }else if(system == 'idle'){
-            logger.lineNotification("ƒAƒCƒhƒŠƒ“ƒOƒ‚[ƒh‚Å‘Ò‹@‚µ‚Ü‚·", function(finished){
+            logger.lineNotification("ã‚¢ã‚¤ãƒ‰ãƒªãƒ³ã‚°ãƒ¢ãƒ¼ãƒ‰ã§å¾…æ©Ÿã—ã¾ã™", function(finished){
                 cron.job.stop();
                 finished();
             });
         }else if(system == 'running'){
-            logger.lineNotification("æˆø‚ğŠJn‚µ‚Ü‚·", function(finished){
+            logger.lineNotification("å–å¼•ã‚’é–‹å§‹ã—ã¾ã™", function(finished){
                 cron.job.start();
+                firebase.orderFailedConnection();
+                firebase.orderFailedCount();
                 finished();
             });
         }else{
-            throw "•s³‚Èƒ‚[ƒh‚ª‘I‘ğ‚³‚ê‚Ä‚¢‚Ü‚·";
+            throw "ä¸æ­£ãªãƒ¢ãƒ¼ãƒ‰ãŒé¸æŠã•ã‚Œã¦ã„ã¾ã™";
         }
     });
 
     firebase.on('orderFailedStream', function(orderFailed){
 
         exchangeapi.getBalance(true, function(balances){
-            exchangapi.getBoards(true, function(board){
+            exchangeapi.getBoards(true, function(board){
                 board[0].orderFailed = orderFailed;
                 processor.process(board, balances);
             }, orderFailed.exchange);
@@ -89,7 +91,7 @@ var trader = function(){
     });
 
     process.on('uncaughtException', function (err) {
-        logger.lineNotification("ƒŠƒJƒoƒŠ•s‰Â‚ÌƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½BƒVƒXƒeƒ€‚ğ‹­§I—¹‚µ‚Ü‚·\n" + err, function(finished){
+        logger.lineNotification("ãƒªã‚«ãƒãƒªä¸å¯ã®ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚ã‚·ã‚¹ãƒ†ãƒ ã‚’å¼·åˆ¶çµ‚äº†ã—ã¾ã™\n" + err, function(finished){
             process.exit(1);
         });
     });
@@ -110,8 +112,10 @@ Util.inherits(trader, EventEmitter);
 
 trader.prototype.start = function() {
     cron.job.start();
+    firebase.systemConnection();
 };
 
 var traderApp = new trader();
 
 module.exports = traderApp;
+

@@ -54,7 +54,7 @@ var trader = function(){
 
         exchangeapi.getBalance(true, function(balances){
             exchangeapi.getBoards(true, function(board){
-                board[0].orderFailed = orderFailed;
+                board[0].orderfailed = orderFailed;
                 processor.process(board, balances);
             }, orderFailed.exchange);
         });

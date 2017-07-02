@@ -49,11 +49,11 @@ api.prototype.getBalance = function(retry, cb){
 
 api.prototype.getBoards = function(retry, cb, exchange){
 
-    var exchangesAccess = exchange === undefined ? this.exchangesAccess : _.find(this.exchangesAccess, function(exchangeAccess){
+    var exchangesAccess = exchange === undefined ? this.exchangesAccess : _.filter(this.exchangesAccess, function(exchangeAccess){
         return exchangeAccess.name == exchange;
     });
 
-    async.map(this.exchangesAccess, function(exchangeAccess, next){
+    async.map(exchangesAccess, function(exchangeAccess, next){
         board = exchangeAccess.api.getBoard(retry, next);
     }, function(err, boards){
         if(err){

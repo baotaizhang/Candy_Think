@@ -1,5 +1,6 @@
 var _ = require('underscore');
 var async = require('async');
+var moment = require('moment');
 var poloniex = require(__dirname + '/../library/poloniex.js');
 
 var exchange = function(candyConfig, logger, setting) {
@@ -22,7 +23,8 @@ var exchange = function(candyConfig, logger, setting) {
         'retry', 
         'errorHandler', 
         'getBalance', 
-        'getTransactionFee'
+        'getTransactionFee',
+        'getBoard'
     );
 };
 
@@ -165,6 +167,36 @@ exchange.prototype.getTransactionFee = function(retry, cb) {
         this.poloniex.returnFeeInfo(this.errorHandler(this.getTransactionFee, args, retry, 'getTransactionFee', handler, finished));
     }.bind(this);
     this.q.push({name: 'getTransactionFee', func: wrapper});
+
+};
+
+exchange.prototype.getBoard = function(retry, cb) {
+
+    var args = arguments;
+
+    var wrapper = function(finished) {
+
+        var currency = this.currencyPair.currency;
+        var asset = this.currencyPair.asset;
+
+        var handler = function(err, data) {
+
+            if (!err) {
+                var board = {
+                    exchange : 'poloniex',
+                    time: moment().format("YYYY-MM-DD HH:mm:ss"),
+                    asks: data.asks,
+                    bids: data.bids
+                };
+                cb(null, board);
+            } else {
+                cb(err, null);
+            }
+        };
+
+        this.poloniex.returnOrderBook(currency, asset, this.errorHandler(this.getBoard, args, retry, 'getboard', handler, finished));
+    }.bind(this);
+    this.q.push({name: 'getboard', func: wrapper});
 
 };
 

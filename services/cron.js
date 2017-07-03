@@ -12,7 +12,7 @@ var cron = function(){
     this.ev = new EventEmitter;
 
     this.job = new cronModule({
-        cronTime: '*/01 * * * *', 
+        cronTime: '*/05 * * * *', 
         onTick: function() {
             this.ev.emit('job' ,'ontick!');
         }.bind(this),

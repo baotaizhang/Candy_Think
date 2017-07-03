@@ -84,8 +84,7 @@ var convert = function(groupedBoards, balances, setting){
             exchange_type : exchange_type_count,
             exchange : key,
             currency_code : setting.currency,
-            // amount : balance[key].currencyAvailable
-            amount : 10000
+            amount : balance[key].currencyAvailable
 
         });
 
@@ -94,8 +93,7 @@ var convert = function(groupedBoards, balances, setting){
             exchange_type : exchange_type_count,
             exchange : key,
             currency_code : setting.asset,
-            // amount : balance[key].assetAvailable
-            amount : 10000
+            amount : balance[key].assetAvailable
         
         });
 

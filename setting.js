@@ -7,10 +7,10 @@ setting.exchanges = {
 };
 
 setting.systemPass = '/common/system/running';
-setting.lineNotificationPass = '/test/common/system/line';
-setting.orderFailedPass = '/test/trade/orderfailed';
-setting.orderPass = '/test/think/order_1_NotYet/ETH_BTC/';
-setting.balancePass = '/test/think/chart/balance/';
+setting.lineNotificationPass = '/common/system/line';
+setting.orderFailedPass = '/trade/orderfailed';
+setting.orderPass = '/think/order_1_NotYet/ETH_BTC/';
+setting.balancePass = '/think/chart/balance/';
 
 setting.space = 0.001;
 setting.boardLimit = 1;

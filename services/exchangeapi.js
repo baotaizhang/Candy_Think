@@ -32,9 +32,13 @@ var api = function(candyConfig, logger, setting){
 
 };
 
-api.prototype.getBalance = function(retry, cb){
+api.prototype.getBalance = function(retry, cb, exchange){
 
-    async.map(this.exchangesAccess, function(exchangeAccess, next){
+    var exchangesAccess = exchange === undefined ? this.exchangesAccess : _.filter(this.exchangesAccess, function(exchangeAccess){
+        return exchangeAccess.name == exchange;
+    });
+
+    async.map(exchangesAccess, function(exchangeAccess, next){
         balance = exchangeAccess.api.getBalance(retry, next);
     }, function(err, balances){
 

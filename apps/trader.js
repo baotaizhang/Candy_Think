@@ -57,7 +57,7 @@ var trader = function(){
                 board[0].orderfailed = orderFailed;
                 processor.process(board, balances);
             }, orderFailed.exchange);
-        });
+        }, orderFailed.exchange);
 
     });
 
@@ -77,13 +77,15 @@ var trader = function(){
             exchangeapi.getBoards(true, function(boards){
                 processor.process(boards, balances);
             });
-            balances.forEach(function(balance){
-                var key = Object.keys(balance)[0];
-                firebase.chartUpdate(setting.balancePass + key + '/' + setting.currency, balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
-                firebase.chartUpdate(setting.balancePass + key + '/' + setting.asset, balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
-            });
+            if(moment().format("mm") == "00"){
+                balances.forEach(function(balance){
+                    var key = Object.keys(balance)[0];
+                    firebase.chartUpdate(setting.balancePass + key + '/' + setting.currency, balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
+                    firebase.chartUpdate(setting.balancePass + key + '/' + setting.asset, balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
+                });
+            }
         });
-
+            
     });
 
     processor.on('orderStream', function(order){

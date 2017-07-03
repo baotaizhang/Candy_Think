@@ -300,11 +300,17 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
         }
         
         if(reorder_posssible === 1){
+            var reorder_num = 0;
+            if(num_exec >= 0.01){
+                reorder_num = num_exec;
+            }else{
+                reorder_num = 0.01;
+            }
             reorder.push({
                 result : orderFailed.result,
                 exchange : eachboards.exchange,
                 price: eachboards.amount,
-                size: num_exec,
+                size: reorder_num,
                 time : eachboards.time,
                 pair : eachboards.product_code,
                 commission_settlement_pre : commission_settlement_pre,

@@ -9,6 +9,7 @@ var candyRefresh = function(setting){
     );
 
     this.candySettings = setting;
+    this.pair;
     this.order = [];
     this.boards = {};
     this.balance = {};
@@ -27,7 +28,9 @@ candyRefresh.prototype.refresh = function(boards,balance,fee,pair,callback){
     var orderObj = {};
     var ordertotalObj = {};
     var refreshBalanceAllocation = this.candySettings.refresh[pair].allocate;
+    var message;
 
+    this.pair = pair;
     this.balance = balance;
     this.fee = fee;
     
@@ -59,6 +62,9 @@ candyRefresh.prototype.refresh = function(boards,balance,fee,pair,callback){
         });
         ordertotalObj[pairtype] = total;
     });
+    
+    console.log(balanceObj);
+    console.log(balancetotalObj);
 
     //70%(setting)を超えたらbalancing
     if(balancetotalObj[pair_key] * this.candySettings.refresh[pair].bal_amt_percentage < ordertotalObj[pair_key]){
@@ -152,10 +158,33 @@ candyRefresh.prototype.refresh = function(boards,balance,fee,pair,callback){
                     return true;
                 }
             }.bind(this));
+        }else{
+            message = 'refreshの必要があるが、条件に合致するboardが存在しません。' + '\n' 
+                    + '手動で送金するか条件に合致する板を待つ必要があります。' + '\n' 
+                    + JSON.stringify(balanceObj,undefined,1);
         }
     }
+    
+    var ordersize = 0;
+    _.each(this.order, function(orderlist,key){
+        ordersize = ordersize + orderlist.size;
+    }.bind(this));
 
-    callback(this.order, message:"");
+    if(ordersize >= balancetotalObj[pair_key] * 0.99 && ordersize <= balancetotalObj[pair_key] * 1.01){
+        message = 'refreshの必要があります。条件に合致するboardが存在したため、refreshを行います。' + '\n' + JSON.stringify(ordertotalObj,undefined,1);
+    }else if(ordersize != 0){
+        message = 'refreshの必要があります。一部のみrefreshを行います。下記原因により一部となっています。' + '\n'
+                + '・refreshPercentage(' + this.candySettings.refresh[this.pair].percentage_from + '~' + this.candySettings.refresh[this.pair].percentage_to + ')に合致する板が少ないor存在しない' + '\n'
+                + '・残高が不足している *念のため、残高を確認してください。' + '\n'
+                + 'ordersize:' + ordersize + '\n'
+                + JSON.stringify(ordertotalObj,undefined,1);
+    }else{
+        message = 'refreshの必要がありますがrefreshの条件に合致しません。下記いずれかの問題です。' + '\n'
+                + '・refreshPercentage(' + this.candySettings.refresh[this.pair].percentage_from + '~' + this.candySettings.refresh[this.pair].percentage_to + ')に合致する板が少ないor存在しない' + '\n'
+                + '・残高が不足している *念のため、残高を確認してください。' + '\n'
+    }
+    console.log(message)
+    callback(this.order, message);
 }
 
 candyRefresh.prototype.refreshpush = function(eachboardAsk,eachboardBid,num,cb){
@@ -180,13 +209,13 @@ candyRefresh.prototype.refreshpush = function(eachboardAsk,eachboardBid,num,cb){
     var commission_bid_key = tools.round(eachboardBid.amount * actualnum * fee_bid / eachboardBid.amount, 7);
     var cost_ask = eachboardAsk.amount * actualnum + commission_ask_settlement;
 
-    if(balance_ask[0].amount >= cost_ask && balance_bid[0].amount >= actualnum && actualnum > 0.01){
-        var ask_profit = eachboardAsk.amount * actualnum;
-        var bid_profit = eachboardBid.amount * actualnum - commission_ask_settlement - commission_bid_settlement;
-        var refresh_actual_percentage = bid_profit / ask_profit;
-        var refresh_percentage_from = this.candySettings.refresh[pair].percentage_from;
-        var refresh_percentage_to = this.candySettings.refresh[pair].percentage_to;
-        if((refresh_actual_percentage >= refresh_percentage_from) && (refresh_actual_percentage < refresh_percentage_to)){
+    var ask_profit = eachboardAsk.amount * actualnum;
+    var bid_profit = eachboardBid.amount * actualnum - commission_ask_settlement - commission_bid_settlement;
+    var refresh_actual_percentage = bid_profit / ask_profit;
+    var refresh_percentage_from = this.candySettings.refresh[this.pair].percentage_from;
+    var refresh_percentage_to = this.candySettings.refresh[this.pair].percentage_to;
+    if((refresh_actual_percentage >= refresh_percentage_from) && (refresh_actual_percentage < refresh_percentage_to)){
+        if(balance_ask[0].amount >= cost_ask && balance_bid[0].amount >= actualnum && actualnum > 0.01){
             ask_order = 
                 {
                     result : "BUY",

@@ -61,7 +61,10 @@ firebase.prototype.placeOrder = function(pass, orderType){
 
 firebase.prototype.lineNotification = function(message, finished, callback){
 
+    console.log('----------------------------------------------------');
+    console.log("line notification");
     console.log(message);
+    console.log('----------------------------------------------------');
 
     this.FirebaseAccess.child(this.setting.lineNotificationPass).push().set({
         "system" : "candy_think",

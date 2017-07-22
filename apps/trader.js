@@ -11,6 +11,8 @@ var exchangeapiService = require(__dirname + '/../services/exchangeapi.js');
 var agentService = require(__dirname + '/../services/agent.js');
 var cronService = require(__dirname + '/../services/cron.js');
 var candyThinkOBJ = require(__dirname + '/../indicator/candyThink.js');
+var candyRefreshOBJ = require(__dirname + '/../indicator/candyRefresh.js');
+
 
 var config = require(__dirname + '/../config.js');
 var candyConfig = config.init();
@@ -18,7 +20,8 @@ var setting = require('../setting.js');
 
 var logger = new loggingservice('trader');
 var candyThink = new candyThinkOBJ(setting);
-var advisor = new tradingadvisor(candyThink, logger, setting);
+var candyRefresh = new candyRefreshOBJ(setting); 
+var advisor = new tradingadvisor(candyThink, candyRefresh ,logger, setting);
 var firebase = new firebaseService(candyConfig, setting);
 var processor = new processorService(advisor, logger);
 var exchangeapi = new exchangeapiService(candyConfig, logger, setting);
@@ -75,6 +78,8 @@ var trader = function(){
 
         exchangeapi.getBalance(true, function(balances){
             exchangeapi.getBoards(true, function(boards){
+                balances.refresh = true;
+                boards.arbitrage = false;
                 processor.process(boards, balances);
             });
             if(moment().format("mm") == "00"){

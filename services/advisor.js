@@ -2,10 +2,12 @@ var _ = require('underscore');
 var async = require('async');
 var tools = require(__dirname + '/../util/tools.js');
 
-var advisor = function(candyThink, logger, setting) {
+var advisor = function(candyThink,candyRefresh, logger, setting) {
 
     this.logger = logger;
-    this.indicator = candyThink;
+    this.indicator = {};
+    this.indicator.arbitrage = candyThink;
+    this.indicator.refresh = candyRefresh;
     this.setting = setting;
 
   _.bindAll(this, 'update');
@@ -26,7 +28,7 @@ advisor.prototype.update = function(boards, balance, callback) {
     // ******************************************************************
     
     if(boards[0].orderfailed){
-        this.indicator.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, boards[0].orderfailed, function(err, reorder){
+        this.indicator.arbitrage.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, boards[0].orderfailed, function(err, reorder){
             if(err){
                 throw err.message;
             }else if(reorder.length == 0){
@@ -35,9 +37,9 @@ advisor.prototype.update = function(boards, balance, callback) {
                 callback(reorder);
             }
         });
-    }else if(candyThinkWay.boards.length >= 1){
+    }else if(boards.arbitrage){
 
-        this.indicator.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
+        this.indicator.arbitrage.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
 
             var estimatedRevenue = tools.round(revenue, 8);
             console.log('想定利益は' + estimatedRevenue + 'BTCです');
@@ -56,9 +58,26 @@ advisor.prototype.update = function(boards, balance, callback) {
 
         }.bind(this));
 
+    }else if(balance.refresh){
+
+        this.indicator.refresh.refresh(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, this.setting.pair, function(orders, message){
+
+            this.logger.lineNotification(message);
+        
+            if(orders.length == 0){
+                callback(new Array());
+            }else if(orders.length > 0){
+                callback(orders);
+            }else{
+                throw "オーダーの形式に誤りがあります";
+            }
+            
+        
+         }.bind(this));
+    
     }else{
 
-        throw "boardの形式に誤りがあります";
+        throw "形式に誤りがあります";
 
     }
 };

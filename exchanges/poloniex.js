@@ -110,7 +110,7 @@ exchange.prototype.getBalance = function(retry, cb){
                 
                     if(key == asset){
                         assetValue = value;
-                    }else if(value == currency){
+                    }else if(key == currency){
                         currencyValue = value;
                     }
                 

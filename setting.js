@@ -38,4 +38,22 @@ setting.profit = {
     }
 };
 
+setting.refresh = {
+    'ETH_BTC' : {
+        percentage_from : 1.0005,
+        percentage_to : 1.005,
+        bal_amt_percentage : 0.7,
+        allocate : {
+            ETH : {
+                kraken : 0.5,
+                bitflyer : 0.5
+            },
+            BTC : {
+                kraken : 0.5,
+                bitflyer : 0.5
+            }
+        }
+    }
+};
+
 module.exports = setting;

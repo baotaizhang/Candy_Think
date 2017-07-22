@@ -34,7 +34,7 @@ candyThink.prototype.arbitrage = function(boards,balance,fee,callback){
     this.orderclear();
     //再オーダーでBUYが高くなることを想定して、残高を95%に変更する。
     _.each(this.balance, function(balancelist,key){
-        balancelist.amount = balancelist.amount * 0.95;
+        balancelist.amount = balancelist.amount * 0.98;
     }.bind(this));
     
     //1.ask(売注文 =買える)算出
@@ -244,7 +244,6 @@ candyThink.prototype.orderpush = function(eachboardAsk,eachboardBid,num){
 candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,callback){
     var boards_reorder;
     var balance_conf;
-    
     if(orderFailed.result === 'SELL'){
         boards_reorder = 
             _.filter(boards, function(sellboards){
@@ -306,7 +305,7 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
             }else{
                 reorder_num = 0.01;
             }
-            reorder.push({
+            var reorderpush = {
                 result : orderFailed.result,
                 exchange : eachboards.exchange,
                 price: eachboards.amount,
@@ -316,7 +315,11 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
                 commission_settlement_pre : commission_settlement_pre,
                 commission_key_pre : commission_key_pre,
                 orderfailkey : orderFailed.orderfailedkey
-            });
+            };
+            if(orderFailed.refresh){
+                reorderpush.refresh = "refresh"
+            }
+            reorder.push(reorderpush);
             num = num - num_exec;
             if( num === 0 ){
                 //break this loop

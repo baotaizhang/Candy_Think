@@ -20,7 +20,7 @@ var EventEmitter = require('events').EventEmitter;
 Util.inherits(advisor, EventEmitter);
 //---EventEmitter Setup
 
-advisor.prototype.update = function(boards, balance, callback) {
+advisor.prototype.update = function(action, boards, balance, callback) {
 
     // convert data with candyThink way.
     // ******************************************************************
@@ -46,8 +46,10 @@ advisor.prototype.update = function(boards, balance, callback) {
 
             if(orders.length == 0){
                 callback(new Array());
+                this.emit('status', action);
             }else if(estimatedRevenue < 0){
                 this.logger.lineNotification("利益額" + tools.round(revenue, 8) + "BTCはリスク回避額" + this.setting.space + "BTCに満たないため、オーダーは実施しません");
+                this.emit('status', action);
                 callback(new Array());
             }else if(orders && estimatedRevenue >= 0){
                 callback(orders);
@@ -65,6 +67,7 @@ advisor.prototype.update = function(boards, balance, callback) {
             this.logger.lineNotification(message);
         
             if(orders.length == 0){
+                this.emit('status', action);
                 callback(new Array());
             }else if(orders.length > 0){
                 callback(orders);
@@ -182,3 +185,4 @@ var convert = function(groupedBoards, balances, setting){
 };
 
 module.exports = advisor;
+

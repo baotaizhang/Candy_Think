@@ -11,7 +11,7 @@ var processor = function(advisor, logger){
         this.logger.debug('Added ' + task.name + ' call to the process queue.');
         this.logger.debug('There are currently ' + this.q.running() + ' running jobs and ' + this.q.length() + ' jobs in queue.');
         task.func(function() { 
-            setTimeout(callback, 200); 
+            setTimeout(callback, 1000 * 60); 
         });
     }.bind(this), 1);
 
@@ -19,24 +19,25 @@ var processor = function(advisor, logger){
 
 };
 
-processor.prototype.process = function(boards, balances) {
+processor.prototype.process = function(action, orderFailed, exchangeapi) {
 
     var wrapper = function(finished){
-        this.advisor.update(boards, balances, function(orders){
-            orders.forEach(function(order){         
-                if(order.result) {
-                    this.emit('orderStream', order);
-                } else {
-                    var err = 'Invalid advice from indicator, should be either: buy or sell.';
-                    throw err;
-                }
-            }.bind(this));
-
-            finished();
-
-        }.bind(this));
+        exchangeapi.getBalance(true, function(balances){
+            exchangeapi.getBoards(true, function(board){
+                this.advisor.update(action, board, balances, orderFailed, function(orders){
+                    orders.forEach(function(order){         
+                        if(order.result) {
+                            this.emit('orderStream', order);
+                        } else {
+                            var err = 'Invalid advice from indicator, should be either: buy or sell.';
+                            throw err;
+                        }
+                    }.bind(this));
+                    finished();
+                }.bind(this));
+            })
+        })
     }.bind(this);
-
     this.q.push({name: 'process', func: wrapper});
 };
 

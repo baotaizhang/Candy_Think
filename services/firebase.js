@@ -114,4 +114,14 @@ firebase.prototype.orderFailedCount = function(){
     });
 };
 
+firebase.prototype.statusUpdate = function(action){
+    this.FirebaseAccess.child(this.setting.statusPass).push().set({
+        time : moment().format("YYYY-MM-DD HH:mm:ss"),
+        item : item
+    }).then(function(){
+    }, function(error) {
+        console.log("Error: " + error);
+    });
+}
+
 module.exports = firebase;

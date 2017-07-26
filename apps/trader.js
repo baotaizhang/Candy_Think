@@ -9,7 +9,6 @@ var loggingservice = require(__dirname + '/../services/loggingservice.js');
 var tradingadvisor = require(__dirname + '/../services/advisor.js');
 var exchangeapiService = require(__dirname + '/../services/exchangeapi.js');
 var agentService = require(__dirname + '/../services/agent.js');
-var cronService = require(__dirname + '/../services/cron.js');
 var candyThinkOBJ = require(__dirname + '/../indicator/candyThink.js');
 var candyRefreshOBJ = require(__dirname + '/../indicator/candyRefresh.js');
 
@@ -26,7 +25,6 @@ var firebase = new firebaseService(candyConfig, setting);
 var processor = new processorService(advisor, logger);
 var exchangeapi = new exchangeapiService(candyConfig, logger, setting);
 var agent = new agentService(firebase, setting);
-var cron = new cronService(exchangeapi, logger);
 
 var trader = function(){
 
@@ -54,48 +52,24 @@ var trader = function(){
     });
 
     firebase.on('orderFailedStream', function(orderFailed){
-
-        exchangeapi.getBalance(true, function(balances){
-            exchangeapi.getBoards(true, function(board){
-                board[0].orderfailed = orderFailed;
-                processor.process(board, balances);
-            }, orderFailed.exchange);
-        }, orderFailed.exchange);
-
+        processor.process('orderFailed', orderFailed, exchangeapi);
     });
 
-    firebase.on('orderFailedCheck', function(count){
-        
-        if(count == 0){
-            cron.job.start();
-        }else{
-            cron.job.stop();
-        }
-
-    });
-
-    cron.ev.on('job', function(status){
-
-        exchangeapi.getBalance(true, function(balances){
-            exchangeapi.getBoards(true, function(boards){
-                balances.refresh = true;
-                boards.arbitrage = false;
-                processor.process(boards, balances);
-            });
-            if(moment().format("mm") == "00"){
-                balances.forEach(function(balance){
-                    var key = Object.keys(balance)[0];
-                    firebase.chartUpdate(setting.balancePass + key + '/' + setting.currency, balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
-                    firebase.chartUpdate(setting.balancePass + key + '/' + setting.asset, balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
-                });
-            }
-        });
-            
-    });
+    firebase.on('tradeStream', function(tradeStatus){
+        if(tradeStatus.system == 'arbitrage'){
+            processor.process('refresh', null, exchangeapi);
+        else if(tradeStatus.system == 'refresh'){
+            processor.process('arbitrage', null, exchangeapi);
+        }        
+    })
 
     processor.on('orderStream', function(order){
         agent.order(order); 
     });
+
+    advisor.on('status', function(action){
+        firebase.statusUpdate(action);
+    })
 
     process.on('uncaughtException', function (err) {
         logger.lineNotification("リカバリ不可のエラーが発生しました。システムを強制終了します\n" + err, function(finished){
@@ -118,7 +92,6 @@ Util.inherits(trader, EventEmitter);
 //---EventEmitter Setup
 
 trader.prototype.start = function() {
-    cron.job.start();
     firebase.systemConnection();
 };
 

@@ -176,11 +176,14 @@ candyRefresh.prototype.refresh = function(boards,balance,fee,pair,callback){
                 + '・refreshPercentage(' + this.candySettings.refresh[this.pair].percentage_from + '~' + this.candySettings.refresh[this.pair].percentage_to + ')に合致する板が少ないor存在しない' + '\n'
                 + '・残高が不足している *念のため、残高を確認してください。' + '\n'
                 + 'ordersize:' + ordersize + '\n'
-                + JSON.stringify(ordertotalObj,undefined,1);
+                + JSON.stringify(balanceObj,undefined,1) + '\n'
+                + JSON.stringify(orderObj,undefined,1);
     }else if(this.order.length > 0){
         message = 'refreshの必要がありますがrefreshの条件に合致しません。下記いずれかの問題です。' + '\n'
                 + '・refreshPercentage(' + this.candySettings.refresh[this.pair].percentage_from + '~' + this.candySettings.refresh[this.pair].percentage_to + ')に合致する板が少ないor存在しない' + '\n'
                 + '・残高が不足している *念のため、残高を確認してください。' + '\n'
+                + JSON.stringify(balanceObj,undefined,1) + '\n'
+                + JSON.stringify(orderObj,undefined,1);
     }
     callback(this.order, message);
 }

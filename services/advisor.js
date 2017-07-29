@@ -72,6 +72,8 @@ advisor.prototype.update = function(action, boards, balance, orderfailed, callba
 
             if(message){
                 this.logger.lineNotification(message);
+            }else{
+                console.log("refreshはありません");
             }
 
             if(orders.length == 0){

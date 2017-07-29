@@ -11,7 +11,7 @@ var processor = function(advisor, logger){
         this.logger.debug('Added ' + task.name + ' call to the process queue.');
         this.logger.debug('There are currently ' + this.q.running() + ' running jobs and ' + this.q.length() + ' jobs in queue.');
         task.func(function() { 
-            setTimeout(callback, 1000 * 60); 
+            setTimeout(callback, 1000 * 120); 
         });
     }.bind(this), 1);
 
@@ -22,6 +22,7 @@ var processor = function(advisor, logger){
 processor.prototype.process = function(action, orderFailed, exchangeapi) {
 
     var wrapper = function(finished){
+        console.log("starting process : " + action);
         exchangeapi.getBalance(true, function(balances){
             exchangeapi.getBoards(true, function(board){
                 this.advisor.update(action, board, balances, orderFailed, function(orders){
@@ -35,8 +36,8 @@ processor.prototype.process = function(action, orderFailed, exchangeapi) {
                     }.bind(this));
                     finished();
                 }.bind(this));
-            })
-        })
+            }.bind(this));
+        }.bind(this));
     }.bind(this);
     this.q.push({name: 'process', func: wrapper});
 };

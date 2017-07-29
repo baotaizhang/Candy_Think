@@ -20,14 +20,20 @@ var EventEmitter = require('events').EventEmitter;
 Util.inherits(advisor, EventEmitter);
 //---EventEmitter Setup
 
-advisor.prototype.update = function(action, boards, balance, callback) {
+advisor.prototype.update = function(action, boards, balance, orderfailed, callback) {
+
+    // orderfailed can be left out
+    if(typeof orderfailed == "function") { 
+        callback = orderfailed;
+        orderfailed = null;
+    }
 
     // convert data with candyThink way.
     // ******************************************************************
     var candyThinkWay = convert(boards, balance, this.setting);
     // ******************************************************************
     
-    if(boards[0].orderfailed){
+    if(orderfailed){
         this.indicator.arbitrage.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, boards[0].orderfailed, function(err, reorder){
             if(err){
                 throw err.message;
@@ -37,7 +43,7 @@ advisor.prototype.update = function(action, boards, balance, callback) {
                 callback(reorder);
             }
         });
-    }else if(boards.arbitrage){
+    }else if(action == 'arbitrage'){
 
         this.indicator.arbitrage.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
 
@@ -60,12 +66,14 @@ advisor.prototype.update = function(action, boards, balance, callback) {
 
         }.bind(this));
 
-    }else if(balance.refresh){
+    }else if(action == 'refresh'){
 
         this.indicator.refresh.refresh(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, this.setting.pair, function(orders, message){
 
-            this.logger.lineNotification(message);
-        
+            if(message){
+                this.logger.lineNotification(message);
+            }
+
             if(orders.length == 0){
                 this.emit('status', action);
                 callback(new Array());
@@ -80,7 +88,7 @@ advisor.prototype.update = function(action, boards, balance, callback) {
     
     }else{
 
-        throw "形式に誤りがあります";
+        throw "status形式に誤りがあります";
 
     }
 };
@@ -106,8 +114,7 @@ var convert = function(groupedBoards, balances, setting){
             exchange_type : exchange_type_count,
             exchange : key,
             currency_code : setting.currency,
-            // amount : balance[key].currencyAvailable
-            amount : 100
+            amount : balance[key].currencyAvailable
 
         });
 
@@ -116,8 +123,7 @@ var convert = function(groupedBoards, balances, setting){
             exchange_type : exchange_type_count,
             exchange : key,
             currency_code : setting.asset,
-            // amount : balance[key].assetAvailable
-            amount : 100
+            amount : balance[key].assetAvailable
         
         });
 

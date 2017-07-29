@@ -114,10 +114,18 @@ firebase.prototype.orderFailedCount = function(){
     });
 };
 
+firebase.prototype.trading = function(){
+    this.FirebaseAccess.child(this.setting.statusPass).on("value", function(snapshot){
+        this.emit('tradeStream', snapshot.val());
+    }.bind(this), function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+    });
+};
+
 firebase.prototype.statusUpdate = function(action){
-    this.FirebaseAccess.child(this.setting.statusPass).push().set({
+    this.FirebaseAccess.child(this.setting.statusPass).set({
         time : moment().format("YYYY-MM-DD HH:mm:ss"),
-        item : item
+        system : action
     }).then(function(){
     }, function(error) {
         console.log("Error: " + error);

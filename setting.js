@@ -5,6 +5,7 @@ setting.lineNotificationPass = 'test/common/system/line';
 setting.orderFailedPass = 'test/trade/orderfailed';
 setting.orderPass = 'test/think/order_1_NotYet/ETH_BTC/';
 setting.balancePass = '/think/chart/balance/';
+setting.statusPass = 'test/common/system/tradestatus'
 
 setting.space = 0.001;
 setting.boardLimit = 1;
@@ -45,12 +46,14 @@ setting.refresh = {
         bal_amt_percentage : 0.7,
         allocate : {
             ETH : {
-                kraken : 0.5,
-                bitflyer : 0.5
+                kraken : 0.3,
+                bitflyer : 0.4,
+                poloniex : 0.3
             },
             BTC : {
-                kraken : 0.5,
-                bitflyer : 0.5
+                kraken : 0.3,
+                bitflyer : 0.4,
+                poloniex : 0.3
             }
         }
     }

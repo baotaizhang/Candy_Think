@@ -36,12 +36,12 @@ var trader = function(){
             });
         }else if(system == 'idle'){
             logger.lineNotification("アイドリングモードで待機します", function(finished){
-                cron.job.stop();
+                firebase.disconnect();
                 finished();
             });
         }else if(system == 'running'){
             logger.lineNotification("取引を開始します", function(finished){
-                cron.job.start();
+                firebase.trading();
                 firebase.orderFailedConnection();
                 firebase.orderFailedCount();
                 finished();
@@ -58,9 +58,11 @@ var trader = function(){
     firebase.on('tradeStream', function(tradeStatus){
         if(tradeStatus.system == 'arbitrage'){
             processor.process('refresh', null, exchangeapi);
-        else if(tradeStatus.system == 'refresh'){
+        }else if(tradeStatus.system == 'refresh'){
             processor.process('arbitrage', null, exchangeapi);
-        }        
+        }else{
+            throw "想定外のtradeStatus : " + tradeStatus + "を検知したため、システムを停止します"
+        }
     })
 
     processor.on('orderStream', function(order){

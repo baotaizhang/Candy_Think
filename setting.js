@@ -10,42 +10,55 @@ setting.statusPass = 'test/common/system/tradestatus'
 setting.space = 0.001;
 setting.boardLimit = 1;
 
-setting.currency = "BTC";
-setting.asset = "ETH";
-setting.pair = "ETH_BTC";
+setting.currency = {
+    kraken : "BTC",
+    bitflyer : "BTC",
+    poloniex : "BTC"
+};
+
+setting.asset = {
+    kraken : "USD",
+    bitflyer : "JPY",
+    poloniex : "USD"
+};
+setting.pair = {
+    kraken : "USD_BTC",
+    bitflyer : "JPY_BTC",
+    poloniex : "USD_BTC"
+};
 
 setting.bitflyer = {
-    product_code : "ETH_BTC",
+    product_code : "JPY_BTC",
     currency : "BTC",
-    asset : "ETH"
+    asset : "JPY"
 };
 
 setting.kraken = {
-    pair: 'XETHXXBT',
+    pair: 'XXBTXUSD',
     currency: 'XXBT',
-    asset: 'XETH'
+    asset: 'XUSD'
 };
 
 setting.poloniex = {
-    product_code : "BTC_ETH",
+    product_code : "BTC_USD",
     currency : "BTC",
-    asset : "ETH"
+    asset : "USD"
 };
 
 setting.profit = {
-    'ETH_BTC' : {
+    'FIAT_BTC' : {
         profit_percentage : 1.005,
         profit_sum : 0.0015
     }
 };
 
 setting.refresh = {
-    'ETH_BTC' : {
+    'FIAT_BTC' : {
         percentage_from : 1.0005,
         percentage_to : 1.005,
         bal_amt_percentage : 0.7,
         allocate : {
-            ETH : {
+            FIAT : {
                 kraken : 0.3,
                 bitflyer : 0.4,
                 poloniex : 0.3

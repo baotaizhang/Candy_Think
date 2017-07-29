@@ -20,7 +20,7 @@ var EventEmitter = require('events').EventEmitter;
 Util.inherits(advisor, EventEmitter);
 //---EventEmitter Setup
 
-advisor.prototype.update = function(action, boards, balance, orderfailed, callback) {
+advisor.prototype.update = function(action, boards, balance, fiatRate, orderfailed, callback) {
 
     // orderfailed can be left out
     if(typeof orderfailed == "function") { 
@@ -30,7 +30,7 @@ advisor.prototype.update = function(action, boards, balance, orderfailed, callba
 
     // convert data with candyThink way.
     // ******************************************************************
-    var candyThinkWay = convert(boards, balance, this.setting);
+    var candyThinkWay = convert(boards, balance, fiatRate, this.setting);
     // ******************************************************************
     
     if(orderfailed){
@@ -95,7 +95,16 @@ advisor.prototype.update = function(action, boards, balance, orderfailed, callba
     }
 };
 
-var convert = function(groupedBoards, balances, setting){
+var formatUSD = function(amount, ask_bid, fiatRate){
+    var target = _.find(fiatRate.quotes, function(fiat){
+        return fiat.currencyPairCode == "USDJPY";
+    });
+    return target[ask_bid];
+}
+    
+
+
+var convert = function(groupedBoards, balances, fiatRate, setting){
 
     var candyThinkWay = {
     
@@ -155,7 +164,8 @@ var convert = function(groupedBoards, balances, setting){
                         exchange : board.exchange,
                         ask_bid : ask_bid.substr(0,3),
                         num : order.size,
-                        amount : order.price,
+                        amount : formatUSD(order.price, ask_bid.substr(0,3), fiatRate),
+                        actualAmount : order.price,
                         product_code : setting.pair,
                         time : board.time
                     })
@@ -168,7 +178,8 @@ var convert = function(groupedBoards, balances, setting){
                         exchange : board.exchange,
                         ask_bid : ask_bid.substr(0,3),
                         num : order[1],
-                        amount : order[0],
+                        amount : formatUSD(order[0], ask_bid.substr(0,3), fiatRate),
+                        actualAmount : order[0],
                         product_code : setting.pair,
                         time : board.time
                     })
@@ -180,7 +191,8 @@ var convert = function(groupedBoards, balances, setting){
                         exchange : board.exchange,
                         ask_bid : ask_bid.substr(0,3),
                         num : order[1],
-                        amount : order[0],
+                        amount : formatUSD(order[0], ask_bid.substr(0,3), fiatRate),
+                        actualAmount : order[0],
                         product_code : setting.pair,
                         time : board.time
                     })

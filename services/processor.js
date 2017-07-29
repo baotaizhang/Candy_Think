@@ -25,16 +25,18 @@ processor.prototype.process = function(action, orderFailed, exchangeapi) {
         console.log("starting process : " + action);
         exchangeapi.getBalance(true, function(balances){
             exchangeapi.getBoards(true, function(board){
-                this.advisor.update(action, board, balances, orderFailed, function(orders){
-                    orders.forEach(function(order){         
-                        if(order.result) {
-                            this.emit('orderStream', order);
-                        } else {
-                            var err = 'Invalid advice from indicator, should be either: buy or sell.';
-                            throw err;
-                        }
+                exchangeapi.getFiatRate(true, function(fiatRate){
+                    this.advisor.update(action, board, balances, fiatRate, orderFailed, function(orders){
+                        orders.forEach(function(order){         
+                            if(order.result) {
+                                this.emit('orderStream', order);
+                            } else {
+                                var err = 'Invalid advice from indicator, should be either: buy or sell.';
+                                throw err;
+                            }
+                        }.bind(this));
+                        finished();
                     }.bind(this));
-                    finished();
                 }.bind(this));
             }.bind(this));
         }.bind(this));

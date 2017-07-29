@@ -46,7 +46,7 @@ candyRefresh.prototype.refresh = function(boards,balance,fee,pair,callback){
         balanceObj[pairtype] = {};
         var balanceObjExchange = balanceObj[pairtype];
         _.each(eachPairBalancelist, function(balancelist,eachExchange){
-            total = total + balancelist.amount;
+            total = Number(total) + Number(balancelist.amount);
             balanceObjExchange[balancelist.exchange] = balancelist.amount;
         })
         balancetotalObj[pairtype] = total; 
@@ -60,7 +60,7 @@ candyRefresh.prototype.refresh = function(boards,balance,fee,pair,callback){
         var eachbalanceAllocations = refreshBalanceAllocation[pairtype];
         _.each(eachBalanceObj, function(eachBalanceObjlist,eachExchange){
             orderObjExchange[eachExchange] = balancetotalObj[pairtype] * eachbalanceAllocations[eachExchange] - eachBalanceObj[eachExchange] ;
-            total = total + Math.abs(orderObjExchange[eachExchange]);
+            total = Number(total) + Number(Math.abs(orderObjExchange[eachExchange]));
         });
         ordertotalObj[pairtype] = total;
     });

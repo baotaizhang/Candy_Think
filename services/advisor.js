@@ -43,7 +43,7 @@ advisor.prototype.update = function(action, boards, balance, orderfailed, callba
                 callback(reorder);
             }
         });
-    }else if(action == 'arbitrage'){
+    }else if(action == 'think'){
 
         this.indicator.arbitrage.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
 
@@ -70,10 +70,10 @@ advisor.prototype.update = function(action, boards, balance, orderfailed, callba
 
         this.indicator.refresh.refresh(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, this.setting.pair, function(orders, message){
 
-            if(message){
+            if(message && orders.length > 0){
                 this.logger.lineNotification(message);
             }else{
-                console.log("refreshはありません");
+                console.log(message);
             }
 
             if(orders.length == 0){

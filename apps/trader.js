@@ -56,10 +56,10 @@ var trader = function(){
     });
 
     firebase.on('tradeStream', function(tradeStatus){
-        if(tradeStatus.system == 'arbitrage'){
+        if(tradeStatus.system == 'think'){
             processor.process('refresh', null, exchangeapi);
         }else if(tradeStatus.system == 'refresh'){
-            processor.process('arbitrage', null, exchangeapi);
+            processor.process('think', null, exchangeapi);
         }else{
             throw "想定外のtradeStatus : " + tradeStatus + "を検知したため、システムを停止します"
         }

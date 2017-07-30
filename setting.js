@@ -1,11 +1,11 @@
 var setting = {};
 
-setting.systemPass = 'test/common/system/running';
-setting.lineNotificationPass = 'test/common/system/line';
-setting.orderFailedPass = 'test/trade/orderfailed';
-setting.orderPass = 'test/think/order_1_NotYet/ETH_BTC/';
-setting.balancePass = '/think/chart/balance/';
-setting.statusPass = 'test/common/system/tradestatus'
+setting.systemPass = 'common/system/running';
+setting.lineNotificationPass = 'common/system/line';
+setting.orderFailedPass = 'trade/orderfailed';
+setting.orderPass = 'think/order_1_NotYet/ETH_BTC/';
+setting.balancePass = 'think/chart/balance/';
+setting.statusPass = 'common/system/tradestatus'
 
 setting.space = 0.001;
 setting.boardLimit = 1;
@@ -34,7 +34,7 @@ setting.poloniex = {
 
 setting.profit = {
     'USD_BTC' : {
-        profit_percentage : 1.005,
+        profit_percentage : 1.008,
         profit_sum : 0.0015
     }
 };

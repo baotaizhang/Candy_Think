@@ -95,11 +95,16 @@ advisor.prototype.update = function(action, boards, balance, fiatRate, orderfail
     }
 };
 
-var formatUSD = function(amount, ask_bid, fiatRate){
+var formatUSD = function(amount, ask_bid, asset, fiatRate){
     var target = _.find(fiatRate.quotes, function(fiat){
         return fiat.currencyPairCode == "USDJPY";
     });
-    return target[ask_bid];
+
+    if(asset == "JPY"){
+        amount = amount / target[ask_bid];
+    };
+
+    return amount;
 }
     
 
@@ -125,7 +130,8 @@ var convert = function(groupedBoards, balances, fiatRate, setting){
             exchange_type : exchange_type_count,
             exchange : key,
             currency_code : setting.currency,
-            amount : balance[key].currencyAvailable
+            //amount : formatUSD(balance[key].currencyAvailable, "ask", setting[key].currency, fiatRate)
+            amount : 1000000
 
         });
 
@@ -134,7 +140,8 @@ var convert = function(groupedBoards, balances, fiatRate, setting){
             exchange_type : exchange_type_count,
             exchange : key,
             currency_code : setting.asset,
-            amount : balance[key].assetAvailable
+            //amount : formatUSD(balance[key].assetAvailable, "ask", setting[key].asset, fiatRate)
+            amount : 1000000
         
         });
 
@@ -164,7 +171,7 @@ var convert = function(groupedBoards, balances, fiatRate, setting){
                         exchange : board.exchange,
                         ask_bid : ask_bid.substr(0,3),
                         num : order.size,
-                        amount : formatUSD(order.price, ask_bid.substr(0,3), fiatRate),
+                        amount : formatUSD(order.price, ask_bid.substr(0,3), setting[board.exchange].asset, fiatRate),
                         actualAmount : order.price,
                         product_code : setting.pair,
                         time : board.time
@@ -178,7 +185,7 @@ var convert = function(groupedBoards, balances, fiatRate, setting){
                         exchange : board.exchange,
                         ask_bid : ask_bid.substr(0,3),
                         num : order[1],
-                        amount : formatUSD(order[0], ask_bid.substr(0,3), fiatRate),
+                        amount : order[0],
                         actualAmount : order[0],
                         product_code : setting.pair,
                         time : board.time
@@ -191,7 +198,7 @@ var convert = function(groupedBoards, balances, fiatRate, setting){
                         exchange : board.exchange,
                         ask_bid : ask_bid.substr(0,3),
                         num : order[1],
-                        amount : formatUSD(order[0], ask_bid.substr(0,3), fiatRate),
+                        amount : order[0],
                         actualAmount : order[0],
                         product_code : setting.pair,
                         time : board.time

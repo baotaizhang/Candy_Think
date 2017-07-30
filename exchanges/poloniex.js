@@ -194,7 +194,7 @@ exchange.prototype.getBoard = function(retry, cb) {
             }
         };
 
-        this.poloniex.returnOrderBook(currency, asset, this.errorHandler(this.getBoard, args, retry, 'getboard', handler, finished));
+        this.poloniex.returnOrderBook(asset, currency, this.errorHandler(this.getBoard, args, retry, 'getboard', handler, finished));
     }.bind(this);
     this.q.push({name: 'getboard', func: wrapper});
 

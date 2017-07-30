@@ -183,8 +183,8 @@ exchange.prototype.getBoard = function(retry, cb) {
                 var board = {
                     exchange : 'kraken',
                     time: moment().format("YYYY-MM-DD HH:mm:ss"),
-                    asks: data.result.XETHXXBT.asks,
-                    bids: data.result.XETHXXBT.bids
+                    asks: data.result[pair].asks,
+                    bids: data.result[pair].bids
                 };
                 cb(null, board);
             } else {
@@ -192,7 +192,7 @@ exchange.prototype.getBoard = function(retry, cb) {
             }
         };
 
-        this.kraken.api('Depth', {"pair": pair}, this.errorHandler(this.getBoard, args, retry, 'getboard', handler, finished));
+        this.kraken.api('Depth', {"pair": pair, "count" : 10000}, this.errorHandler(this.getBoard, args, retry, 'getboard', handler, finished));
     }.bind(this);
     this.q.push({name: 'getboard', func: wrapper});
 

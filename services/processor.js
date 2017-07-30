@@ -11,7 +11,7 @@ var processor = function(advisor, logger){
         this.logger.debug('Added ' + task.name + ' call to the process queue.');
         this.logger.debug('There are currently ' + this.q.running() + ' running jobs and ' + this.q.length() + ' jobs in queue.');
         task.func(function() { 
-            setTimeout(callback, 1000 * 120); 
+            setTimeout(callback, 1000 * 60); 
         });
     }.bind(this), 1);
 

@@ -48,18 +48,18 @@ advisor.prototype.update = function(action, boards, balance, fiatRate, orderfail
         this.indicator.arbitrage.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
 
             var estimatedRevenue = tools.round(revenue, 8);
-            console.log('想定利益は' + estimatedRevenue + 'BTCです');
+            console.log('想定利益は' + estimatedRevenue + 'USDです');
 
             if(orders.length == 0){
                 callback(new Array());
                 this.emit('status', action);
             }else if(estimatedRevenue < 0){
-                this.logger.lineNotification("利益額" + tools.round(revenue, 8) + "BTCはリスク回避額" + this.setting.space + "BTCに満たないため、オーダーは実施しません");
+                this.logger.lineNotification("利益額" + tools.round(revenue, 8) + "USDはリスク回避額" + this.setting.space + "USDに満たないため、オーダーは実施しません");
                 this.emit('status', action);
                 callback(new Array());
             }else if(orders && estimatedRevenue >= 0){
                 callback(orders);
-                this.logger.lineNotification("予想最高利益額は" + estimatedRevenue + "BTCです");
+                this.logger.lineNotification("予想最高利益額は" + estimatedRevenue + "USDです");
             }else{
                 throw "オーダーの形式に誤りがあります";
             }
@@ -101,7 +101,7 @@ var formatUSD = function(amount, ask_bid, asset, fiatRate){
     });
 
     if(asset == "JPY"){
-        amount = amount / target[ask_bid];
+        amount = tools.round(amount / target[ask_bid], 8);
     };
 
     return amount;
@@ -174,6 +174,7 @@ var convert = function(groupedBoards, balances, fiatRate, setting){
                         amount : formatUSD(order.price, ask_bid.substr(0,3), setting[board.exchange].asset, fiatRate),
                         actualAmount : order.price,
                         product_code : setting.pair,
+                        specific_product_code : setting[board.exchange].product_code,
                         time : board.time
                     })
 
@@ -188,6 +189,7 @@ var convert = function(groupedBoards, balances, fiatRate, setting){
                         amount : order[0],
                         actualAmount : order[0],
                         product_code : setting.pair,
+                        specific_product_code : setting[board.exchange].pair,
                         time : board.time
                     })
                 }else if(board.exchange === 'poloniex'){
@@ -201,6 +203,7 @@ var convert = function(groupedBoards, balances, fiatRate, setting){
                         amount : order[0],
                         actualAmount : order[0],
                         product_code : setting.pair,
+                        specific_product_code : setting[board.exchange].pair,
                         time : board.time
                     })
 

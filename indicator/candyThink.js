@@ -129,11 +129,11 @@ candyThink.prototype.arbitrage = function(boards,balance,fee,callback){
     // いくらの売り買いか確認
     var price_buy = 0;
     _.each(_.where(this.order, {result: "BUY"}),function(buylist,key){
-        price_buy = price_buy + ((buylist.price * buylist.size) + (buylist.price * buylist.size * _.where(this.fee, {exchange: buylist.exchange})[0].fee/100));
+        price_buy = price_buy + ((buylist.formatedprice * buylist.size) + (buylist.formatedprice * buylist.size * _.where(this.fee, {exchange: buylist.exchange})[0].fee/100));
     }.bind(this));
     var price_sell = 0;
     _.each(_.where(this.order, {result: "SELL"}),function(selllist,key){
-        price_sell = price_sell + ((selllist.price * selllist.size) - (selllist.price * selllist.size * _.where(this.fee, {exchange: selllist.exchange})[0].fee/100));
+        price_sell = price_sell + ((selllist.formatedprice * selllist.size) - (selllist.formatedprice * selllist.size * _.where(this.fee, {exchange: selllist.exchange})[0].fee/100));
     }.bind(this));
 
     // orderがなければnullをorderにセット
@@ -216,10 +216,11 @@ candyThink.prototype.orderpush = function(eachboardAsk,eachboardBid,num){
                 {
                     result : "BUY",
                     exchange : eachboardAsk.exchange,
-                    price: eachboardAsk.amount,
+                    price: eachboardAsk.actualAmount,
+                    formatedprice: eachboardAsk.amount,
                     size: num_order,
                     time : eachboardAsk.time,
-                    pair : eachboardAsk.product_code,
+                    pair : eachboardAsk.specific_product_code,
                     commission_settlement_pre : commission_ask_settlement,
                     commission_key_pre : commission_ask_key
                 }
@@ -227,10 +228,11 @@ candyThink.prototype.orderpush = function(eachboardAsk,eachboardBid,num){
                 {
                     result : "SELL",
                     exchange : eachboardBid.exchange,
-                    price: eachboardBid.amount,
+                    price: eachboardBid.actualAmount,
+                    formatedprice: eachboardBid.amount,
                     size: num_order,
                     time : eachboardAsk.time,
-                    pair : eachboardBid.product_code,
+                    pair : eachboardBid.specific_product_code,
                     commission_settlement_pre : commission_bid_settlement,
                     commission_key_pre : commission_bid_key
                 }
@@ -308,10 +310,11 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
             var reorderpush = {
                 result : orderFailed.result,
                 exchange : eachboards.exchange,
-                price: eachboards.amount,
+                price: eachboards.actualAmount,
+                formatedprice: eachboards.amount,
                 size: reorder_num,
                 time : eachboards.time,
-                pair : eachboards.product_code,
+                pair : eachboards.specific_product_code,
                 commission_settlement_pre : commission_settlement_pre,
                 commission_key_pre : commission_key_pre,
                 orderfailkey : orderFailed.orderfailedkey

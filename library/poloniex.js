@@ -139,8 +139,9 @@ module.exports = (function() {
 
         returnOrderBook: function(currencyA, currencyB, callback) {
             var parameters = {
-		currencyPair: joinCurrencies(currencyA, currencyB)
-	    };
+		        currencyPair: joinCurrencies(currencyA, currencyB),
+                depth : 10000
+	        };
 
             return this._public('returnOrderBook', parameters, callback);
         },

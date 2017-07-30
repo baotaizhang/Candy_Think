@@ -164,6 +164,7 @@ candyRefresh.prototype.refresh = function(boards,balance,fee,pair,callback){
         }else{
             message = message + '条件に合致するboard(ask)が存在しません。' + '\n' 
                     + '手動で送金するか条件に合致する板を待つ必要があります。' + '\n' 
+                    + '-----balanceInfo-----' + '\n'
                     + JSON.stringify(balanceObj,undefined,1);
         }
     }
@@ -180,13 +181,17 @@ candyRefresh.prototype.refresh = function(boards,balance,fee,pair,callback){
                 + '・refreshPercentage(' + this.candySettings.refresh[this.pair].percentage_from + '~' + this.candySettings.refresh[this.pair].percentage_to + ')に合致する板が少ないor存在しない' + '\n'
                 + '・残高が不足している *念のため、残高を確認してください。' + '\n'
                 + 'ordersize:' + ordersize + '\n'
+                + '-----balanceInfo-----' + '\n'
                 + JSON.stringify(balanceObj,undefined,1) + '\n'
+                + '-----orderInfo-----' + '\n'
                 + JSON.stringify(orderObj,undefined,1);
     }else if(refreshcondition === 1){
         message = message + 'refreshの条件に合致しません。下記いずれかの問題です。' + '\n'
                 + '・refreshPercentage(' + this.candySettings.refresh[this.pair].percentage_from + ')に合致する板が少ないor存在しない' + '\n'
                 + '・残高が不足している *念のため、残高を確認してください。' + '\n'
+                + '-----balanceInfo-----' + '\n'
                 + JSON.stringify(balanceObj,undefined,1) + '\n'
+                + '-----orderInfo-----' + '\n'
                 + JSON.stringify(orderObj,undefined,1);
     }
     callback(this.order, message);

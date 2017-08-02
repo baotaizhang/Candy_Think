@@ -34,7 +34,7 @@ advisor.prototype.update = function(action, boards, balance, orderfailed, callba
     // ******************************************************************
     
     if(orderfailed){
-        this.indicator.arbitrage.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, boards[0].orderfailed, function(err, reorder){
+        this.indicator.arbitrage.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, orderfailed, function(err, reorder){
             if(err){
                 throw err.message;
             }else if(reorder.length == 0){

@@ -2,7 +2,7 @@ var setting = {};
 
 setting.systemPass = 'common/system/running';
 setting.lineNotificationPass = 'common/system/line';
-setting.orderFailedPass = 'trade/orderfailed';
+setting.orderFailedPass = 'ctrade/orderfailed';
 setting.orderPass = 'think/order_1_NotYet/ETH_BTC/';
 setting.balancePass = 'think/chart/balance/';
 setting.statusPass = 'common/system/tradestatus'

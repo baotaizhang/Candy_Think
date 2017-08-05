@@ -66,7 +66,7 @@ var trader = function(){
            }
         }else{
            logger.lineNotification("status :" + tradeStatus.system + "　を検知しましたが、\n"
-               "登録時刻:" + tradeStatus.time + "が\n"
+               "登録時刻:" + tradeStatus.time + "が\n" +
                "現在時刻:" + moment().format("YYYY-MM-DD HH:mm:ss") + 
                "と一分以上ずれがあるため、実行しません" , function(finished){
                finished();

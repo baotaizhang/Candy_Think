@@ -65,8 +65,10 @@ var trader = function(){
                throw "想定外のtradeStatus : " + tradeStatus.system + "を検知したため、システムを停止します"
            }
         }else{
-           logger.lineNotification("新しいtradeStatus :" + tradeStatus.system + "　を検知しましたが、更新時間："
-               + tradeStatus.time + "が現在時刻：" + moment().format("YYYY-MM-DD HH:mm:ss") + "より一分以上遅いため、実行しません" , function(finished){
+           logger.lineNotification("status :" + tradeStatus.system + "　を検知しましたが、\n"
+               "登録時刻:" + tradeStatus.time + "が\n"
+               "現在時刻:" + moment().format("YYYY-MM-DD HH:mm:ss") + 
+               "と一分以上ずれがあるため、実行しません" , function(finished){
                finished();
            });
         }

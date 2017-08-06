@@ -56,7 +56,7 @@ var trader = function(){
    });
 
    firebase.on('tradeStream', function(tradeStatus){
-       if(moment().diff(tradeStatus.time, 'seconds') < 1000 * 60){
+       if(moment().diff(tradeStatus.time, 'seconds') < 60){
            if(tradeStatus.system == 'think'){
                processor.process('refresh', null, exchangeapi);
            }else if(tradeStatus.system == 'refresh'){

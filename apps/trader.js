@@ -84,7 +84,7 @@ var trader = function(){
 
    process.on('uncaughtException', function (err) {
        logger.lineNotification("リカバリ不可のエラーが発生しました。システムを強制終了します\n" + err, function(finished){
-           process.exit(1);
+           var result =  execSync('forever stop candy.js');
        });
    });
 

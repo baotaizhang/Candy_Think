@@ -36,13 +36,14 @@ advisor.prototype.update = function(action, boards, balance, orderfailed, callba
     if(orderfailed){
         this.indicator.arbitrage.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, orderfailed, function(err, reorder){
             if(err){
-                throw err.message;
+                this.logger.lineNotification(err.message);
+                callback(new Array());
             }else if(reorder.length == 0){
-                 callback(new Array());
+                callback(new Array());
             }else{
                 callback(reorder);
             }
-        });
+        }.bind(this));
     }else if(action == 'think'){
 
         this.indicator.arbitrage.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){

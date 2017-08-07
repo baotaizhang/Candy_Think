@@ -44,12 +44,33 @@ var trader = function(){
                firebase.trading();
                firebase.orderFailedConnection();
                firebase.orderFailedCount();
+               firebase.requestConnection();
                finished();
            });
        }else{
            throw "不正なモードが選択されています";
        }
    });
+
+   firebase.on('lineRequest', function(request){
+          
+       if(request == 'getBalance'){
+           exchangeapi.getBalance(true, function(balances){
+               balances.forEach(function(balance){		
+                   var key = Object.keys(balance)[0];		
+                   firebase.chartUpdate(setting.balancePass + key + '/' + setting.currency, 
+                   balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));		
+                   firebase.chartUpdate(setting.balancePass + key + '/' + setting.asset, 
+                   balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
+
+                   logger.lineNotification(key + "の残高は\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + 
+                   "\nETH : " + tools.round(balance[key].assetAvailable, 8) + "\nです");
+               });
+           });
+       }
+
+   })
+
 
    firebase.on('orderFailedStream', function(orderFailed){
        processor.process('orderFailed', orderFailed, exchangeapi);
@@ -61,7 +82,7 @@ var trader = function(){
                processor.process('refresh', null, exchangeapi);
            }else if(tradeStatus.system == 'refresh'){
                processor.process('think', null, exchangeapi);
-          }else{
+           }else{
                throw "想定外のtradeStatus : " + tradeStatus.system + "を検知したため、システムを停止します"
            }
         }else{

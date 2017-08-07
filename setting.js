@@ -4,8 +4,9 @@ setting.systemPass = 'common/system/running';
 setting.lineNotificationPass = 'common/system/line';
 setting.orderFailedPass = 'trade/orderfailed';
 setting.orderPass = 'think/order_1_NotYet/ETH_BTC/';
-setting.balancePass = 'think/chart/balance/';
+setting.balancePass = 'think/chart/balance/iteration3';
 setting.statusPass = 'common/system/tradestatus'
+setting.requestPass = 'common/system/Request/'
 
 setting.space = 0.001;
 setting.boardLimit = 1;

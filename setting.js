@@ -1,11 +1,14 @@
 var setting = {};
 
-setting.systemPass = 'test/common/system/running';
-setting.lineNotificationPass = 'test/common/system/line';
-setting.orderFailedPass = 'test/trade/orderfailed';
-setting.orderPass = 'test/think/order/';
-setting.balancePass = 'test/think/chart/balance/';
-setting.statusPass = 'test/common/system/tradestatus'
+var test = "test/fiat/";
+
+setting.systemPass = test + 'common/system/running';
+setting.lineNotificationPass = test + 'common/system/line';
+setting.orderFailedPass = test + 'trade/orderfailed';
+setting.orderPass = test + 'think/order/';
+setting.balancePass = test + 'think/chart/balance/';
+setting.statusPass = test + 'common/system/tradestatus'
+setting.requestPass = test + 'common/system/Request/'
 
 setting.space = 0.001;
 setting.boardLimit = 1;

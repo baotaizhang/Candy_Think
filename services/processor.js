@@ -41,7 +41,12 @@ processor.prototype.process = function(action, orderFailed, exchangeapi) {
             }.bind(this));
         }.bind(this));
     }.bind(this);
-    this.q.push({name: 'process', func: wrapper});
+
+    if(action == 'orderFailed'){
+        this.q.unshift({name: 'unshiftProcess', func: wrapper});
+    }else{
+        this.q.push({name: 'process', func: wrapper});
+    }
 };
 
 //---EventEmitter Setup

@@ -34,15 +34,16 @@ advisor.prototype.update = function(action, boards, balance, fiatRate, orderfail
     // ******************************************************************
     
     if(orderfailed){
-        this.indicator.arbitrage.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, boards[0].orderfailed, function(err, reorder){
+        this.indicator.arbitrage.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, orderfailed, function(err, reorder){
             if(err){
-                throw err.message;
+                this.logger.lineNotification(err.message);
+                callback(new Array());
             }else if(reorder.length == 0){
-                 callback(new Array());
+                callback(new Array());
             }else{
                 callback(reorder);
             }
-        });
+        }.bind(this));
     }else if(action == 'think'){
 
         this.indicator.arbitrage.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
@@ -162,53 +163,55 @@ var convert = function(groupedBoards, balances, fiatRate, setting){
 
     groupedBoards.forEach(function(board){
         _.each(_.pick(board, 'asks', 'bids'),function(orders, ask_bid){
-            orders.forEach(function(order){          
+            if(orders){
+                orders.forEach(function(order){          
                 
-                if(board.exchange === 'bitflyer'){
-                    candyThinkWay.boards.push({
-                        no : no++,
-                        exchange_type : 1,
-                        exchange : board.exchange,
-                        ask_bid : ask_bid.substr(0,3),
-                        num : order.size,
-                        amount : formatUSD(order.price, ask_bid.substr(0,3), setting[board.exchange].asset, fiatRate),
-                        actualAmount : order.price,
-                        product_code : setting.pair,
-                        specific_product_code : setting[board.exchange].product_code,
-                        time : board.time
-                    })
+                    if(board.exchange === 'bitflyer'){
+                        candyThinkWay.boards.push({
+                            no : no++,
+                            exchange_type : 1,
+                            exchange : board.exchange,
+                            ask_bid : ask_bid.substr(0,3),
+                            num : order.size,
+                            amount : formatUSD(order.price, ask_bid.substr(0,3), setting[board.exchange].asset, fiatRate),
+                            actualAmount : order.price,
+                            product_code : setting.pair,
+                            specific_product_code : setting[board.exchange].product_code,
+                            time : board.time
+                        })
 
-                }else if(board.exchange === 'kraken'){
+                    }else if(board.exchange === 'kraken'){
 
-                    candyThinkWay.boards.push({
-                        no : no++,
-                        exchange_type : 2,
-                        exchange : board.exchange,
-                        ask_bid : ask_bid.substr(0,3),
-                        num : order[1],
-                        amount : order[0],
-                        actualAmount : order[0],
-                        product_code : setting.pair,
-                        specific_product_code : setting[board.exchange].pair,
-                        time : board.time
-                    })
-                }else if(board.exchange === 'poloniex'){
+                        candyThinkWay.boards.push({
+                            no : no++,
+                            exchange_type : 2,
+                            exchange : board.exchange,
+                            ask_bid : ask_bid.substr(0,3),
+                            num : order[1],
+                            amount : order[0],
+                            actualAmount : order[0],
+                            product_code : setting.pair,
+                            specific_product_code : setting[board.exchange].pair,
+                            time : board.time
+                        })
+                    }else if(board.exchange === 'poloniex'){
 
-                    candyThinkWay.boards.push({
-                        no : no++,
-                        exchange_type : 3,
-                        exchange : board.exchange,
-                        ask_bid : ask_bid.substr(0,3),
-                        num : order[1],
-                        amount : order[0],
-                        actualAmount : order[0],
-                        product_code : setting.pair,
-                        specific_product_code : setting[board.exchange].pair,
-                        time : board.time
-                    })
+                        candyThinkWay.boards.push({
+                            no : no++,
+                            exchange_type : 3,
+                            exchange : board.exchange,
+                            ask_bid : ask_bid.substr(0,3),
+                            num : order[1],
+                            amount : order[0],
+                            actualAmount : order[0],
+                            product_code : setting.pair,
+                            specific_product_code : setting[board.exchange].pair,
+                            time : board.time
+                        })
 
-                }
-           });
+                    }
+                });
+            }
         });
     });
     return candyThinkWay;

@@ -26,7 +26,8 @@ var firebase = function(candyConfig,setting){
         'chartUpdate',
         'disconnect',
         'orderFailedConnection',
-        'orderFailedCount'
+        'orderFailedCount',
+        'requestConnection'
    );
 
 };
@@ -43,6 +44,18 @@ firebase.prototype.systemConnection = function(){
         var data = snapshot.val();
         data.name = 'system';
         this.emit('systemStream', data);
+    }.bind(this), function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+    });
+
+};
+
+firebase.prototype.requestConnection = function(){
+
+    this.FirebaseAccess.child(this.setting.requestPass).on("value", function(snapshot) {
+        var data = snapshot.val();
+        data.name = 'request';
+        this.emit('lineRequest', data);
     }.bind(this), function (errorObject) {
         console.log("The read failed: " + errorObject.code);
     });

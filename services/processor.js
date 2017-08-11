@@ -24,7 +24,7 @@ processor.prototype.process = function(action, orderFailed, exchangeapi) {
     var wrapper = function(finished){
         console.log("starting process : " + action);
         exchangeapi.getBalance(true, function(balances){
-            exchangeapi.getBoards(true, function(board){
+            exchangeapi.getBoards(false, function(board){
                 this.advisor.update(action, board, balances, orderFailed, function(orders){
                     orders.forEach(function(order){         
                         if(order.result) {

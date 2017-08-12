@@ -15,7 +15,7 @@ var processor = function(advisor, logger){
         });
     }.bind(this), 1);
 
-    _.bindAll(this, 'process');
+    _.bindAll(this, 'process', 'orderFailedVacuum');
 
 };
 
@@ -45,6 +45,24 @@ processor.prototype.process = function(action, orderFailed, exchangeapi) {
     }else{
         this.q.push({name: 'process', func: wrapper});
     }
+};
+
+var timer = function(inMemory, exchangeapi, process){
+    process('orderFailed', inMemory.orderFailed, exchangeapi);
+    inMemory.orderFailed.clear;
+}
+
+processor.prototype.orderFailedVacuum = function(inMemory, orderFailed, exchangeapi, process){
+
+    inMemory.orderFailed.push(orderFailed);
+
+    if(inMemory.orderFailed.length == 1){
+        setTimeout(function(){
+            process('orderFailed', inMemory.orderFailed, exchangeapi);
+            inMemory.orderFailed.clear;
+        }, 1000*30);
+    }
+
 };
 
 //---EventEmitter Setup

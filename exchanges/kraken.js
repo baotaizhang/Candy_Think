@@ -188,7 +188,7 @@ exchange.prototype.getBoard = function(retry, cb) {
                 };
                 cb(null, board);
             } else {
-                cb(err, null);
+                cb(null, null);
             }
         };
 

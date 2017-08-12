@@ -3,6 +3,9 @@ var async = require('async');
 var moment = require('moment');
 var execSync = require('child_process').execSync;
 var tools = require(__dirname + '/../util/tools.js');
+var inMemory = {
+    orderFailed : []
+};
 
 var firebaseService = require(__dirname + '/../services/firebase.js');
 var processorService = require(__dirname + '/../services/processor.js');
@@ -73,7 +76,7 @@ var trader = function(){
 
 
    firebase.on('orderFailedStream', function(orderFailed){
-       processor.process('orderFailed', orderFailed, exchangeapi);
+       processor.orderFailedVacuum(inMemory, orderFailed, exchangeapi, processor.process);
    });
 
    firebase.on('tradeStream', function(tradeStatus){

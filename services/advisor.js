@@ -34,20 +34,21 @@ advisor.prototype.update = function(action, boards, balance, orderfaileds, callb
     // ******************************************************************
     
     if(orderfaileds){
-        async.map(orderfaileds, function(orderfailed, next){
+        var reorders = [];
+        _.each(orderfaileds, function(orderfailed){
             this.indicator.arbitrage.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, orderfailed, function(err, reorder){
                 if(err){
                     this.logger.lineNotification(err.message);
-                    next(null, new Array());
                 }else if(reorder.length == 0){
-                    next(null, new Array());
+                    
                 }else{
-                    next(null, reorder);
+                    Array.prototype.push.apply(reorders, reorder);
                 }
             }.bind(this));
-        }.bind(this), function(err, reorders){
-            callback(_.flatten(reorders));
         }.bind(this));
+
+        callback(_.flatten(reorders));
+
     }else if(action == 'think'){
 
         this.indicator.arbitrage.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){

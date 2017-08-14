@@ -143,10 +143,6 @@ candyThink.prototype.arbitrage = function(boards,balance,fee,callback){
     this.orderclear();
 }
 
-
-/* orderpush 
-** orderを追加
-*/
 candyThink.prototype.orderpush = function(eachboardAsk,eachboardBid,num){
 
     var balance_ask = _.where(this.balance, {currency_code: eachboardAsk.product_code.split ("_")[1],exchange : eachboardAsk.exchange});

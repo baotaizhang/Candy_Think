@@ -198,11 +198,11 @@ candyThink.prototype.orderpush = function(eachboardAsk,eachboardBid,num){
 
     if(calcurate === 1 && num_order <= num){
         //num_orderで手数料を再計算(決済通貨での手数料)
-        commission_ask_settlement = eachboardAsk.amount * num_order * fee_ask;
-        commission_bid_settlement = eachboardBid.amount * num_order * fee_bid;
+        commission_ask_settlement = tools.round(eachboardAsk.amount * num_order * fee_ask, 8);
+        commission_bid_settlement = tools.round(eachboardBid.amount * num_order * fee_bid, 8);
         //num_orderで手数料を再計算(基軸通貨での手数料)
-        commission_ask_key = eachboardAsk.amount * num_order * fee_ask / eachboardAsk.amount;
-        commission_bid_key = eachboardBid.amount * num_order * fee_bid / eachboardBid.amount;
+        commission_ask_key = tools.round(eachboardAsk.amount * num_order * fee_ask / eachboardAsk.amount, 8);
+        commission_bid_key = tools.round(eachboardBid.amount * num_order * fee_bid / eachboardBid.amount, 8);
         //利益を考慮した約定金額
         var ask_profit = eachboardAsk.amount * num_order;
         var bid_profit = eachboardBid.amount * num_order - commission_ask_settlement - commission_bid_settlement;
@@ -278,7 +278,7 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
     //再orderの配列
     var reorder = [];
     //再orderの数量
-    var num = (Number(orderFailed.size) * 1000000 - Number(orderFailed.size_exec) * 1000000) / 1000000;
+    var num = Number(orderFailed.size) - Number(orderFailed.size_exec);
     //板情報のfor文
     _.every(boards_reorder, function(eachboards){
         var num_exec = num;
@@ -287,8 +287,8 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
             num_exec = eachboards.num;
         }
         var fee_settlement = eachboards.amount * num_exec;
-        var commission_settlement_pre = fee_settlement * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100;
-        var commission_key_pre = fee_settlement * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100 / eachboards.amount;
+        var commission_settlement_pre = tools.round(fee_settlement * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100, 8);
+        var commission_key_pre = tools.round(fee_settlement * _.where(fee, {exchange: eachboards.exchange})[0].fee / 100 / eachboards.amount ,8);
         //残高の確認
         if(orderFailed.result === 'SELL'){
             if(balance_conf >= num_exec){
@@ -347,10 +347,6 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
     reorder.length = 0;
 }
 
-
-/* orderclear
-** orderをclear
-*/
 candyThink.prototype.orderclear = function(){
 
     this.order.length = 0;

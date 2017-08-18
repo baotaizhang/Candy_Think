@@ -22,10 +22,10 @@ var processor = function(advisor, logger){
 processor.prototype.process = function(action, orderFailed, exchangeapi) {
 
     var wrapper = function(finished){
-        console.log("starting process : " + action);
-        exchangeapi.getBalance(true, function(balances){
-            exchangeapi.getBoards(false, function(board){
-                this.advisor.update(action, board, balances, orderFailed, function(orders){
+        console.log("starting process : " + action.action);
+        exchangeapi.getBalance(action.getBalanceRetry, function(balances){
+            exchangeapi.getBoards(action.getBoardRetry, function(board){
+                this.advisor.update(action.action, board, balances, orderFailed, function(orders){
                     orders.forEach(function(order){         
                         if(order.result) {
                             this.emit('orderStream', order);
@@ -47,19 +47,14 @@ processor.prototype.process = function(action, orderFailed, exchangeapi) {
     }
 };
 
-var timer = function(inMemory, exchangeapi, process){
-    process('orderFailed', inMemory.orderFailed, exchangeapi);
-    inMemory.orderFailed.clear;
-}
-
-processor.prototype.orderFailedVacuum = function(inMemory, orderFailed, exchangeapi, process){
+processor.prototype.orderFailedVacuum = function(action, inMemory, orderFailed, exchangeapi, process){
 
     inMemory.orderFailed.push(orderFailed);
 
     if(inMemory.orderFailed.length == 1){
         setTimeout(function(){
-            process('orderFailed', inMemory.orderFailed, exchangeapi);
-            inMemory.orderFailed.clear;
+            process(action, inMemory.orderFailed, exchangeapi);
+            inMemory.orderFailed = [];
         }, 1000*30);
     }
 
@@ -72,3 +67,4 @@ Util.inherits(processor, EventEmitter);
 //---EventEmitter Setup
 
 module.exports = processor;
+

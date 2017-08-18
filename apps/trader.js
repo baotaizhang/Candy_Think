@@ -76,22 +76,39 @@ var trader = function(){
 
 
    firebase.on('orderFailedStream', function(orderFailed){
-       processor.orderFailedVacuum(inMemory, orderFailed, exchangeapi, processor.process);
+
+       var action = {
+           action : 'orderFailed',
+           getBalanceRetry : true,
+           getBoardRetry : true
+       };
+
+       processor.orderFailedVacuum(action, inMemory, orderFailed, exchangeapi, processor.process);
    });
 
    firebase.on('tradeStream', function(tradeStatus){
+
+       var action = {
+           action : 'not set',
+           getBalanceRetry : true,
+           getBoardRetry : false
+       };
+
        if(moment().diff(tradeStatus.time, 'seconds') < 60){
            if(tradeStatus.system == 'think'){
-               processor.process('refresh', null, exchangeapi);
+               action.action = 'refresh';
+               processor.process(action, null, exchangeapi);
            }else if(tradeStatus.system == 'refresh'){
-               processor.process('think', null, exchangeapi);
+               action.action = 'think';
+               processor.process(action, null, exchangeapi);
            }else{
                throw "想定外のtradeStatus : " + tradeStatus.system + "を検知したため、システムを停止します"
            }
+
         }else{
            logger.lineNotification("status :" + tradeStatus.system + "を検知しましたが、\n" +
                "登録時刻:" + tradeStatus.time + "が\n" +
-               "現在時刻:" + moment().format("YYYY-MM-DD HH:mm:ss") + 
+               "現在時刻:" + moment().format("YYYY-MM-DD HH:mm:ss") + "\n" + 
                "と一分以上ずれがあるため、実行しません" , function(finished){
                finished();
            });
@@ -133,3 +150,4 @@ trader.prototype.start = function() {
 var traderApp = new trader();
 
 module.exports = traderApp;
+

@@ -1,6 +1,6 @@
 var setting = {};
 
-var test = "/"
+var test = "production/"
 
 setting.systemPass = test + 'common/system/running';
 setting.lineNotificationPass = test + 'common/system/line';

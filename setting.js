@@ -1,14 +1,13 @@
 var setting = {};
+var env = process.argv[2];
 
-var test = "production/"
-
-setting.systemPass = test + 'common/system/running';
-setting.lineNotificationPass = test + 'common/system/line';
-setting.orderFailedPass = test + 'trade/orderfailed';
-setting.orderPass = test + 'think/order_1_NotYet/ETH_BTC/';
-setting.balancePass = test + 'think/chart/balance/';
-setting.statusPass = test + 'common/system/tradestatus'
-setting.requestPass = test + 'common/system/Request/'
+setting.systemPass = env + '/common/system/running';
+setting.lineNotificationPass = env + '/common/system/line';
+setting.orderFailedPass = env + '/trade/orderfailed';
+setting.orderPass = env + '/think/order_1_NotYet/ETH_BTC/';
+setting.balancePass = env + '/think/chart/balance/';
+setting.statusPass = env + '/common/system/tradestatus'
+setting.requestPass = env + '/common/system/Request/'
 
 setting.space = 0.001;
 setting.boardLimit = 1;

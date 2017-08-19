@@ -57,7 +57,7 @@ var trader = function(){
 
    firebase.on('lineRequest', function(request){
           
-       if(request == 'getBalance'){
+       if(request.request == 'getBalance'){
            exchangeapi.getBalance(true, function(balances){
                balances.forEach(function(balance){		
                    var key = Object.keys(balance)[0];		

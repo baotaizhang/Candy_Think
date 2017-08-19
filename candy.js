@@ -39,6 +39,14 @@ app.prototype.start = function(){
     this.logger.log('----------------------------------------------------');
     this.logger.log('Starting CandyThink');
     this.logger.log('Working Dir = ' + process.cwd());
+    
+    if(['production', 'uttest', 'verification'].indexOf( process.argv[2]) == -1){
+        this.logger.log('Stop! : invalid Environment is serected. = ' + process.argv[2]);
+        this.logger.log('----------------------------------------------------');
+        process.exit(0);
+    }
+
+    this.logger.log('Environment = ' + process.argv[2]);
     this.logger.log('----------------------------------------------------');
 
     this.launchTrader();

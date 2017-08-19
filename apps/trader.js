@@ -3,6 +3,9 @@ var async = require('async');
 var moment = require('moment');
 var execSync = require('child_process').execSync;
 var tools = require(__dirname + '/../util/tools.js');
+var inMemory = {
+    orderFailed : []
+};
 
 var firebaseService = require(__dirname + '/../services/firebase.js');
 var processorService = require(__dirname + '/../services/processor.js');
@@ -54,7 +57,7 @@ var trader = function(){
 
    firebase.on('lineRequest', function(request){
           
-       if(request == 'getBalance'){
+       if(request.request == 'getBalance'){
            exchangeapi.getBalance(true, function(balances){
                balances.forEach(function(balance){		
                    var key = Object.keys(balance)[0];		
@@ -73,22 +76,39 @@ var trader = function(){
 
 
    firebase.on('orderFailedStream', function(orderFailed){
-       processor.process('orderFailed', orderFailed, exchangeapi);
+
+       var action = {
+           action : 'orderFailed',
+           getBalanceRetry : true,
+           getBoardRetry : true
+       };
+
+       processor.orderFailedVacuum(action, inMemory, orderFailed, exchangeapi, processor.process);
    });
 
    firebase.on('tradeStream', function(tradeStatus){
+
+       var action = {
+           action : 'not set',
+           getBalanceRetry : true,
+           getBoardRetry : false
+       };
+
        if(moment().diff(tradeStatus.time, 'seconds') < 60){
            if(tradeStatus.system == 'think'){
-               processor.process('refresh', null, exchangeapi);
+               action.action = 'refresh';
+               processor.process(action, null, exchangeapi);
            }else if(tradeStatus.system == 'refresh'){
-               processor.process('think', null, exchangeapi);
+               action.action = 'think';
+               processor.process(action, null, exchangeapi);
            }else{
                throw "想定外のtradeStatus : " + tradeStatus.system + "を検知したため、システムを停止します"
            }
+
         }else{
            logger.lineNotification("status :" + tradeStatus.system + "を検知しましたが、\n" +
                "登録時刻:" + tradeStatus.time + "が\n" +
-               "現在時刻:" + moment().format("YYYY-MM-DD HH:mm:ss") + 
+               "現在時刻:" + moment().format("YYYY-MM-DD HH:mm:ss") + "\n" + 
                "と一分以上ずれがあるため、実行しません" , function(finished){
                finished();
            });
@@ -130,3 +150,4 @@ trader.prototype.start = function() {
 var traderApp = new trader();
 
 module.exports = traderApp;
+

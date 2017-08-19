@@ -52,36 +52,21 @@ exchange.prototype.errorHandler = function(caller, receivedArgs, retryAllowed, c
 
         finished();
 
-        if(err) {
-
-            if(JSON.stringify(err) === '{}' && err.message) {
-                parsedError = err.message;
-            } else {
-                parsedError = JSON.stringify(err);
+        if(err){
+            this.logger.lineNotification(callerName + ': poloniex API がエラーです。リトライ : ' + retryAllowed + '\n' + err);               
+            if(retryAllowed) {
+                this.logger.error('Retrying in 31 seconds!');
+                return this.retry(caller, args);
             }
-
-            if(parsedError === '["EQuery:Unknown asset pair"]') {
-
-                this.logger.error(callerName + ': poloniex API returned Unknown asset pair error, exiting!');
-                return process.exit();
-
-            } else {
-
-                this.logger.lineNotification(callerName + ': poloniex API がエラーです。リトライを継続します\n' + parsedError.substring(0,99));
-
-                if(retryAllowed) {
-
-                    this.logger.error('Retrying in 31 seconds!');
-                    return this.retry(caller, args);
-                    
-                }
+        }else if(result.error) {
+            this.logger.lineNotification(callerName + ': poloniex API がエラーです。リトライ : ' + retryAllowed + '\n' + result.error);               
+            if(retryAllowed) {
+                this.logger.error('Retrying in 31 seconds!');
+                return this.retry(caller, args);
             }
-
         }else{
-
             this.logger.debug(callerName + ': poloniex API Call Result (Substring)!');
             this.logger.debug(JSON.stringify(result).substring(0,99));
-
         }
 
         handler(parsedError, result);

@@ -23,8 +23,8 @@ Util.inherits(advisor, EventEmitter);
 advisor.prototype.update = function(action, boards, balance, fiatRate, orderfailed, callback) {
 
     // orderfailed can be left out
-    if(typeof orderfailed == "function") { 
-        callback = orderfailed;
+    if(typeof orderfaileds == "function") { 
+        callback = orderfaileds;
         orderfailed = null;
     }
 
@@ -33,17 +33,22 @@ advisor.prototype.update = function(action, boards, balance, fiatRate, orderfail
     var candyThinkWay = convert(boards, balance, fiatRate, this.setting);
     // ******************************************************************
     
-    if(orderfailed){
-        this.indicator.arbitrage.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, orderfailed, function(err, reorder){
-            if(err){
-                this.logger.lineNotification(err.message);
-                callback(new Array());
-            }else if(reorder.length == 0){
-                callback(new Array());
-            }else{
-                callback(reorder);
-            }
+    if(orderfaileds){
+        var reorders = [];
+        _.each(orderfaileds, function(orderfailed){
+            this.indicator.arbitrage.orderRecalcurate(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, orderfailed, function(err, reorder){
+                if(err){
+                    this.logger.lineNotification(err.message);
+                }else if(reorder.length == 0){
+                    
+                }else{
+                    Array.prototype.push.apply(reorders, reorder);
+                }
+            }.bind(this));
         }.bind(this));
+
+        callback(_.flatten(reorders));
+
     }else if(action == 'think'){
 
         this.indicator.arbitrage.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){

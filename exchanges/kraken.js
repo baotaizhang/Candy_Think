@@ -69,7 +69,7 @@ exchange.prototype.errorHandler = function(caller, receivedArgs, retryAllowed, c
             } else {
 
                 if(parsedError.code != "ESOCKETTIMEDOUT"){
-                    this.logger.lineNotification(callerName + ': kraken API がエラーです。リトライを継続します\n' + parsedError);
+                    this.logger.lineNotification(callerName + ': kraken API がエラーです。リトライ : ' + retryAllowed + '\n' + parsedError);
                 }
                 
                 if(retryAllowed) {
@@ -188,7 +188,7 @@ exchange.prototype.getBoard = function(retry, cb) {
                 };
                 cb(null, board);
             } else {
-                cb(err, null);
+                cb(null, null);
             }
         };
 

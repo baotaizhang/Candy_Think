@@ -15,16 +15,17 @@ var processor = function(advisor, logger){
         });
     }.bind(this), 1);
 
-    _.bindAll(this, 'process');
+    _.bindAll(this, 'process', 'orderFailedVacuum');
 
 };
 
 processor.prototype.process = function(action, orderFailed, exchangeapi) {
 
     var wrapper = function(finished){
+<<<<<<< HEAD
         console.log("starting process : " + action);
-        exchangeapi.getBalance(true, function(balances){
-            exchangeapi.getBoards(true, function(board){
+        exchangeapi.getBalance(action.getBalanceRetry, function(balances){
+            exchangeapi.getBoards(action.getBoardRetry, function(board){
                 exchangeapi.getFiatRate(true, function(fiatRate){
                     this.advisor.update(action, board, balances, fiatRate, orderFailed, function(orders){
                         orders.forEach(function(order){         
@@ -49,6 +50,19 @@ processor.prototype.process = function(action, orderFailed, exchangeapi) {
     }
 };
 
+processor.prototype.orderFailedVacuum = function(action, inMemory, orderFailed, exchangeapi, process){
+
+    inMemory.orderFailed.push(orderFailed);
+
+    if(inMemory.orderFailed.length == 1){
+        setTimeout(function(){
+            process(action, inMemory.orderFailed, exchangeapi);
+            inMemory.orderFailed = [];
+        }, 1000*30);
+    }
+
+};
+
 //---EventEmitter Setup
 var Util = require('util');
 var EventEmitter = require('events').EventEmitter;
@@ -56,3 +70,4 @@ Util.inherits(processor, EventEmitter);
 //---EventEmitter Setup
 
 module.exports = processor;
+

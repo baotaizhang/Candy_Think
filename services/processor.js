@@ -22,8 +22,7 @@ var processor = function(advisor, logger){
 processor.prototype.process = function(action, orderFailed, exchangeapi) {
 
     var wrapper = function(finished){
-<<<<<<< HEAD
-        console.log("starting process : " + action);
+        console.log("starting process : " + action.action);
         exchangeapi.getBalance(action.getBalanceRetry, function(balances){
             exchangeapi.getBoards(action.getBoardRetry, function(board){
                 exchangeapi.getFiatRate(true, function(fiatRate){

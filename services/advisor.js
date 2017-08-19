@@ -20,7 +20,7 @@ var EventEmitter = require('events').EventEmitter;
 Util.inherits(advisor, EventEmitter);
 //---EventEmitter Setup
 
-advisor.prototype.update = function(action, boards, balance, fiatRate, orderfailed, callback) {
+advisor.prototype.update = function(action, boards, balance, fiatRate, orderfaileds, callback) {
 
     // orderfailed can be left out
     if(typeof orderfaileds == "function") { 
@@ -49,7 +49,7 @@ advisor.prototype.update = function(action, boards, balance, fiatRate, orderfail
 
         callback(_.flatten(reorders));
 
-    }else if(action == 'think'){
+    }else if(action.action == 'think'){
 
         this.indicator.arbitrage.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
 
@@ -72,7 +72,7 @@ advisor.prototype.update = function(action, boards, balance, fiatRate, orderfail
 
         }.bind(this));
 
-    }else if(action == 'refresh'){
+    }else if(action.action == 'refresh'){
 
         this.indicator.refresh.refresh(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, this.setting.pair, function(orders, message){
 

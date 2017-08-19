@@ -66,8 +66,8 @@ var trader = function(){
                    firebase.chartUpdate(setting.balancePass + key + '/' + setting.asset, 
                    balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
 
-                   logger.lineNotification(key + "の残高は\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + 
-                   "\nETH : " + tools.round(balance[key].assetAvailable, 8) + "\nです");
+                   logger.lineNotification(key + "の残高は\n" + setting.currency + " : " + tools.round(balance[key].currencyAvailable, 8) + 
+                   "\n" + setting.asset + " : " + tools.round(balance[key].assetAvailable, 8) + "\nです");
                });
            });
        }
@@ -120,7 +120,7 @@ var trader = function(){
    });
 
    advisor.on('status', function(action){
-       firebase.statusUpdate(action);
+       firebase.statusUpdate(action.action);
    })
 
    process.on('uncaughtException', function (err) {

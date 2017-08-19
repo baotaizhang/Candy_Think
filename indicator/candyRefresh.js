@@ -183,7 +183,7 @@ candyRefresh.prototype.refresh = function(boards,balance,fee,pair,callback){
                 + 'ordersize:' + ordersize + '\n'
                 + '-----balanceInfo-----' + '\n'
                 + JSON.stringify(balanceObj,undefined,1) + '\n'
-                + '-----orderInfo-----' + '\n'
+                + '-----idealOrderInfo-----' + '\n'
                 + JSON.stringify(orderObj,undefined,1);
     }else if(refreshcondition === 1){
         message = message + 'refreshの条件に合致しません。下記いずれかの問題です。' + '\n'
@@ -191,7 +191,7 @@ candyRefresh.prototype.refresh = function(boards,balance,fee,pair,callback){
                 + '・残高が不足している *念のため、残高を確認してください。' + '\n'
                 + '-----balanceInfo-----' + '\n'
                 + JSON.stringify(balanceObj,undefined,1) + '\n'
-                + '-----orderInfo-----' + '\n'
+                + '-----idealOrderInfo-----' + '\n'
                 + JSON.stringify(orderObj,undefined,1);
     }
     callback(this.order, message);
@@ -230,10 +230,12 @@ candyRefresh.prototype.refreshpush = function(eachboardAsk,eachboardBid,num,cb){
                 {
                     result : "BUY",
                     exchange : eachboardAsk.exchange,
-                    price: eachboardAsk.amount,
+                    price: eachboardAsk.actualAmount,
+                    formatedprice: eachboardAsk.amount,
                     size: actualnum,
                     time : eachboardAsk.time,
-                    pair : eachboardAsk.product_code,
+                    pair : eachboardAsk.specific_product_code,
+                    formatedpair : eachboardAsk.product_code,
                     commission_settlement_pre : commission_ask_settlement,
                     commission_key_pre : commission_ask_key,
                     refresh : "refresh"
@@ -242,10 +244,12 @@ candyRefresh.prototype.refreshpush = function(eachboardAsk,eachboardBid,num,cb){
                 {
                     result : "SELL",
                     exchange : eachboardBid.exchange,
-                    price: eachboardBid.amount,
+                    price: eachboardBid.actualAmount,
+                    formatedprice: eachboardBid.amount,
                     size: actualnum,
                     time : eachboardAsk.time,
-                    pair : eachboardBid.product_code,
+                    pair : eachboardBid.specific_product_code,
+                    formatedpair : eachboardAsk.product_code,
                     commission_settlement_pre : commission_bid_settlement,
                     commission_key_pre : commission_bid_key,
                     refresh : "refresh"

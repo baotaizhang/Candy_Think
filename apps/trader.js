@@ -16,6 +16,7 @@ var exchangeapiService = require(__dirname + '/../services/exchangeapi.js');
 var agentService = require(__dirname + '/../services/agent.js');
 var candyThinkOBJ = require(__dirname + '/../indicator/candyThink.js');
 var candyRefreshOBJ = require(__dirname + '/../indicator/candyRefresh.js');
+var reportService = require(__dirname + '/../services/reporter.js');
 
 var config = require(__dirname + '/../config.js');
 var candyConfig = config.init();
@@ -26,9 +27,10 @@ var candyThink = new candyThinkOBJ(setting);
 var candyRefresh = new candyRefreshOBJ(setting); 
 var advisor = new tradingadvisor(candyThink, candyRefresh ,logger, setting);
 var firebase = new firebaseService(candyConfig, setting);
-var processor = new processorService(advisor, logger);
 var exchangeapi = new exchangeapiService(candyConfig, logger, setting);
 var agent = new agentService(firebase, setting);
+var reporter = new reportService(firebase, setting, logger, inMemory);
+var processor = new processorService(advisor, logger, inMemory, reporter);
 
 var trader = function(){
 
@@ -60,48 +62,7 @@ var trader = function(){
           
        if(request.request == 'getBalance'){
            exchangeapi.getBalance(true, function(balances){
-
-               var total = {
-                   currency : 0,
-                   asset : 0,
-                   time : moment().format("YYYY-MM-DD HH:mm:ss")
-               };
-
-               balances.forEach(function(balance){		
-                   var key = Object.keys(balance)[0];		
-                   firebase.chartUpdate(setting.balancePass + key + '/' + setting.currency, 
-                   balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));		
-                   firebase.chartUpdate(setting.balancePass + key + '/' + setting.asset, 
-                   balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
-
-                   total.currency += tools.round(balance[key].currencyAvailable, 8);
-                   total.asset += tools.round(balance[key].assetAvailable, 8);
-
-                   logger.lineNotification(key + "残高\nBTC : " + tools.round(balance[key].currencyAvailable, 8) + 
-                   "\nETH : " + tools.round(balance[key].assetAvailable, 8));
-
-               });
-
-               if(inMemory.previousBalance.currency){
-
-                   var currencyRevenue = tools.round(total.currency - inMemory.previousBalance.currency, 8);
-                   var assetRevenue = tools.round(total.asset - inMemory.previousBalance.asset, 8);
-
-                   logger.lineNotification('Latest Profit\n' 
-                        + setting.currency + '->' + currencyRevenue + "\n"
-                        + setting.asset + '->' + assetRevenue
-                   );
-                   if(currencyRevenue != 0){
-                        firebase.chartUpdate(setting.balancePass + setting.currency + '/' , 
-                        currencyRevenue ,moment().format("YYYY-MM-DD HH:mm:ss"));
-
-                        firebase.chartUpdate(setting.balancePass + setting.asset + '/' , 
-                        assetRevenue ,moment().format("YYYY-MM-DD HH:mm:ss"));
-                    }
-               }
-
-               inMemory.previousBalance = total;
-
+                reporter.reportBalance(balances);
            });
        }
 

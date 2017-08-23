@@ -11,7 +11,7 @@ var agent = function(firebase, setting){
 
 agent.prototype.order = function(order){
 
-    var pass = this.setting.orderPass + order.exchange;
+    var pass = this.setting.orderPass;
     this.firebase.placeOrder(pass, order);
 
 }

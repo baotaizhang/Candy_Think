@@ -256,7 +256,7 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
         var test = _.where(boards, {ask_bid: "bid", exchange : orderFailed.exchange});
         //order by desc of amount
         boards_reorder = _.sortBy(boards_reorder, 'amount').reverse();
-        balance_conf = _.where(balance, {currency_code: orderFailed.pair.split ("_")[0],exchange : orderFailed.exchange})[0].amount;
+        balance_conf = _.where(balance, {currency_code: orderFailed.formatedpair.split ("_")[0],exchange : orderFailed.exchange})[0].amount;
     }else{
         boards_reorder = 
             _.filter(boards, function(buyboards){
@@ -268,7 +268,7 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
             });
         //order by ask of amount
         boards_reorder = _.sortBy(boards_reorder, 'amount');
-        balance_conf = _.where(balance, {currency_code: orderFailed.pair.split ("_")[1],exchange : orderFailed.exchange})[0].amount;
+        balance_conf = _.where(balance, {currency_code: orderFailed.formatedpair.split ("_")[1],exchange : orderFailed.exchange})[0].amount;
     }
 
     //再orderの配列

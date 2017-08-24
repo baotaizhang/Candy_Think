@@ -300,10 +300,10 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
         
         if(reorder_posssible === 1){
             var reorder_num = 0;
-            if(num_exec >= 0.01){
+            if(num_exec >= this.candySettings.minimumtrade[eachboards.exchange]){
                 reorder_num = num_exec;
             }else{
-                reorder_num = 0.01;
+                reorder_num = this.candySettings.minimumtrade[eachboards.exchange];
             }
             var reorderpush = {
                 result : orderFailed.result,

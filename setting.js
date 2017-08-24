@@ -61,4 +61,10 @@ setting.refresh = {
     }
 };
 
+setting.minimumtrade = {
+    poloniex : 0.0001,
+    kraken : 0.01,
+    bitflyer : 0.01
+}
+
 module.exports = setting;

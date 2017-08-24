@@ -225,7 +225,8 @@ candyRefresh.prototype.refreshpush = function(eachboardAsk,eachboardBid,num,cb){
     var refresh_percentage_from = this.candySettings.refresh[this.pair].percentage_from;
     var refresh_percentage_to = this.candySettings.refresh[this.pair].percentage_to;
     if(refresh_actual_percentage >= refresh_percentage_from){
-        if(balance_ask[0].amount >= cost_ask && balance_bid[0].amount >= actualnum && actualnum > 0.01){
+        if(balance_ask[0].amount >= cost_ask && balance_bid[0].amount >= actualnum && actualnum > this.candySettings.minimumtrade[eachboardAsk.exchange]
+            && actualnum > this.candySettings.minimumtrade[eachboardBid.exchange]){
             ask_order = 
                 {
                     result : "BUY",

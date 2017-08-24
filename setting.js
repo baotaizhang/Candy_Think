@@ -14,7 +14,7 @@ setting.boardLimit = 1;
 
 setting.currency = "BTC";
 setting.asset = "USD";
-setting.pair = "USD_BTC";
+setting.pair = "BTC_USD";
 
 setting.bitflyer = {
     product_code : "BTC_JPY",
@@ -35,14 +35,14 @@ setting.poloniex = {
 };
 
 setting.profit = {
-    'USD_BTC' : {
+    'BTC_USD' : {
         profit_percentage : 1.008,
         profit_sum : 0.0015
     }
 };
 
 setting.refresh = {
-    'USD_BTC' : {
+    'BTC_USD' : {
         percentage_from : 1.0005,
         percentage_to : 1.005,
         bal_amt_percentage : 0.7,

@@ -4,7 +4,8 @@ var moment = require('moment');
 var execSync = require('child_process').execSync;
 var tools = require(__dirname + '/../util/tools.js');
 var inMemory = {
-    orderFailed : []
+    orderFailed : [],
+    previousBalance : {}
 };
 
 var firebaseService = require(__dirname + '/../services/firebase.js');
@@ -15,6 +16,7 @@ var exchangeapiService = require(__dirname + '/../services/exchangeapi.js');
 var agentService = require(__dirname + '/../services/agent.js');
 var candyThinkOBJ = require(__dirname + '/../indicator/candyThink.js');
 var candyRefreshOBJ = require(__dirname + '/../indicator/candyRefresh.js');
+var reportService = require(__dirname + '/../services/reporter.js');
 
 var config = require(__dirname + '/../config.js');
 var candyConfig = config.init();
@@ -25,9 +27,10 @@ var candyThink = new candyThinkOBJ(setting);
 var candyRefresh = new candyRefreshOBJ(setting); 
 var advisor = new tradingadvisor(candyThink, candyRefresh ,logger, setting);
 var firebase = new firebaseService(candyConfig, setting);
-var processor = new processorService(advisor, logger);
 var exchangeapi = new exchangeapiService(candyConfig, logger, setting);
 var agent = new agentService(firebase, setting);
+var reporter = new reportService(firebase, setting, logger, inMemory);
+var processor = new processorService(advisor, logger, inMemory, reporter);
 
 var trader = function(){
 
@@ -59,16 +62,7 @@ var trader = function(){
           
        if(request.request == 'getBalance'){
            exchangeapi.getBalance(true, function(balances){
-               balances.forEach(function(balance){		
-                   var key = Object.keys(balance)[0];		
-                   firebase.chartUpdate(setting.balancePass + key + '/' + setting.currency, 
-                   balance[key].currencyAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));		
-                   firebase.chartUpdate(setting.balancePass + key + '/' + setting.asset, 
-                   balance[key].assetAvailable ,moment().format("YYYY-MM-DD HH:mm:ss"));
-
-                   logger.lineNotification(key + "の残高は\n" + setting.currency + " : " + tools.round(balance[key].currencyAvailable, 8) + 
-                   "\n" + setting.asset + " : " + tools.round(balance[key].assetAvailable, 8) + "\nです");
-               });
+                reporter.reportBalance(balances);
            });
        }
 

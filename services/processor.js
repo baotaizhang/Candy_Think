@@ -2,10 +2,12 @@ var _ = require('underscore');
 var moment = require('moment');
 var async = require('async');
 
-var processor = function(advisor, logger){
+var processor = function(advisor, logger, inMemory, reporter){
 
     this.logger = logger;
     this.advisor = advisor;
+    this.inMemory = inMemory;
+    this.reporter = reporter;
 
     this.q = async.queue(function (task, callback) {
         this.logger.debug('Added ' + task.name + ' call to the process queue.');
@@ -24,6 +26,7 @@ processor.prototype.process = function(action, orderFailed, exchangeapi) {
     var wrapper = function(finished){
         console.log("starting process : " + action.action);
         exchangeapi.getBalance(action.getBalanceRetry, function(balances){
+            this.reporter.reportRevenue(balances);
             exchangeapi.getBoards(action.getBoardRetry, function(board){
                 exchangeapi.getFiatRate(true, function(fiatRate){
                     this.advisor.update(action, board, balances, fiatRate, orderFailed, function(orders){
@@ -49,13 +52,13 @@ processor.prototype.process = function(action, orderFailed, exchangeapi) {
     }
 };
 
-processor.prototype.orderFailedVacuum = function(action, inMemory, orderFailed, exchangeapi, process){
+processor.prototype.orderFailedVacuum = function(action, orderFailed, exchangeapi, process){
 
-    inMemory.orderFailed.push(orderFailed);
+    this.inMemory.orderFailed.push(orderFailed);
 
-    if(inMemory.orderFailed.length == 1){
+    if(this.inMemory.orderFailed.length == 1){
         setTimeout(function(){
-            process(action, inMemory.orderFailed, exchangeapi);
+            process(action, this.inMemory.orderFailed, exchangeapi);
             inMemory.orderFailed = [];
         }, 1000*30);
     }

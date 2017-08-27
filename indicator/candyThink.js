@@ -253,7 +253,6 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
                         && sellboards.exchange === orderFailed.exchange
                     )
             });
-        var test = _.where(boards, {ask_bid: "bid", exchange : orderFailed.exchange});
         //order by desc of amount
         boards_reorder = _.sortBy(boards_reorder, 'amount').reverse();
         balance_conf = _.where(balance, {currency_code: orderFailed.formatedpair.split ("_")[0],exchange : orderFailed.exchange})[0].amount;
@@ -329,7 +328,7 @@ candyThink.prototype.orderRecalcurate = function(boards,balance,fee,orderFailed,
             }
         }
         return true;
-    });
+    }.bind(this));
     if(reorder.length > 0 && num === 0){
         callback(null,reorder);
     }else if(reorder.length > 0 && num !== 0){

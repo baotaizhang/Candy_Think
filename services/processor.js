@@ -26,7 +26,7 @@ processor.prototype.process = function(action, orderFailed, exchangeapi) {
     var wrapper = function(finished){
         console.log("starting process : " + action.action);
         exchangeapi.getBalance(action.getBalanceRetry, function(balances){
-            this.reporter.reportRevenue(balances);
+            this.reporter.retainBalance(balances);
             exchangeapi.getBoards(action.getBoardRetry, function(board){
                 this.advisor.update(action.action, board, balances, orderFailed, function(orders){
                     orders.forEach(function(order){         

@@ -49,10 +49,10 @@ reporter.prototype.reportRevenue = function(balances){
                 + this.setting.asset + ': ' + assetRevenue
             );
 
-            this.firebase.chartUpdate(this.setting.balancePass + this.setting.currency + '/' , 
+            this.firebase.chartUpdate(this.setting.profitPass + this.setting.currency + '/' , 
             currencyRevenue ,moment().format("YYYY-MM-DD HH:mm:ss"));
 
-            this.firebase.chartUpdate(this.setting.balancePass + this.setting.asset + '/' , 
+            this.firebase.chartUpdate(this.setting.profitPass + this.setting.asset + '/' , 
             assetRevenue ,moment().format("YYYY-MM-DD HH:mm:ss"));
 
             balances.forEach(function(balance){		

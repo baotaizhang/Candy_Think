@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var async = require('async');
 var moment = require('moment');
+var parseError = require('parse-error');
 var execSync = require('child_process').execSync;
 var tools = require(__dirname + '/../util/tools.js');
 var inMemory = {
@@ -118,7 +119,9 @@ var trader = function(){
    })
 
    process.on('uncaughtException', function (err) {
-       logger.lineNotification("リカバリ不可のエラーが発生しました。システムを強制終了します\n" + err, function(finished){
+       var errMsg = "";
+       _.each(parseError(err), function(msg, key){ errMsg += "\n" + key + ":" + msg;}); 
+       logger.lineNotification("リカバリ不可のエラーが発生しました。システムを強制終了します\n" + errMsg, function(finished){
            var result =  execSync('forever stop candy.js');
        });
    });

@@ -72,15 +72,6 @@ var trader = function(){
         }
     })
 
-    firebase.on('orderFailedStream', function(orderFailed){
-        var action = {
-            action : 'orderFailed',
-            getBalanceRetry : true,
-            getBoardRetry : true
-        };
-        processor.orderFailedVacuum(action, inMemory, orderFailed, exchangeapi, processor.process);
-    });
-
     firebase.on('orderCompletion', function(orderStatus){  
         if(moment().diff(orderStatus.time, 'seconds') < 60){
             if(orderStatus.status == 'complete'){
@@ -91,25 +82,14 @@ var trader = function(){
         }
     });
 
+    firebase.on('orderFailedStream', function(orderFailed){
+        processor.orderFailedVacuum(actionMaker.orderFailed, inMemory, orderFailed, exchangeapi, processor.process);
+    });
+
     firebase.on('tradeStream', function(tradeStatus){
 
-        var action = {
-            action : 'not set',
-            getBalanceRetry : true,
-            getBoardRetry : false
-        };
-
         if(moment().diff(tradeStatus.time, 'seconds') < 60){
-            if(tradeStatus.system == 'think'){
-                action.action = 'refresh';
-                processor.process(action, null, exchangeapi);
-            }else if(tradeStatus.system == 'refresh'){
-                action.action = 'think';
-                processor.process(action, null, exchangeapi);
-            }else{
-                throw "想定外のtradeStatus : " + tradeStatus.system + "を検知したため、システムを停止します"
-            }
-
+            processor.process(actionMaker.trading(tradeStatus), null, exchangeapi);
         }else{
             logger.lineNotification("status :" + tradeStatus.system + "を検知しましたが、\n" +
                 "登録時刻:" + tradeStatus.time + "が\n" +
@@ -118,6 +98,7 @@ var trader = function(){
                 finished();
             });
         }
+
     })
 
     processor.on('orderStream', function(order){

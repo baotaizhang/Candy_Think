@@ -40,11 +40,6 @@ var trader = function(){
                finished();
                var result =  execSync('forever stop candy.js');
            });
-       }else if(system == 'idle'){
-           logger.lineNotification("アイドリングモードで待機します", function(finished){
-               firebase.disconnect();
-               finished();
-           });
        }else if(system == 'running'){
            logger.lineNotification("取引を開始します", function(finished){
                firebase.trading();

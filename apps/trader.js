@@ -1,7 +1,7 @@
 var _ = require('underscore');
 var async = require('async');
 var moment = require('moment');
-var execSync = require('child_process').execSync;
+var parseError = require('parse-error');
 var tools = require(__dirname + '/../util/tools.js');
 var inMemory = {
     orderFailed : [],
@@ -34,95 +34,101 @@ var processor = new processorService(advisor, logger, inMemory, reporter);
 
 var trader = function(){
 
-   firebase.on('systemStream',function(system){
-       if(system == 'stop'){
-           logger.lineNotification("緊急停止が選択されました。システムを停止します", function(finished){
-               finished();
-               var result =  execSync('forever stop candy.js');
-           });
-       }else if(system == 'running'){
-           logger.lineNotification("取引を開始します", function(finished){
-               firebase.trading();
-               // firebase.orderFailedConnection();
-               // firebase.orderFailedCount();
-               firebase.requestConnection();
-               finished();
-           });
-       }else{
-           throw "不正なモードが選択されています";
-       }
-   });
+    firebase.on('systemStream',function(system){
+        if(system == 'stop'){
+            logger.lineNotification("緊急停止が選択されました。システムを停止します", function(finished){
+                finished();
+                process.exit(0);
+            });
+        }else if(system == 'running'){
+            logger.lineNotification("取引を開始します", function(finished){
+                firebase.trading();
+                firebase.orderFailedConnection();
+                firebase.orderFailedCount();
+                firebase.requestConnection();
+                firebase.orderCompletion();
+                finished();
+            });
+        }else{
+            throw "不正なモードが選択されています";
+        }
+    });
 
-   firebase.on('lineRequest', function(request){
-          
-       if(request.request == 'getBalance'){
-           exchangeapi.getBalance(true, function(balances){
-                reporter.reportBalance(balances);
-           });
-       }
+    process.on('uncaughtException', function (err) {
+        var errMsg = "";
+        _.each(parseError(err), function(msg, key){ errMsg += "\n" + key + ":" + msg;}); 
+        logger.lineNotification("リカバリ不可のエラーが発生しました。システムを強制終了します\n" + errMsg, function(finished){
+            process.exit(1);
+        });
+    });
 
-   })
+    firebase.on('lineRequest', function(request){        
+        if(moment().diff(request.time, 'seconds') < 60){
+            if(request.request == 'getBalance'){
+                exchangeapi.getBalance(true, function(balances){
+                    reporter.reportBalance(balances);
+                });
+            }
+        }
+    })
 
+    firebase.on('orderFailedStream', function(orderFailed){
+        var action = {
+            action : 'orderFailed',
+            getBalanceRetry : true,
+            getBoardRetry : true
+        };
+        processor.orderFailedVacuum(action, inMemory, orderFailed, exchangeapi, processor.process);
+    });
 
-   firebase.on('orderFailedStream', function(orderFailed){
+    firebase.on('orderCompletion', function(orderStatus){  
+        if(moment().diff(orderStatus.time, 'seconds') < 60){
+            if(orderStatus.status == 'complete'){
+                exchangeapi.getBalance(true, function(balances){
+                    reporter.reportRevenue(balances);
+                });
+            }
+        }
+    });
 
-       var action = {
-           action : 'orderFailed',
-           getBalanceRetry : true,
-           getBoardRetry : true
-       };
+    firebase.on('tradeStream', function(tradeStatus){
 
-       processor.orderFailedVacuum(action, inMemory, orderFailed, exchangeapi, processor.process);
-   });
+        var action = {
+            action : 'not set',
+            getBalanceRetry : true,
+            getBoardRetry : false
+        };
 
-   firebase.on('tradeStream', function(tradeStatus){
-
-       var action = {
-           action : 'not set',
-           getBalanceRetry : true,
-           getBoardRetry : false
-       };
-
-       if(moment().diff(tradeStatus.time, 'seconds') < 60){
-           if(tradeStatus.system == 'think'){
-               action.action = 'refresh';
-               processor.process(action, null, exchangeapi);
-           }else if(tradeStatus.system == 'refresh'){
-               action.action = 'think';
-               processor.process(action, null, exchangeapi);
-           }else{
-               throw "想定外のtradeStatus : " + tradeStatus.system + "を検知したため、システムを停止します"
-           }
+        if(moment().diff(tradeStatus.time, 'seconds') < 60){
+            if(tradeStatus.system == 'think'){
+                action.action = 'refresh';
+                processor.process(action, null, exchangeapi);
+            }else if(tradeStatus.system == 'refresh'){
+                action.action = 'think';
+                processor.process(action, null, exchangeapi);
+            }else{
+                throw "想定外のtradeStatus : " + tradeStatus.system + "を検知したため、システムを停止します"
+            }
 
         }else{
-           logger.lineNotification("status :" + tradeStatus.system + "を検知しましたが、\n" +
-               "登録時刻:" + tradeStatus.time + "が\n" +
-               "現在時刻:" + moment().format("YYYY-MM-DD HH:mm:ss") + "\n" + 
-               "と一分以上ずれがあるため、実行しません" , function(finished){
-               finished();
-           });
+            logger.lineNotification("status :" + tradeStatus.system + "を検知しましたが、\n" +
+                "登録時刻:" + tradeStatus.time + "が\n" +
+                "現在時刻:" + moment().format("YYYY-MM-DD HH:mm:ss") + "\n" + 
+                "と一分以上ずれがあるため、実行しません" , function(finished){
+                finished();
+            });
         }
-   })
+    })
 
-   processor.on('orderStream', function(order){
-       agent.order(order); 
-   });
+    processor.on('orderStream', function(order){
+        agent.order(order); 
+    });
 
-   advisor.on('status', function(action){
-       firebase.statusUpdate(action.action);
-   })
+    advisor.on('status', function(action){
+        firebase.statusUpdate(action);
+    })
 
-   process.on('uncaughtException', function (err) {
-       logger.lineNotification("リカバリ不可のエラーが発生しました。システムを強制終了します\n" + err, function(finished){
-           var result =  execSync('forever stop candy.js');
-       });
-   });
-
-   process.on('exit', function (code) {
-       console.log('exit code : ' + code);
-   });
-
-   _.bindAll(this, 'start');
+    _.bindAll(this, 'start');
 
 };
 
@@ -133,10 +139,9 @@ Util.inherits(trader, EventEmitter);
 //---EventEmitter Setup
 
 trader.prototype.start = function() {
-   firebase.systemConnection();
+    firebase.systemConnection();
 };
 
 var traderApp = new trader();
 
 module.exports = traderApp;
-

@@ -27,7 +27,8 @@ var firebase = function(candyConfig,setting){
         'disconnect',
         'orderFailedConnection',
         'orderFailedCount',
-        'requestConnection'
+        'requestConnection',
+        'orderCompletion'
    );
 
 };
@@ -134,6 +135,15 @@ firebase.prototype.trading = function(){
         console.log("The read failed: " + errorObject.code);
     });
 };
+
+firebase.prototype.orderCompletion = function(){
+    this.FirebaseAccess.child(this.setting.orderCompletionPass).on("value", function(snapshot){
+        this.emit('orderCompletion', snapshot.val());
+    }.bind(this), function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+    });
+};
+
 
 firebase.prototype.statusUpdate = function(action){
     this.FirebaseAccess.child(this.setting.statusPass).set({

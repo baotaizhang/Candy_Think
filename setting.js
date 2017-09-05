@@ -8,6 +8,8 @@ setting.orderPass = env + '/think/order';
 setting.balancePass = env + '/think/chart/balance/';
 setting.statusPass = env + '/common/system/tradestatus'
 setting.requestPass = env + '/common/system/Request/'
+setting.profitPass = env + '/think/chart/profit/';
+setting.orderCompletionPass = env + '/common/system/orderstatus';
 
 setting.space = 0.001;
 setting.boardLimit = 1;

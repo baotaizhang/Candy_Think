@@ -38,10 +38,10 @@ actionMaker.prototype.trading = function(tradeStatus){
 
     actionIndex += 1;
 
-    if(actionIndex == this.setting.action.length - 1){
+    if(actionIndex == this.setting.action.length){
         actionIndex = 0;
         pairIndex += 1;
-        if(pairIndex == this.setting.pair.length - 1){
+        if(pairIndex == this.setting.pairs.length){
             pairIndex = 0;
         }
     }

@@ -55,18 +55,18 @@ advisor.prototype.update = function(action, boards, balance, fiatRate, orderfail
         this.indicator.arbitrage.arbitrage(candyThinkWay.boards, candyThinkWay.balance, candyThinkWay.fee, function(orders, revenue){
 
             var estimatedRevenue = tools.round(revenue, 8);
-            console.log('想定利益は' + estimatedRevenue + 'USDです');
+            console.log('想定利益は' + estimatedRevenue + this.setting.asset + 'です');
 
             if(orders.length == 0){
                 callback(new Array());
                 this.emit('status', action);
             }else if(estimatedRevenue < 0){
-                this.logger.lineNotification("利益額" + tools.round(revenue, 8) + "USDはリスク回避額" + this.setting.space + "USDに満たないため、オーダーは実施しません");
+                this.logger.lineNotification("利益額" + tools.round(revenue, 8) + this.setting.asset + "はリスク回避額" + this.setting.space +  this.setting.asset + "に満たないため、オーダーは実施しません");
                 this.emit('status', action);
                 callback(new Array());
             }else if(orders && estimatedRevenue >= 0){
                 callback(orders);
-                this.logger.lineNotification("予想最高利益額は" + estimatedRevenue + "USDです");
+                this.logger.lineNotification("予想最高利益額は" + estimatedRevenue + this.setting.asset + "です");
             }else{
                 throw "オーダーの形式に誤りがあります";
             }

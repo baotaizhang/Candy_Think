@@ -2,13 +2,14 @@ var _ = require('underscore');
 var async = require('async');
 var tools = require(__dirname + '/../util/tools.js');
 
-var advisor = function(candyThink,candyRefresh, logger, setting) {
+var advisor = function(candyThink,candyRefresh, logger, setting, converter) {
 
     this.logger = logger;
     this.indicator = {};
     this.indicator.arbitrage = candyThink;
     this.indicator.refresh = candyRefresh;
     this.setting = setting;
+    this.converter = converter;
 
   _.bindAll(this, 'update');
 
@@ -30,7 +31,7 @@ advisor.prototype.update = function(action, boards, balance, fiatRate, orderfail
 
     // convert data with candyThink way.
     // ******************************************************************
-    var candyThinkWay = convert(boards, balance, fiatRate, this.setting);
+    var candyThinkWay = this.convert(boards, balance, fiatRate);
     // ******************************************************************
     
     if(orderfaileds){

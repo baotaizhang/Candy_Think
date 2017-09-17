@@ -7,7 +7,7 @@ var converter = function(setting){
 
 };
 
-converter.prototype.formatFiat = function(exchange, amount, ask_bid, asset, fiatRate){
+var formatFiat = function(exchange, amount, ask_bid, asset, fiatRate){
 
     setting = this.setting[exchange];
     if(setting.format){
@@ -21,7 +21,7 @@ converter.prototype.formatFiat = function(exchange, amount, ask_bid, asset, fiat
 
 }
 
-converter.prototype.convert = function(groupedBoards, balances, pair, fiatRate){
+converter.prototype.convert = function(groupedBoards, balances, fiatRate){
 
     var candyThinkWay = {
     
@@ -42,7 +42,7 @@ converter.prototype.convert = function(groupedBoards, balances, pair, fiatRate){
             exchange_type : exchange_type_count,
             exchange : key,
             currency_code : setting.currency,
-            //amount : formatUSD(balance[key].currencyAvailable, "ask", setting[key].currency, fiatRate)
+            //amount : formatfiat(key, balance[key].currencyAvailable, "ask", setting[key].currency, fiatRate)
             amount : 1000000
 
         });

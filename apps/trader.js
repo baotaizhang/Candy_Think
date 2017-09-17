@@ -17,15 +17,17 @@ var agentService = require(__dirname + '/../services/agent.js');
 var candyThinkOBJ = require(__dirname + '/../indicator/candyThink.js');
 var candyRefreshOBJ = require(__dirname + '/../indicator/candyRefresh.js');
 var reportService = require(__dirname + '/../services/reporter.js');
+var convertService = require(__dirname + '/../services/converter.js');
 
 var config = require(__dirname + '/../config.js');
 var candyConfig = config.init();
 var setting = require('../setting.js');
 
 var logger = new loggingservice('trader');
+var converter = new converter(setting);
 var candyThink = new candyThinkOBJ(setting);
 var candyRefresh = new candyRefreshOBJ(setting); 
-var advisor = new tradingadvisor(candyThink, candyRefresh ,logger, setting);
+var advisor = new tradingadvisor(candyThink, candyRefresh ,logger, setting, converter);
 var firebase = new firebaseService(candyConfig, setting);
 var exchangeapi = new exchangeapiService(candyConfig, logger, setting);
 var agent = new agentService(firebase, setting);

@@ -21,9 +21,12 @@ actionMaker.prototype.orderFailed = function(){
 
 actionMaker.prototype.trading = function(tradeStatus){
 
+    this.setting.bitflyer = this.setting[this.setting.pair[pairIndex]].bitflyer;
+    this.setting.poloniex = this.setting[this.setting.pair[pairIndex]].poloniex;
+    this.setting.kraken = this.setting[this.setting.pair[pairIndex]].kraken;
+
     var action = {
         action : this.setting.action[actionIndex],
-        pair : this.setting.pair[pairIndex],
         getBalanceRetry : true,
         getBoardRetry : true
     }

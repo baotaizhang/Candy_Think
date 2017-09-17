@@ -7,11 +7,7 @@ var Kraken = require(__dirname + '/../library/kraken.js');
 var exchange = function(candyConfig, logger, setting) {
 
     this.kraken = new Kraken(candyConfig.kraken.apiKey, candyConfig.kraken.secret, candyConfig.kraken.otp);
-    this.currencyPair = {
-        pair: setting.kraken.pair,
-        currency: setting.kraken.currency,
-        asset: setting.kraken.asset
-    };
+    this.setting = setting;
     this.q = async.queue(function (task, callback) {
         this.logger.debug('Added ' + task.name + ' API call to the queue.');
         this.logger.debug('There are currently ' + this.q.running() + ' running jobs and ' + this.q.length() + ' jobs in queue.');
@@ -99,8 +95,8 @@ exchange.prototype.getBalance = function(retry, cb){
 
     var wrapper = function(finished){
 
-        var asset = this.currencyPair.asset;
-        var currency = this.currencyPair.currency;
+        var asset = this.setting.kraken.asset;
+        var currency = this.setting.kraken.currency;
 
         var handler = function(err, data){
 
@@ -146,7 +142,7 @@ exchange.prototype.getTransactionFee = function(retry, cb) {
     var args = arguments;
 
     var wrapper = function(finished) {
-        var pair = this.currencyPair.pair;
+        var pair = this.setting.kraken.pair;
 
         var handler = function(err, data) {
 
@@ -175,7 +171,7 @@ exchange.prototype.getBoard = function(retry, cb) {
     var args = arguments;
 
     var wrapper = function(finished) {
-        var pair = this.currencyPair.pair;
+        var pair = this.setting.kraken.pair;
 
         var handler = function(err, data) {
 

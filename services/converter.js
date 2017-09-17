@@ -1,4 +1,5 @@
 var _ = require('underscore');
+var tools = require(__dirname + '/../util/tools.js');
 
 var converter = function(setting){
 
@@ -7,7 +8,7 @@ var converter = function(setting){
 
 };
 
-var formatFiat = function(exchange, amount, ask_bid, asset, fiatRate){
+converter.prototype.formatFiat = function(exchange, amount, ask_bid, asset, fiatRate){
 
     setting = this.setting[exchange];
     if(setting.format){
@@ -41,8 +42,8 @@ converter.prototype.convert = function(groupedBoards, balances, fiatRate){
         
             exchange_type : exchange_type_count,
             exchange : key,
-            currency_code : setting.currency,
-            //amount : formatfiat(key, balance[key].currencyAvailable, "ask", setting[key].currency, fiatRate)
+            currency_code : this.setting.currency,
+            //amount : this.formatFiat(key, balance[key].currencyAvailable, "ask", this.setting[key].currency, fiatRate)
             amount : 1000000
 
         });
@@ -51,8 +52,8 @@ converter.prototype.convert = function(groupedBoards, balances, fiatRate){
         
             exchange_type : exchange_type_count,
             exchange : key,
-            currency_code : setting.asset,
-            //amount : formatUSD(balance[key].assetAvailable, "ask", setting[key].asset, fiatRate)
+            currency_code : this.setting.asset,
+            //amount : this.formatFiat(key, balance[key].assetAvailable, "ask", this.setting[key].asset, fiatRate)
             amount : 1000000
         
         });
@@ -67,7 +68,7 @@ converter.prototype.convert = function(groupedBoards, balances, fiatRate){
 
         exchange_type_count++;
     
-    });
+    }.bind(this));
 
     var candyThinkBoards = [];
     var no = 0;
@@ -84,10 +85,10 @@ converter.prototype.convert = function(groupedBoards, balances, fiatRate){
                             exchange : board.exchange,
                             ask_bid : ask_bid.substr(0,3),
                             num : order.size,
-                            amount : formatUSD(order.price, ask_bid.substr(0,3), setting[board.exchange].asset, fiatRate),
+                            amount : this.formatFiat(board.exchange, order.price, ask_bid.substr(0,3), this.setting[board.exchange].asset, fiatRate),
                             actualAmount : order.price,
-                            product_code : setting.pair,
-                            specific_product_code : setting[board.exchange].product_code,
+                            product_code : this.setting.pair,
+                            specific_product_code : this.setting[board.exchange].product_code,
                             time : board.time
                         })
 
@@ -101,8 +102,8 @@ converter.prototype.convert = function(groupedBoards, balances, fiatRate){
                             num : order[1],
                             amount : order[0],
                             actualAmount : order[0],
-                            product_code : setting.pair,
-                            specific_product_code : setting[board.exchange].pair,
+                            product_code : this.setting.pair,
+                            specific_product_code : this.setting[board.exchange].pair,
                             time : board.time
                         })
                     }else if(board.exchange === 'poloniex'){
@@ -115,18 +116,18 @@ converter.prototype.convert = function(groupedBoards, balances, fiatRate){
                             num : order[1],
                             amount : order[0],
                             actualAmount : order[0],
-                            product_code : setting.pair,
-                            specific_product_code : setting[board.exchange].pair,
+                            product_code : this.setting.pair,
+                            specific_product_code : this.setting[board.exchange].pair,
                             time : board.time
                         })
 
                     }
-                });
+                }.bind(this));
             }
-        });
-    });
+        }.bind(this));
+    }.bind(this));
     return candyThinkWay;
 
 }
 
-module.exports = actionMaker;
+module.exports = converter;

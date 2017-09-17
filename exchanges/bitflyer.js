@@ -6,11 +6,7 @@ var bitflyer = require(__dirname + '/../library/bitflyer.js');
 var exchange = function(candyConfig, logger, setting) {
 
     this.bitflyer = new bitflyer(candyConfig.bitflyer.apiKey, candyConfig.bitflyer.secret);
-    this.currencyPair = {
-        product_code: setting.bitflyer.product_code,
-        currency: setting.bitflyer.currency,
-        asset: setting.bitflyer.asset
-    };
+    this.setting = setting;
     this.q = async.queue(function (task, callback) {
         this.logger.debug('Added ' + task.name + ' API call to the queue.');
         this.logger.debug('There are currently ' + this.q.running() + ' running jobs and ' + this.q.length() + ' jobs in queue.');
@@ -96,8 +92,8 @@ exchange.prototype.getBalance = function(retry, cb){
 
     var wrapper = function(finished){
 
-        var asset = this.currencyPair.asset;
-        var currency = this.currencyPair.currency;
+        var asset = this.setting.bitflyer.asset;
+        var currency = this.setting.bitflyer.currency;
 
         var handler = function(err, data){
 
@@ -148,7 +144,7 @@ exchange.prototype.getTransactionFee = function(retry, cb) {
     var args = arguments;
 
     var wrapper = function(finished) {
-        var pair = this.currencyPair.product_code;
+        var pair = this.setting.bitflyer.product_code;
 
         var handler = function(err, data) {
 
@@ -175,7 +171,7 @@ exchange.prototype.getBoard = function(retry, cb) {
     var args = arguments;
 
     var wrapper = function(finished) {
-        var pair = this.currencyPair.product_code;
+        var pair = this.setting.bitflyer.product_code;
 
         var handler = function(err, data) {
 

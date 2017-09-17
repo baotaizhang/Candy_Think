@@ -31,7 +31,7 @@ advisor.prototype.update = function(action, boards, balance, fiatRate, orderfail
 
     // convert data with candyThink way.
     // ******************************************************************
-    var candyThinkWay = this.convert(boards, balance, fiatRate);
+    var candyThinkWay = this.converter.convert(boards, balance, fiatRate);
     // ******************************************************************
     
     if(orderfaileds){

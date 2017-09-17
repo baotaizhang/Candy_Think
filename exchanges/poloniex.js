@@ -6,11 +6,7 @@ var poloniex = require(__dirname + '/../library/poloniex.js');
 var exchange = function(candyConfig, logger, setting) {
 
     this.poloniex = new poloniex(candyConfig.poloniex.apiKey, candyConfig.poloniex.secret);
-    this.currencyPair = {
-        pair: setting.poloniex.pair,
-        currency: setting.poloniex.currency,
-        asset: setting.poloniex.asset
-    };
+    this.setting = setting;
     this.q = async.queue(function (task, callback) {
         this.logger.debug('Added ' + task.name + ' API call to the queue.');
         this.logger.debug('There are currently ' + this.q.running() + ' running jobs and ' + this.q.length() + ' jobs in queue.');
@@ -81,8 +77,8 @@ exchange.prototype.getBalance = function(retry, cb){
 
     var wrapper = function(finished){
 
-        var asset = this.currencyPair.asset;
-        var currency = this.currencyPair.currency;
+        var asset = this.setting.poloniex.asset;
+        var currency = this.setting.poloniex.currency;
 
         var handler = function(err, data){
 
@@ -133,7 +129,7 @@ exchange.prototype.getTransactionFee = function(retry, cb) {
     var args = arguments;
 
     var wrapper = function(finished) {
-        var pair = this.currencyPair.pair;
+        var pair = this.setting.poloniex.pair;
 
         var handler = function(err, data) {
 
@@ -161,8 +157,8 @@ exchange.prototype.getBoard = function(retry, cb) {
 
     var wrapper = function(finished) {
 
-        var currency = this.currencyPair.currency;
-        var asset = this.currencyPair.asset;
+        var currency = this.setting.poloniex.currency;
+        var asset = this.setting.poloniex.asset;
 
         var handler = function(err, data) {
 

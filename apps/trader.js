@@ -18,13 +18,14 @@ var candyThinkOBJ = require(__dirname + '/../indicator/candyThink.js');
 var candyRefreshOBJ = require(__dirname + '/../indicator/candyRefresh.js');
 var reportService = require(__dirname + '/../services/reporter.js');
 var convertService = require(__dirname + '/../services/converter.js');
+var actionMakerService = require(__dirname + '/../services/actionMaker.js');
 
 var config = require(__dirname + '/../config.js');
 var candyConfig = config.init();
 var setting = require('../setting.js');
 
 var logger = new loggingservice('trader');
-var converter = new converter(setting);
+var converter = new convertService(setting);
 var candyThink = new candyThinkOBJ(setting);
 var candyRefresh = new candyRefreshOBJ(setting); 
 var advisor = new tradingadvisor(candyThink, candyRefresh ,logger, setting, converter);
@@ -33,6 +34,7 @@ var exchangeapi = new exchangeapiService(candyConfig, logger, setting);
 var agent = new agentService(firebase, setting);
 var reporter = new reportService(firebase, setting, logger, inMemory);
 var processor = new processorService(advisor, logger, inMemory, reporter);
+var actionMaker = new actionMakerService(setting);
 
 var trader = function(){
 

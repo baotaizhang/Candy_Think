@@ -18,11 +18,11 @@ var api = function(candyConfig, logger, setting){
         {
             api:bitflyer_access, 
             name:"bitflyer"
-        },
+        }/*,
         {
             api:poloniex_access, 
             name:"poloniex"
-        }
+        }*/
     ];
 
     _.bindAll(this, 

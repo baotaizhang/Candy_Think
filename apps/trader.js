@@ -97,10 +97,10 @@ var trader = function(){
         };
 
         if(moment().diff(tradeStatus.time, 'seconds') < 60){
-            if(tradeStatus.system == 'think'){
+            if(tradeStatus.action == 'think'){
                 action.action = 'refresh';
                 processor.process(action, null, exchangeapi);
-            }else if(tradeStatus.system == 'refresh'){
+            }else if(tradeStatus.action == 'refresh'){
                 action.action = 'think';
                 processor.process(action, null, exchangeapi);
             }else{
